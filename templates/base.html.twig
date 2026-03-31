@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        {% include '_head.html.twig' %}
+
+        <title>{% block title %}Dashboard{% endblock %} | Time Tracking</title>
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
+    </head>
+
+    <body>
+    <div class="app-shell" data-controller="layout">
+        {% if app.user %}
+            <header class="navbar navbar-expand-lg bg-white border-bottom navbar-light" data-bs-theme="light">
+                <div class="container-fluid">
+                    <a class="navbar-brand d-inline-flex align-items-center gap-2 fw-semibold" href="{{ path('_home') }}">
+                        {% if settings.logoFilename %}
+                            <img
+                                src="{{ asset('uploads/branding/' ~ settings.logoFilename) }}"
+                                alt="{{ 'app.title'|trans }}"
+                                style="height: 28px;width:auto;"
+                                class="me-2"
+                            >
+                        {% endif %}
+                        TimeTracker
+                    </a>
+
+                    <button class="navbar-toggler" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#sidebarNav"
+                            aria-controls="sidebarNav" aria-expanded="false" aria-label="Menü">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="ms-auto align-items-center gap-4 d-none d-lg-flex">
+                        <a href="{{ path('_profile') }}"
+                           class="text-muted text-decoration-none">
+                            <i class="fa-regular fa-user me-1"></i>{{ app.user.name }}
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('_logout') }}">
+                            <i class="fa-solid fa-right-from-bracket me-1"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </header>
+        {% endif %}
+
+        <div class="content">
+            {% if app.user %}
+                {% include '_navbar.html.twig' %}
+            {% endif %}
+
+            <main class="main" data-layout-target="main">
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : 'info') }} mb-3">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+
+        <div class="backdrop" hidden data-layout-target="backdrop" data-action="click->layout#closeSidebar"></div>
+    </div>
+    </body>
+</html>

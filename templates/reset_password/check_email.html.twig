@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}E-Mail versendet{% endblock %}
+
+{% block body %}
+    <div class="page-center">
+        <div class="card shadow-sm auth-card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h1 class="h3 mb-1">E-Mail versendet</h1>
+                    <p class="text-muted mb-0">
+                        Wenn ein Benutzerkonto mit dieser E-Mail-Adresse existiert, wurde soeben eine Nachricht mit einem Link
+                        zum Zurücksetzen des Passworts versendet.
+                    </p>
+                </div>
+
+                <div class="alert alert-info mb-3">
+                    <i class="fa-regular fa-clock me-1"></i>
+                    Der Link ist gültig für
+                    {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center gap-2">
+                    <a class="small text-decoration-none" href="{{ path('app_forgot_password_request') }}">
+                        Erneut versuchen
+                    </a>
+
+                    <a class="btn btn-primary" href="{{ path('_login') }}">
+                        <i class="fa-solid fa-right-to-bracket me-1"></i>
+                        Zurück zum Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

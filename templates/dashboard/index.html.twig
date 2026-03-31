@@ -1,0 +1,216 @@
+{# templates/dashboard/index.html.twig (oder dein Dashboard-Template) #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+    <div class="container-fluid px-0">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">Dashboard</h1>
+                <p class="text-muted mb-0">Start/Stop und Überblick über deine Zeiten.</p>
+            </div>
+        </div>
+
+        {# Today / Start-Stop #}
+        <div class="card shadow-sm mb-3">
+            <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="text-muted small">Heute gearbeitet</div>
+                    <div class="display-6 fw-bold lh-1 mt-1">{{ todayWorked }}</div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    {% if running %}
+                        <form method="post" action="{{ path('_time_stop') }}" class="m-0">
+                            <input type="hidden" name="_token" value="{{ csrf_token('time_stop') }}">
+                            <button class="btn btn-danger" type="submit">
+                                <i class="fa-solid fa-stop me-1"></i>
+                                Stop
+                            </button>
+                        </form>
+                    {% else %}
+                        <form method="post" action="{{ path('_time_start') }}" class="m-0">
+                            <input type="hidden" name="_token" value="{{ csrf_token('time_start') }}">
+                            <button class="btn btn-success" type="submit">
+                                <i class="fa-solid fa-play me-1"></i>
+                                Start
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# KPI cards #}
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Woche</div>
+                        <div class="h4 fw-bold mt-2 mb-1">{{ weekIst }}</div>
+                        <div class="text-muted small">Soll: {{ weekSoll }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Monat</div>
+                        <div class="h4 fw-bold mt-2 mb-1">{{ monthIst }}</div>
+                        <div class="text-muted small">Soll: {{ monthSoll }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Status</div>
+
+                        {% if running %}
+                            <div class="h5 fw-bold mt-2 mb-1">
+                                <span class="badge text-bg-success">
+                                    <i class="fa-regular fa-circle-play me-1"></i>
+                                    Läuft
+                                </span>
+                            </div>
+                            <div class="text-muted small">
+                                seit {{ running.startedAt|date('H:i') }}
+                            </div>
+                        {% else %}
+                            <div class="h5 fw-bold mt-2 mb-1">
+                                <span class="badge text-bg-secondary">
+                                    <i class="fa-regular fa-circle-stop me-1"></i>
+                                    Gestoppt
+                                </span>
+                            </div>
+                            <div class="text-muted small">—</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <div class="h5 mb-0">Abwesenheiten ({{ "now"|date("Y") }})</div>
+                                <div class="text-muted small">Kontingent / Genehmigt / Pending</div>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                <tr class="text-muted small">
+                                    <th>Typ</th>
+                                    <th class="text-end">Kontingent</th>
+                                    <th class="text-end">Genehmigt</th>
+                                    <th class="text-end">Pending</th>
+                                    <th class="text-end">Verbleibend</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for s in absenceSummaries %}
+                                    {% set t = s.type %}
+                                    <tr>
+                                        <td>
+                                            <div class="fw-semibold">{{ t.name }}</div>
+                                            <div class="text-muted small">{{ t.keyName }}</div>
+                                        </td>
+
+                                        <td class="text-end">
+                                            {% if not t.requiresQuota %}
+                                                —
+                                            {% else %}
+                                                {{ s.quotaDays is null ? '∞' : s.quotaDays }}
+                                            {% endif %}
+                                        </td>
+
+                                        <td class="text-end">
+                                            <span class="badge text-bg-success">{{ s.approvedDays }}</span>
+                                        </td>
+
+                                        <td class="text-end">
+                                            <span class="badge text-bg-warning">{{ s.pendingDays }}</span>
+                                        </td>
+
+                                        <td class="text-end">
+                                            {% if not t.requiresQuota %}
+                                                —
+                                            {% else %}
+                                                {{ s.remainingDays is null ? '∞' : s.remainingDays }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Letzte Abwesenheit</div>
+
+                        {% if lastAbsence %}
+                            <div class="h5 fw-bold mt-2 mb-1">
+                                {{ lastAbsence.type.name }}
+                                {% if lastAbsence.status == absenceRequestPending %}
+                                    <span class="badge text-bg-warning ms-1">Pending</span>
+                                {% else %}
+                                    <span class="badge text-bg-success ms-1">Approved</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted small">
+                                {{ lastAbsence.startDate|date('d.m.Y') }} – {{ lastAbsence.endDate|date('d.m.Y') }}
+                            </div>
+                        {% else %}
+                            <div class="text-muted mt-2">—</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Nächste Abwesenheit</div>
+
+                        {% if currentAbsence %}
+                            <div class="h5 fw-bold mt-2 mb-1">
+                                {{ currentAbsence.type.name }}
+                                <span class="badge text-bg-info ms-1">Läuft</span>
+                            </div>
+                            <div class="text-muted small">
+                                {{ currentAbsence.startDate|date('d.m.Y') }} – {{ currentAbsence.endDate|date('d.m.Y') }}
+                            </div>
+
+                        {% elseif nextAbsence %}
+                            <div class="h5 fw-bold mt-2 mb-1">
+                                {{ nextAbsence.type.name }}
+                                {% if nextAbsence.status == absenceRequestPending %}
+                                    <span class="badge text-bg-warning ms-1">Pending</span>
+                                {% else %}
+                                    <span class="badge text-bg-success ms-1">Approved</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted small">
+                                {{ nextAbsence.startDate|date('d.m.Y') }} – {{ nextAbsence.endDate|date('d.m.Y') }}
+                            </div>
+                        {% else %}
+                            <div class="text-muted mt-2">—</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

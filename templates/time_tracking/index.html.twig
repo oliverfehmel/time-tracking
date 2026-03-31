@@ -1,0 +1,145 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Time Tracking{% endblock %}
+
+{% block body %}
+    <div class="tt-page" data-controller="tt-open-month" data-tt-open-month-open-month-value="{{ open_month ?? '' }}">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">Time Tracking</h1>
+                <p class="text-muted mb-0">Übersicht nach Monat und Tag (nur Ansicht).</p>
+            </div>
+
+            <nav class="d-flex flex-wrap gap-2" aria-label="Jahresauswahl">
+                {% for y in years %}
+                    <a class="btn btn-sm {{ y == year ? 'btn-dark' : 'btn-outline-secondary' }}" href="{{ path('_time_index', {year: y}) }}">
+                        {{ y }}
+                    </a>
+                {% endfor %}
+            </nav>
+        </div>
+
+        {% if months is empty %}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="mb-0 text-muted">
+                        Für {{ year }} wurden noch keine Zeiten erfasst.
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="d-grid gap-3">
+                {% for m in months %}
+                    {% set monthNumber = m.start|date('n') %}
+                    <details class="card shadow-sm tt-month" data-tt-open-month-target="month" data-month="{{ monthNumber }}"
+                             {% if open_month is defined and open_month == monthNumber %}open{% endif %}
+                             id="tt-month-{{ year }}-{{ monthNumber }}">
+                        <summary class="card-body tt-month-summary">
+                            <div class="tt-month-left">
+                                <div class="tt-month-title">
+                                    {{ ('month.' ~ m.start|date('n'))|trans }} {{ m.start|date('Y') }}
+                                </div>
+                                <div class="tt-month-meta">Monat</div>
+                            </div>
+
+                            <div class="tt-month-right">
+                                <div class="tt-kpi">
+                                    <div class="tt-kpi-label">Ist</div>
+                                    <div class="tt-kpi-value">{{ m.ist }}</div>
+                                </div>
+                                <div class="tt-kpi">
+                                    <div class="tt-kpi-label">Soll</div>
+                                    <div class="tt-kpi-value">{{ m.soll }}</div>
+                                </div>
+                                <div class="tt-kpi">
+                                    <div class="tt-kpi-label">Δ Soll–Ist</div>
+                                    <div class="tt-kpi-value {{ m.deltaSeconds < 0 ? 'tt-delta-neg' : (m.deltaSeconds > 0 ? 'tt-delta-pos' : 'tt-delta-zero') }}">
+                                        {{ m.delta }}
+                                    </div>
+                                </div>
+                            </div>
+                        </summary>
+
+                        <div class="tt-month-body px-3 pb-3 pt-0">
+                            {% if m.days is empty %}
+                                <div class="text-muted py-2">
+                                    Keine Einträge in diesem Monat.
+                                </div>
+                            {% else %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover align-middle mb-0 tt-table">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>Tag</th>
+                                            <th>Start</th>
+                                            <th>Ende</th>
+                                            <th class="text-end">Ist</th>
+                                            <th class="text-end">Soll</th>
+                                            <th class="text-end">Δ</th>
+                                            {% if settings.usersAreAllowedToChangeTimeEntries %}
+                                            <th class="text-end">Aktion</th>
+                                            {% endif %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for d in m.days %}
+                                            {% set isOffDay = (d.soll == '0:00') or d.holiday or d.absence %}
+
+                                            <tr class="tt-day
+                                                {{ isOffDay ? 'tt-day--offday' : 'tt-day--workday' }}
+                                                {{ d.holiday ? 'tt-day--holiday' : '' }}
+                                                {{ d.absence ? 'tt-day--absence' : '' }}
+                                                {{ d.rowClass ?? '' }}
+                                            ">
+                                                <td>
+                                                    <div class="fw-semibold">{{ d.date|date('d.m.Y') }}</div>
+                                                    <div class="text-muted small">
+                                                        {{ d.date|date('D') }}
+
+                                                        {% if d.holiday %}
+                                                            <span class="badge text-bg-info ms-2">
+                                                                <i class="fa-regular fa-calendar me-1"></i>Feiertag
+                                                            </span>
+                                                        {% elseif d.absence %}
+                                                            <span class="badge text-bg-warning ms-2">
+                                                                <i class="fa-regular fa-circle-user me-1"></i>{{ d.absenceTypeName ?: 'Abwesenheit' }}
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                </td>
+                                                <td>{{ d.start ? d.start|date('H:i') : '—' }}</td>
+                                                <td>{{ d.end ? d.end|date('H:i') : '—' }}</td>
+                                                <td class="text-end">{{ d.ist }}</td>
+                                                <td class="text-end">{{ d.soll }}</td>
+                                                <td class="text-end">
+                                                    <span class="{{ d.deltaSeconds < 0 ? 'tt-delta-neg' : (d.deltaSeconds > 0 ? 'tt-delta-pos' : 'tt-delta-zero') }}">
+                                                        {{ d.delta }}
+                                                    </span>
+                                                </td>
+
+                                                {% if settings.usersAreAllowedToChangeTimeEntries %}
+                                                <td class="text-end">
+                                                    {% if d.editable %}
+                                                        <a class="btn btn-sm btn-outline-secondary"
+                                                           href="{{ path('_time_day', {date: d.date|date('Y-m-d')}) }}">
+                                                            <i class="fa-regular fa-pen-to-square me-1"></i>
+                                                            Bearbeiten
+                                                        </a>
+                                                    {% else %}
+                                                        <span class="text-muted">—</span>
+                                                    {% endif %}
+                                                </td>
+                                                {% endif %}
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </details>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

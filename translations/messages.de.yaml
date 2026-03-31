@@ -1,0 +1,158 @@
+month:
+    "1": Januar
+    "2": Februar
+    "3": März
+    "4": April
+    "5": Mai
+    "6": Juni
+    "7": Juli
+    "8": August
+    "9": September
+    "10": Oktober
+    "11": November
+    "12": Dezember
+    January: Januar
+    February: Februar
+    March: März
+    April: April
+    May: Mai
+    June: Juni
+    July: Juli
+    August: August
+    September: September
+    October: Oktober
+    November: November
+    December: Dezember
+    Jan: Jan
+    Feb: Feb
+    Mar: Mär
+    Apr: Apr
+    Jun: Jun
+    Jul: Jul
+    Aug: Aug
+    Sep: Sep
+    Oct: Okt
+    Nov: Nov
+    Dec: Dez
+
+navbar:
+    dashboard: Dashboard
+    absences: Abwesenheiten
+    users: Benutzer
+    holidays: Feiertage
+    absence_permissions: Abwesenheiten (Genehmigungen)
+    absence_types: Abwesenheitstypen
+    absence_contingents: Kontingente
+    admin_time_tracking: Mitarbeiter-Arbeitszeiten
+
+app:
+    title: Time Tracker
+
+general:
+    save: Speichern
+    back: Zurück
+    please_choose: Bitte wählen…
+
+absence:
+    request:
+        type: Art der Abwesenheit
+        start_date: Startdatum
+        end_date: Enddatum
+        comment: Kommentar
+        title: Abwesenheit beantragen
+        subtitle: Für year – bitte Zeitraum und Typ auswählen.
+        request: Beantragen
+        cancel: Abbrechen
+    quota:
+        user: Benutzer
+        type: Typ
+        year: Jahr
+        quota_days: Anzahl Tage
+    type:
+        name: Name
+        key_name:
+            title: Slug
+            hint: z.B. vacation, sick, unpaid
+        is_active: Aktiv
+        requires_approval: Benötigt Genehmigung
+        requires_quota: Kontigent aktivieren
+        default_yearly_quota_days:
+            title: Standard-Kontingent
+            hint: Leer = unbegrenzt
+    title: Abwesenheiten year
+    subtitle: Kontingente und deine Anträge im Überblick.
+    contingents:
+        title: Kontingente
+        subtitle: Genehmigte und ausstehende Tage pro Typ.
+    absence_type: Typ
+    contingent: Kontingent
+    used: Genutzt (genehmigt)
+    pending: Ausstehend
+    available: Verbleibend
+    unlimited: unbegrenzt
+    my_absences: Meine Abwesenheiten
+    absences_for_year: Anträge für year (inkl. Status & ggf. Begründung).
+    no_absences: Noch keine Abwesenheiten für dieses Jahr.
+    from: Von
+    to: Bis
+    days: Tage
+    status: Status
+    reject_reason: "Grund: reason"
+    cancel: Stornieren
+
+holiday:
+    name: Name
+    date: Datum
+    users: Gilt für Benutzer
+
+time_entry:
+    start_time: Start
+    end_time: Ende
+
+user:
+    name: Name
+    email: E-Mail-Adresse
+    daily_work_minutes:
+        title: Tägl. Arbeitszeit
+        hint: Soll-Arbeitszeit pro Tag in Stunden
+        placeholder: z.B. 8.0
+    roles:
+        title: Rollen
+        hint: Mindestens ROLE_USER wird immer automatisch ergänzt.
+        user: Normaler Benutzer
+        admin: Administrator
+    password: Passwort
+    password_optional:
+        title: Neues Passwort (optional)
+        hint: Leer lassen, wenn das Passwort unverändert bleiben soll.
+    first_password: Neues Passwort
+    second_password: Passwort wiederholen
+    password_mismatch: Die Passwörter stimmen nicht überein
+
+password_reset:
+    password:
+        first:
+            title: Neues Passwort
+            blank: Bitte geben Sie ein Passwort ein
+        second: Passwort wiederholen
+    password_mismatch: Die Passwörter stimmen nicht überein
+    email:
+        title: E-Mail-Adresse
+        blank: Bitte gib eine E-Mail-Adresse an
+
+settings:
+    title: Einstellungen
+    successfully_saved: Einstellungen wurden gespeichert
+    auto_pause_after_six_hours:
+        title: Automatische Pause nach 6 Stunden (Minuten)
+        help: 0 deaktiviert die Funktion.
+    auto_pause_after_nine_hours:
+        title: Automatische Pause nach 9 Stunden (Minuten)
+        help: 0 deaktiviert die Funktion.
+    users_are_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nachträglich ändern
+    users_not_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nicht nachträglich ändern
+    logo:
+        section_title: Logo & Favicon
+        title: Logo hochladen
+        help: "Empfohlen: quadratisches PNG oder WEBP mit transparentem Hintergrund, mindestens 512x512 Pixel."
+        current: Aktuelles Logo

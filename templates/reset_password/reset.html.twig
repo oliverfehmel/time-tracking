@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passwort zurücksetzen{% endblock %}
+
+{% block body %}
+    <div class="page-center">
+        <div class="card shadow-sm auth-card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h1 class="h3 mb-1">Neues Passwort festlegen</h1>
+                    <p class="text-muted mb-0">
+                        Bitte vergib ein neues Passwort für dein Benutzerkonto.
+                    </p>
+                </div>
+
+                {{ form_start(resetForm, { attr: { class: 'd-grid gap-3' } }) }}
+
+                {{ form_row(resetForm.plainPassword, {
+                    attr: {
+                        placeholder: 'Neues Passwort',
+                        autocomplete: 'new-password'
+                    }
+                }) }}
+
+                <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
+                    <a class="small text-decoration-none" href="{{ path('_login') }}">
+                        Abbrechen
+                    </a>
+
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fa-regular fa-floppy-disk me-1"></i>
+                        Passwort speichern
+                    </button>
+                </div>
+
+                {{ form_end(resetForm) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

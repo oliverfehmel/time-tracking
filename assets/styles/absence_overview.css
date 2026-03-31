@@ -1,0 +1,183 @@
+:root{
+    --row-height: 44px;
+    --name-col-width: 240px;
+}
+
+.absence-overview__card-body{
+    overflow: auto;
+}
+
+.absence-grid{
+    display: grid;
+    grid-template-columns: var(--name-col-width) 1fr;
+}
+
+.absence-grid__cell{
+    border-bottom: 1px solid rgba(0,0,0,.06);
+}
+
+.absence-grid__cell--sticky{
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bs-body-bg, #fff);
+    border-right: 1px solid rgba(0,0,0,.06);
+}
+
+.absence-grid__cell--header-left{
+    top: 0;
+    z-index: 4;
+    border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+.absence-grid__cell--header-days{
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--bs-body-bg, #fff);
+    border-bottom: 1px solid rgba(0,0,0,.08);
+    overflow: hidden;
+}
+
+.days-row{
+    display: grid;
+}
+
+.day-cell{
+    height: 54px;
+    border-left: 1px solid rgba(0,0,0,.06);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    font-size: 12px;
+    user-select: none;
+}
+.day-cell--weekend{ background: rgba(0,0,0,.03); }
+.day-num{ font-weight: 700; line-height: 1.1; }
+.day-dow{ color: rgba(0,0,0,.55); font-size: 11px; }
+
+.absence-grid__cell--user{
+    height: var(--row-height);
+    display:flex;
+    align-items:center;
+}
+
+.absence-grid__cell--timeline{
+    height: var(--row-height);
+    overflow: hidden;
+}
+
+.timeline{
+    position: relative;
+    height: var(--row-height);
+}
+
+.timeline__grid{
+    position:absolute;
+    inset:0;
+    display:grid;
+    z-index: 0;
+}
+
+.timeline__grid-day{
+    border-left: 1px solid rgba(0,0,0,.06);
+}
+.timeline__grid-day--weekend{
+    background: rgba(0,0,0,.03);
+}
+
+.absence-bar{
+    position:absolute;
+    top: 10px;
+    height: 24px;
+    border-radius: 8px;
+    z-index: 2;
+    display:flex;
+    align-items:center;
+    padding: 0 8px;
+    color: rgba(255,255,255,.92);
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 1px 2px rgba(0,0,0,.12);
+    cursor: default;
+}
+
+.absence-bar--pending{
+    outline: 2px dashed rgba(255,255,255,.75);
+    outline-offset: -3px;
+    opacity: .85;
+}
+
+.absence-bar__label{ pointer-events:none; }
+
+.holiday-dot{
+    position:absolute;
+    top: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    z-index: 3;
+    background: #f0c419;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.7);
+}
+
+.legend-item{
+    display:inline-flex;
+    align-items:center;
+    gap:.4rem;
+}
+.legend-dot{
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    display:inline-block;
+}
+.legend-dot--holiday{
+    background:#f0c419;
+    border-radius: 999px;
+}
+.legend-dot--pending{
+    background:#999;
+    outline:2px dashed rgba(0,0,0,.25);
+    outline-offset:-2px;
+}
+
+.abs-tooltip{
+    position: fixed;
+    z-index: 9999;
+    max-width: 360px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(0,0,0,.88);
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.35;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    pointer-events: none;
+}
+
+.days-row,
+.timeline__grid {
+    display: grid;
+    grid-auto-rows: 1fr;
+}
+
+.timeline {
+    position: relative;
+    height: var(--row-height);
+    width: 100%;
+}
+
+.absence-grid__cell--timeline {
+    overflow: hidden;
+}
+
+@media (max-width: 992px){
+    :root{
+        --name-col-width: 180px;
+        --day-width: 30px;
+    }
+}

@@ -1,0 +1,457 @@
+@import "./bootstrap.min.css";
+@import "./fontawesome.min.css";
+
+/* ==========================================================================
+   app.css (Bootstrap-first)
+   - Bootstrap + Font Awesome are the base.
+   - This file keeps only layout/app-specific styles:
+     topbar, sidebar behavior, backdrop, logo sizing, and time-tracking specifics.
+   ========================================================================== */
+
+:root {
+    --tt-bg: #f5f7fa;
+    --tt-border: #e5e7eb;
+    --tt-hover-bg: #f3f4f6;
+
+    --tt-muted: #6b7280;
+    --tt-success: #166534;
+    --tt-danger: #991b1b;
+
+    --text: #1f2937;
+    --hover-bg: #f3f4f6;
+    --border: #e5e7eb;
+    --muted: #6b7280;
+    --panel: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--tt-bg);
+}
+
+/* App shell */
+.app-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ==========================================================================
+   Topbar
+   ========================================================================== */
+
+.tt-topbar {
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--tt-border);
+}
+
+.img_topbar_brand {
+    height: 28px;
+    width: auto;
+    display: block;
+}
+
+/* ==========================================================================
+   Layout: sidebar + main
+   ========================================================================== */
+
+.content {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+/* sidebar container (desktop) */
+.tt-sidebar {
+    width: 260px;
+    background: #fff;
+    border-right: 1px solid var(--tt-border);
+    padding: 14px;
+}
+
+/* main area */
+.main,
+.tt-main {
+    flex: 1;
+    padding: 20px;
+    min-width: 0;
+}
+
+/* backdrop for mobile sidebar */
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 40;
+}
+
+/* Helper: disable body scroll when sidebar open */
+.no-scroll {
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   Time Tracking page specifics
+   ========================================================================== */
+
+.tt-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.tt-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.tt-subtitle {
+    margin: 6px 0 0 0;
+    color: var(--tt-muted);
+    font-size: 14px;
+}
+
+.tt-year-nav {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tt-empty {
+    margin: 0;
+    color: var(--tt-muted);
+}
+
+/* details/summary month accordion */
+.tt-month summary {
+    list-style: none;
+    cursor: pointer;
+}
+
+.tt-month summary::-webkit-details-marker {
+    display: none;
+}
+
+.tt-month-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.tt-month-left {
+    display: grid;
+    gap: 4px;
+}
+
+.tt-month-title {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.tt-month-meta {
+    font-size: 12px;
+    color: var(--tt-muted);
+}
+
+.tt-month-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* KPI pill */
+.tt-kpi {
+    display: grid;
+    gap: 2px;
+    padding: 8px 10px;
+    border: 1px solid var(--tt-border);
+    border-radius: 12px;
+    background: #f9fafb;
+    min-width: 96px;
+    text-align: right;
+}
+
+.tt-kpi-label {
+    font-size: 12px;
+    color: var(--tt-muted);
+}
+
+.tt-kpi-value {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.tt-month[open] .tt-month-summary {
+    margin-bottom: 12px;
+}
+
+.tt-month-body {
+    margin-top: 12px;
+}
+
+/* Table cell helpers */
+.tt-right,
+.table__right {
+    text-align: right;
+}
+
+.tt-day-date {
+    font-weight: 600;
+}
+
+.tt-day-weekday {
+    font-size: 12px;
+    color: var(--tt-muted);
+    margin-top: 2px;
+}
+
+/* delta colors */
+.tt-delta-pos {
+    color: var(--tt-success);
+}
+
+.tt-delta-neg {
+    color: var(--tt-danger);
+}
+
+.tt-delta-zero {
+    color: var(--tt-muted);
+}
+
+.tt-empty-month {
+    padding: 10px 2px;
+    color: var(--tt-muted);
+    font-size: 14px;
+}
+
+.tt-row-actions {
+    display: inline-flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.tt-inline-form {
+    display: inline;
+}
+
+/* Workday/offday row backgrounds (works with Bootstrap .table-hover too) */
+.tt-day--workday {
+    background: transparent;
+}
+
+.tt-day--offday {
+    background: #f8fafc;
+}
+
+.tt-day--empty td {
+    color: var(--tt-muted);
+}
+
+/* Hover states (if you don't use Bootstrap table-hover, keep this) */
+.tt-table tbody tr.tt-day:hover {
+    background: var(--tt-hover-bg);
+}
+
+.tt-day--offday:hover {
+    background: #eef2f7;
+}
+
+.tt-row-not-applicable {
+    background: #f5f7fa;
+}
+
+/* ==========================================================================
+   Auth / small helpers (kept minimal)
+   ========================================================================== */
+
+.page-center {
+    min-height: calc(100vh - 56px);
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* spacing helper for legacy templates */
+.form_field {
+    margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   Responsive: mobile sidebar behavior + tt table columns
+   ========================================================================== */
+
+/* Base for TT rows */
+.tt-table tbody tr.tt-day--offday td {
+     background: #f8fafc;
+}
+
+/* Slightly stronger on hover */
+.tt-table tbody tr.tt-day--offday:hover td {
+    background: #eef2f7;
+}
+
+/* Optional: distinguish reasons */
+.tt-table tbody tr.tt-day--holiday td {
+    background: #ecfeff; /* leicht cyan */
+}
+
+.tt-table tbody tr.tt-day--absence td {
+    background: #fff7ed; /* leicht orange */
+}
+
+/* Sidebar layout */
+.sidebar {
+    width: 280px;
+    border-right: 1px solid var(--border);
+    background: var(--panel);
+    min-height: 0;
+}
+
+.sidebar-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.sidebar-heading {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.sidebar-sep {
+    margin: 2px 0;
+    border: 0;
+    border-top: 1px solid var(--border);
+}
+
+/* Make Bootstrap nav-pills fit the design */
+.sidebar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    color: var(--text);
+    transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.sidebar .nav-link i {
+    width: 18px;
+    text-align: center;
+    opacity: 0.9;
+}
+
+.sidebar .nav-link:hover {
+    background: var(--hover-bg);
+    color: var(--text);
+}
+
+.sidebar .nav-link.active {
+    background: #e5e7eb;
+    color: var(--text);
+    box-shadow: 0 6px 16px rgba(17, 24, 39, 0.18);
+}
+
+.sidebar .nav-link.active i {
+    opacity: 1;
+}
+
+.day-cell--today {
+    background: rgba(13, 110, 253, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.35);
+    border-radius: 6px;
+}
+
+.timeline__grid-day--today {
+    background: rgba(13, 110, 253, 0.08);
+}
+
+.timeline {
+    position: relative;
+}
+
+.timeline__today-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(13, 110, 253, 0.6);
+    z-index: 5;
+    pointer-events: none;
+}
+
+
+@media (max-width: 800px) {
+    .tt-kpi {
+        min-width: 84px;
+    }
+
+    /* If your time tracking table uses .tt-table and has columns 2 & 3 optional */
+    .tt-table th:nth-child(2),
+    .tt-table td:nth-child(2),
+    .tt-table th:nth-child(3),
+    .tt-table td:nth-child(3) {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    /* mobile sidebar overlay behavior */
+    .tt-sidebar {
+        position: fixed;
+        top: 56px;
+        left: 0;
+        height: calc(100vh - 56px);
+        transform: translateX(-105%);
+        transition: transform 180ms ease;
+        z-index: 50;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .tt-sidebar.is-open {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 992px) {
+    .content {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .main {
+        padding: 16px;
+    }
+}

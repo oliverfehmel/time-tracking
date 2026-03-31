@@ -1,0 +1,18 @@
+<h2>Dein Abwesenheitsantrag wurde genehmigt</h2>
+
+<p>Hallo {{ user.name ?: user.email }},</p>
+
+<p>
+    dein Antrag auf Abwesenheit wurde genehmigt.
+</p>
+
+<ul>
+    <li><strong>Zeitraum:</strong> {{ absence.startDate|date('d.m.Y') }} – {{ absence.endDate|date('d.m.Y') }}</li>
+    <li><strong>Tage:</strong> {{ days }}</li>
+    <li><strong>Typ:</strong> {{ absence.type.name }}</li>
+</ul>
+
+<p>
+    Deine Übersicht findest du hier:
+    <a href="{{ overviewUrl }}">{{ overviewUrl }}</a>
+</p>

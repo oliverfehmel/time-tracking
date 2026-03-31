@@ -1,0 +1,25 @@
+<h2>Dein Abwesenheitsantrag wurde abgelehnt</h2>
+
+<p>Hallo {{ user.name ?: user.email }},</p>
+
+<p>
+    dein Antrag auf Abwesenheit wurde abgelehnt.
+</p>
+
+<ul>
+    <li><strong>Zeitraum:</strong> {{ absence.startDate|date('d.m.Y') }} – {{ absence.endDate|date('d.m.Y') }}</li>
+    <li><strong>Tage:</strong> {{ days }}</li>
+    <li><strong>Typ:</strong> {{ absence.type.name }}</li>
+</ul>
+
+{% if absence.rejectReason %}
+    <p>
+        <strong>Begründung:</strong><br>
+        {{ absence.rejectReason|nl2br }}
+    </p>
+{% endif %}
+
+<p>
+    Deine Übersicht findest du hier:
+    <a href="{{ overviewUrl }}">{{ overviewUrl }}</a>
+</p>

@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'absence.request.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="tt-page">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">{{ 'absence.request.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'absence.request.subtitle'|trans({'year': year}) }}</p>
+            </div>
+
+            <a class="btn btn-sm btn-outline-secondary" href="{{ path('_absence_index', {year: year}) }}">
+                <i class="fa-solid fa-arrow-left me-1"></i>
+                {{ 'general.back'|trans }}
+            </a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                {{ form_start(form, { attr: { class: 'row g-3' } }) }}
+
+                <div class="col-12 col-md-4">
+                    {{ form_row(form.type) }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    {{ form_row(form.startDate) }}
+                </div>
+
+                <div class="col-12 col-md-4">
+                    {{ form_row(form.endDate) }}
+                </div>
+
+                <div class="col-12">
+                    {{ form_row(form.comment) }}
+                </div>
+
+                <div class="col-12 d-flex justify-content-end gap-2 mt-2">
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fa-regular fa-paper-plane me-1"></i>
+                        {{ 'absence.request.request'|trans }}
+                    </button>
+
+                    <a class="btn btn-outline-secondary" href="{{ path('_absence_index', {year: year}) }}">
+                        {{ 'absence.request.cancel'|trans }}
+                    </a>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

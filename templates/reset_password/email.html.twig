@@ -1,0 +1,26 @@
+<p>Guten Tag,</p>
+
+<p>
+    Sie haben für Ihr Benutzerkonto eine Zurücksetzung des Passworts angefordert.
+    Über den folgenden Link können Sie ein neues Passwort vergeben:
+</p>
+
+<p>
+    <a href="{{ url('app_reset_password', { token: resetToken.token }) }}">
+        {{ url('app_reset_password', { token: resetToken.token }) }}
+    </a>
+</p>
+
+<p>
+    Der Link ist gültig für
+    {{ resetToken.expirationMessageKey|trans(resetToken.expirationMessageData, 'ResetPasswordBundle') }}.
+</p>
+
+<p>
+    Falls Sie diese Anfrage nicht selbst gestellt haben, können Sie diese E-Mail ignorieren.
+</p>
+
+<p>
+    Freundliche Grüße<br>
+    Ihr Time Tracking-Team
+</p>

@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ day|date('d.m.Y') }} – Time Tracking{% endblock %}
+
+{% block body %}
+    <div class="tt-page">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">{{ day|date('d.m.Y') }}</h1>
+                <p class="text-muted mb-0">
+                    Einträge dieses Tages ({{ editable ? 'bearbeitbar' : 'nur Ansicht' }}).
+                </p>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('_time_index', {year: day|date('Y'), 'month': day|date('n')}) }}">
+                    <i class="fa-solid fa-arrow-left me-1"></i>
+                    Zurück zur Übersicht
+                </a>
+
+                {% if editable %}
+                    <a class="btn btn-sm btn-success" href="{{ path('_time_entry_new', {date: day|date('Y-m-d')}) }}">
+                        <i class="fa-solid fa-plus me-1"></i>
+                        Eintrag hinzufügen
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                {% if entries is empty %}
+                    <div class="p-3 text-muted">
+                        Keine Einträge.
+                    </div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 tt-table">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Start</th>
+                                <th>Ende</th>
+                                <th class="text-end">Aktionen</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for e in entries %}
+                                <tr>
+                                    <td class="fw-semibold">{{ e.startedAt|date('H:i') }}</td>
+                                    <td>{{ e.stoppedAt ? e.stoppedAt|date('H:i') : '—' }}</td>
+                                    <td class="text-end">
+                                        {% if editable %}
+                                            <div class="d-inline-flex gap-2 justify-content-end align-items-center">
+                                                <a class="btn btn-sm btn-outline-secondary" href="{{ path('_time_entry_edit', {id: e.id}) }}">
+                                                    <i class="fa-regular fa-pen-to-square me-1"></i>
+                                                    Bearbeiten
+                                                </a>
+
+                                                <form method="post" action="{{ path('_time_entry_delete', {id: e.id}) }}" class="m-0 d-inline"
+                                                      onsubmit="return confirm('Eintrag wirklich löschen?');">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_time_entry_' ~ e.id) }}">
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit">
+                                                        <i class="fa-regular fa-trash-can me-1"></i>
+                                                        Löschen
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,79 @@
+{% set currentRoute = app.request.attributes.get('_route') %}
+{% set currentYear = "now"|date("Y") %}
+
+<aside class="sidebar">
+    <div id="sidebarNav" class="collapse d-lg-block">
+        <div class="sidebar-inner p-3">
+            <div class="sidebar-heading">Allgemein</div>
+            <nav class="nav nav-pills flex-column gap-1 mb-3">
+                <a class="nav-link {{ currentRoute == '_home' ? 'active' : '' }}" href="{{ path('_home') }}">
+                    <i class="fa-solid fa-gauge-high me-2"></i>Dashboard
+                </a>
+                <a class="nav-link {{ currentRoute starts with '_time_' ? 'active' : '' }}"
+                   href="{{ path('_time_index', {year: currentYear}) }}">
+                    <i class="fa-regular fa-clock me-2"></i>Time Tracking
+                </a>
+                <a class="nav-link {{ currentRoute starts with '_absence_' ? 'active' : '' }}"
+                   href="{{ path('_absence_index', {year: currentYear}) }}">
+                    <i class="fa-regular fa-calendar-xmark me-2"></i>Abwesenheiten
+                </a>
+                <a class="nav-link {{ currentRoute == '_absences_overview' ? 'active' : '' }}"
+                   href="{{ path('_absences_overview') }}">
+                    <i class="fa-regular fa-calendar me-2"></i>Abwesenheitsübersicht
+                </a>
+                {% if is_granted('IS_IMPERSONATOR') %}
+                    <div class="alert alert-warning">
+                        Du bist gerade als {{ app.user.name }} angemeldet.
+                        <a href="{{ path('_admin_users_index', {'_switch_user': '_exit'}) }}">
+                            Zurück zum Admin
+                        </a>
+                    </div>
+                {% endif %}
+            </nav>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <div class="sidebar-heading">Admin</div>
+                <nav class="nav nav-pills flex-column gap-1">
+                    <a class="nav-link {{ currentRoute starts with '_admin_time_' ? 'active' : '' }}"
+                       href="{{ path('_admin_time_users') }}">
+                        <i class="fa-regular fa-chart-bar me-2"></i>Mitarbeiter-Arbeitszeiten
+                    </a>
+                    <a class="nav-link {{ currentRoute starts with '_admin_users_' ? 'active' : '' }}"
+                       href="{{ path('_admin_users_index') }}">
+                        <i class="fa-solid fa-users me-2"></i>Benutzer
+                    </a>
+                    <a class="nav-link {{ currentRoute starts with '_admin_holiday_' ? 'active' : '' }}"
+                       href="{{ path('_admin_holiday_index') }}">
+                        <i class="fa-regular fa-calendar-days me-2"></i>Feiertage
+                    </a>
+                    <a class="nav-link {{ currentRoute starts with '_admin_absence_a' ? 'active' : '' }}"
+                       href="{{ path('_admin_absence_approvals') }}">
+                        <i class="fa-regular fa-circle-check me-2"></i>Genehmigungen
+                    </a>
+                    <a class="nav-link {{ currentRoute starts with '_admin_absence_type_' ? 'active' : '' }}"
+                       href="{{ path('_admin_absence_type_index') }}">
+                        <i class="fa-solid fa-tags me-2"></i>Abwesenheitstypen
+                    </a>
+                    <a class="nav-link {{ currentRoute starts with '_admin_absence_quota_' ? 'active' : '' }}"
+                       href="{{ path('_admin_absence_quota_index') }}">
+                        <i class="fa-solid fa-layer-group me-2"></i>Kontingente
+                    </a>
+                    <a class="nav-link {{ currentRoute starts with '_settings' ? 'active' : '' }}"
+                       href="{{ path('_settings_edit') }}">
+                        <i class="fa-solid fa-cog me-2"></i>{{ 'settings.title'|trans }}
+                    </a>
+                </nav>
+            {% endif %}
+
+            {# Mobile-only user actions inside the collapse #}
+            <div class="d-lg-none mt-3 pt-3 border-top">
+                <a href="{{ path('_profile') }}" class="btn btn-sm btn-outline-secondary w-100 mb-2">
+                    <i class="fa-regular fa-user me-1"></i>{{ app.user.name }}
+                </a>
+                <a class="btn btn-sm btn-outline-secondary w-100" href="{{ path('_logout') }}">
+                    <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</aside>

@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'settings.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h1 class="h3 mb-0">{{ 'settings.title'|trans }}</h1>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                {{ form_start(form) }}
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        {{ form_row(form.autoPauseAfterSixHours) }}
+                    </div>
+
+                    <div class="col-12 col-lg-6">
+                        {{ form_row(form.autoPauseAfterNineHours) }}
+                    </div>
+
+                    <div class="col-12">
+                        {{ form_row(form.usersAreAllowedToChangeTimeEntries) }}
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+
+                <h2 class="h5 mb-3">{{ 'settings.logo.section_title'|trans }}</h2>
+
+                {% if settings.logoFilename %}
+                    <div class="mb-3">
+                        <div class="small text-muted mb-2">
+                            {{ 'settings.logo.current'|trans }}
+                        </div>
+                        <img
+                            src="{{ asset('uploads/branding/' ~ settings.logoFilename) }}"
+                            alt="Logo"
+                            class="img-fluid border rounded p-2 bg-light"
+                            style="max-height: 120px;"
+                        >
+                    </div>
+                {% endif %}
+
+                <div class="row g-3">
+                    <div class="col-12 col-lg-6">
+                        {{ form_row(form.logoFile) }}
+                    </div>
+                </div>
+
+                <hr class="my-4"/>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" type="submit">
+                        {{ 'general.save'|trans }}
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

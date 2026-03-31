@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Passwort vergessen{% endblock %}
+
+{% block body %}
+    <div class="page-center">
+        <div class="card shadow-sm auth-card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h1 class="h3 mb-1">Passwort vergessen</h1>
+                    <p class="text-muted mb-0">
+                        Gib deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen deines Passworts.
+                    </p>
+                </div>
+
+                {% for flash_error in app.flashes('reset_password_error') %}
+                    <div class="alert alert-danger" role="alert">
+                        <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                        {{ flash_error }}
+                    </div>
+                {% endfor %}
+
+                {{ form_start(requestForm, { attr: { class: 'd-grid gap-3' } }) }}
+
+                {{ form_row(requestForm.email, {
+                    attr: {
+                        placeholder: 'name@time-tracking.de',
+                        autocomplete: 'email'
+                    }
+                }) }}
+
+                <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
+                    <a class="small text-decoration-none" href="{{ path('_login') }}">
+                        <i class="fa-solid fa-arrow-left me-1"></i>
+                        Zurück zum Login
+                    </a>
+
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fa-regular fa-paper-plane me-1"></i>
+                        E-Mail senden
+                    </button>
+                </div>
+
+                {{ form_end(requestForm) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

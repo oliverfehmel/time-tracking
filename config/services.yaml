@@ -1,0 +1,18 @@
+parameters:
+    app.mail_from: '%env(MAIL_FROM)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    App\Service\BrandingManager:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Service\AbsenceNotifier:
+        arguments:
+            $mailFrom: '%app.mail_from%'
