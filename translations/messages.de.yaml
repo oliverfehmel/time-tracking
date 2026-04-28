@@ -1,158 +1,448 @@
 month:
-    "1": Januar
-    "2": Februar
-    "3": März
-    "4": April
-    "5": Mai
-    "6": Juni
-    "7": Juli
-    "8": August
-    "9": September
-    "10": Oktober
-    "11": November
-    "12": Dezember
-    January: Januar
-    February: Februar
-    March: März
-    April: April
-    May: Mai
-    June: Juni
-    July: Juli
-    August: August
-    September: September
-    October: Oktober
-    November: November
-    December: Dezember
-    Jan: Jan
-    Feb: Feb
-    Mar: Mär
-    Apr: Apr
-    Jun: Jun
-    Jul: Jul
-    Aug: Aug
-    Sep: Sep
-    Oct: Okt
-    Nov: Nov
-    Dec: Dez
-
-navbar:
-    dashboard: Dashboard
-    absences: Abwesenheiten
-    users: Benutzer
-    holidays: Feiertage
-    absence_permissions: Abwesenheiten (Genehmigungen)
-    absence_types: Abwesenheitstypen
-    absence_contingents: Kontingente
-    admin_time_tracking: Mitarbeiter-Arbeitszeiten
+  "1": Januar
+  "2": Februar
+  "3": März
+  "4": April
+  "5": Mai
+  "6": Juni
+  "7": Juli
+  "8": August
+  "9": September
+  "10": Oktober
+  "11": November
+  "12": Dezember
+  January: Januar
+  February: Februar
+  March: März
+  April: April
+  May: Mai
+  June: Juni
+  July: Juli
+  August: August
+  September: September
+  October: Oktober
+  November: November
+  December: Dezember
+  Jan: Jan
+  Feb: Feb
+  Mar: Mär
+  Apr: Apr
+  Jun: Jun
+  Jul: Jul
+  Aug: Aug
+  Sep: Sep
+  Oct: Okt
+  Nov: Nov
+  Dec: Dez
 
 app:
-    title: Time Tracker
+  title: Time Tracker
+  brand: TimeTracker
+  menu: Menü
+  logout: Logout
+  profile: Profil
 
 general:
-    save: Speichern
-    back: Zurück
-    please_choose: Bitte wählen…
+  general: Allgemein
+  admin: Admin
+  save: Speichern
+  back: Zurück
+  cancel: Abbrechen
+  create: Anlegen
+  edit: Bearbeiten
+  delete: Löschen
+  open: Öffnen
+  show: Anzeigen
+  today: Heute
+  please_choose: Bitte wählen...
+  yes: Ja
+  no: Nein
+  unlimited: unbegrenzt
+  none: —
+  action: Aktion
+  actions: Aktionen
+  name: Name
+  email: E-Mail
+  user: User
+  type: Typ
+  status: Status
+  comment: Kommentar
+  start: Start
+  stop: Stop
+  end: Ende
+  from: Von
+  to: Bis
+  days: Tage
+  year: Jahr
+  month: Monat
+  key: Schlüssel
+  active: Aktiv
+  default: Standard
+  preview: Vorschau
+  allowed: erlaubt
+  blocked: gesperrt
+  by_type: vom Typ
+  pending: Pending
+  approved: Genehmigt
+  rejected: Abgelehnt
+  cancelled: Storniert
+  current: Läuft
+  impersonate: Impersonate
+
+navbar:
+  dashboard: Dashboard
+  time_tracking: Time Tracking
+  absences: Abwesenheiten
+  absence_overview: Abwesenheitsübersicht
+  users: Benutzer
+  holidays: Feiertage
+  approvals: Genehmigungen
+  absence_types: Abwesenheitstypen
+  work_location_types: Arbeitsort-Typen
+  absence_contingents: Kontingente
+  admin_time_tracking: Mitarbeiter-Arbeitszeiten
+  impersonating: Du bist gerade als user angemeldet.
+  back_to_admin: Zurück zum Admin
+
+flash:
+  invalid_csrf: Ungültiges CSRF-Token.
+  timer_already_running: Es läuft bereits ein Timer.
+  timer_started: Timer gestartet.
+  no_running_timer: Kein laufender Timer gefunden.
+  timer_stopped: Timer gestoppt.
+  profile_saved: Profil wurde gespeichert.
+  month_not_editable: Dieser Monat ist nicht mehr bearbeitbar.
+  time_range_fully_overlaps: Der Zeitraum liegt vollständig in bereits erfasster Arbeitszeit.
+  time_entry_created: Eintrag wurde angelegt.
+  time_entry_saved: Eintrag wurde gespeichert.
+  time_entry_deleted: Eintrag wurde gelöscht.
+  time_range_adjusted: Der Zeitraum wurde automatisch auf den freien Bereich ohne Überschneidung angepasst.
+  work_location_invalid: Ungültiger Arbeitsort-Typ.
+  work_location_saved: Arbeitsort gespeichert.
+  user_created: User wurde angelegt.
+  user_saved: User wurde gespeichert.
+  user_deleted: User wurde gelöscht.
+  holiday_created: Feiertag angelegt.
+  holiday_saved: Feiertag gespeichert.
+  holiday_deleted: Feiertag gelöscht.
+  absence_type_saved: Typ gespeichert.
+  absence_quota_saved: Kontingent gespeichert.
+  work_location_type_saved: Arbeitsort-Typ gespeichert.
+
+dashboard:
+  title: Dashboard
+  subtitle: Start/Stop und Überblick über deine Zeiten.
+  today_worked: Heute gearbeitet
+  week: Woche
+  month: Monat
+  target: "Soll: value"
+  status: Status
+  running: Läuft
+  stopped: Gestoppt
+  since: seit time
+  absences_year: "Abwesenheiten (year)"
+  absences_meta: Kontingent / Genehmigt / Pending
+  last_absence: Letzte Abwesenheit
+  next_absence: Nächste Abwesenheit
+
+time_tracking:
+  title: Time Tracking
+  subtitle: Übersicht nach Monat und Tag (nur Ansicht).
+  year_selection: Jahresauswahl
+  work_locations_csv: Arbeitsorte CSV
+  no_times_year: Für year wurden noch keine Zeiten erfasst.
+  month: Monat
+  actual: Ist
+  target: Soll
+  delta_target_actual: Δ Soll-Ist
+  delta: Δ
+  day: Tag
+  action: Aktion
+  no_entries_month: Keine Einträge in diesem Monat.
+  holiday: Feiertag
+  absence: Abwesenheit
+  edit: Bearbeiten
+  day_title: "date - Time Tracking"
+  day_subtitle_editable: Einträge dieses Tages (bearbeitbar).
+  day_subtitle_readonly: Einträge dieses Tages (nur Ansicht).
+  back_to_overview: Zurück zur Übersicht
+  add_entry: Eintrag hinzufügen
+  work_location: Arbeitsort
+  no_entries: Keine Einträge.
+  confirm_delete_entry: Eintrag wirklich löschen?
+  entry_add: Eintrag hinzufügen
+  entry_edit: Eintrag bearbeiten
+  end_time_help: Leer lassen = Eintrag läuft weiter
 
 absence:
-    request:
-        type: Art der Abwesenheit
-        start_date: Startdatum
-        end_date: Enddatum
-        comment: Kommentar
-        title: Abwesenheit beantragen
-        subtitle: Für year – bitte Zeitraum und Typ auswählen.
-        request: Beantragen
-        cancel: Abbrechen
-    quota:
-        user: Benutzer
-        type: Typ
-        year: Jahr
-        quota_days: Anzahl Tage
-    type:
-        name: Name
-        key_name:
-            title: Slug
-            hint: z.B. vacation, sick, unpaid
-        is_active: Aktiv
-        requires_approval: Benötigt Genehmigung
-        requires_quota: Kontigent aktivieren
-        default_yearly_quota_days:
-            title: Standard-Kontingent
-            hint: Leer = unbegrenzt
-    title: Abwesenheiten year
-    subtitle: Kontingente und deine Anträge im Überblick.
-    contingents:
-        title: Kontingente
-        subtitle: Genehmigte und ausstehende Tage pro Typ.
-    absence_type: Typ
-    contingent: Kontingent
-    used: Genutzt (genehmigt)
-    pending: Ausstehend
-    available: Verbleibend
-    unlimited: unbegrenzt
-    my_absences: Meine Abwesenheiten
-    absences_for_year: Anträge für year (inkl. Status & ggf. Begründung).
-    no_absences: Noch keine Abwesenheiten für dieses Jahr.
-    from: Von
-    to: Bis
-    days: Tage
-    status: Status
-    reject_reason: "Grund: reason"
-    cancel: Stornieren
+  request:
+    type: Art der Abwesenheit
+    start_date: Startdatum
+    end_date: Enddatum
+    comment: Kommentar
+    title: Abwesenheit beantragen
+    subtitle: Für year - bitte Zeitraum und Typ auswählen.
+    request: Beantragen
+    cancel: Abbrechen
+    submit_error: Der Antrag konnte nicht gesendet werden.
+    created_warning: Abwesenheit wurde erstellt, aber die Admin-Benachrichtigung konnte nicht gesendet werden.
+    created_success: Abwesenheit beantragt.
+    cannot_cancel: Dieser Antrag kann nicht storniert werden.
+    cancelled: Abwesenheit storniert.
+    confirm_cancel: Abwesenheit wirklich stornieren?
+    end_before_start: Enddatum darf nicht vor dem Startdatum liegen.
+    wrong_year: Abwesenheit muss in das ausgewählte Jahr fallen.
+    overlaps_existing: Es gibt bereits eine (ausstehende oder genehmigte) Abwesenheit, die sich mit dem Zeitraum überschneidet.
+  quota:
+    user: Benutzer
+    type: Typ
+    year: Jahr
+    quota_days: Anzahl Tage
+    empty_unlimited: Leer = unbegrenzt
+    allow_over_limit: Überziehung des Kontingents erlauben
+    allow_over_limit_help: Nur explizite Werte überschreiben die Grundeinstellung des Abwesenheitstyps.
+  type:
+    name: Name
+    key_name:
+      title: Slug
+      hint: z.B. vacation, sick, unpaid
+    is_active: Aktiv
+    requires_approval: Benötigt Genehmigung
+    requires_quota: Kontingent aktivieren
+    default_yearly_quota_days:
+      title: Standard-Kontingent
+      hint: Leer = unbegrenzt
+    allow_over_limit: Überziehung des Kontingents erlauben
+    allow_over_limit_help: Grundeinstellung für diesen Abwesenheitstyp. Kontingente können sie überschreiben.
+  title: Abwesenheiten year
+  subtitle: Kontingente und deine Anträge im Überblick.
+  contingents:
+    title: Kontingente
+    subtitle: Genehmigte und ausstehende Tage pro Typ.
+  absence_type: Typ
+  contingent: Kontingent
+  used: Genutzt (genehmigt)
+  pending: Ausstehend
+  available: Verbleibend
+  unlimited: unbegrenzt
+  my_absences: Meine Abwesenheiten
+  absences_for_year: Anträge für year (inkl. Status & ggf. Begründung).
+  no_absences: Noch keine Abwesenheiten für dieses Jahr.
+  from: Von
+  to: Bis
+  days: Tage
+  status: Status
+  reject_reason: "Grund: reason"
+  cancel: Stornieren
+
+absence_overview:
+  title: Abwesenheitsübersicht
+  title_month: "Abwesenheitsübersicht - month year"
+  month_label: "Monat:"
+  employee: Mitarbeiter
+  user_fallback: "User #id"
+  holiday_title: "Feiertag: names"
+  tooltip_period_separator: bis
+  tooltip_status: "Status: status"
+  tooltip_comment: "Kommentar: comment"
+  legend: "Legende:"
+
+admin_absence:
+  title: Abwesenheiten genehmigen
+  heading: Genehmigungen
+  subtitle: Offene und bereits bearbeitete Abwesenheitsanträge im Überblick.
+  pending_title: Offene Genehmigungen
+  no_pending: Keine offenen Genehmigungen.
+  approve: Genehmigen
+  reject: Ablehnen
+  reject_reason: Ablehnungsgrund
+  own_request: Eigener Antrag
+  processed_title: Bereits bearbeitete Anträge
+  no_processed: Keine bereits bearbeiteten Anträge vorhanden.
+  processed_by: Bearbeitet von
+  processed_at: Bearbeitet am
+  comment_or_reason: Kommentar / Grund
+  approved_warning: Der Antrag wurde genehmigt, aber die Benachrichtigungs-E-Mail konnte nicht gesendet werden.
+  approved_success: Abwesenheit genehmigt.
+  rejected_warning: Der Antrag wurde abgelehnt, aber die Benachrichtigungs-E-Mail konnte nicht gesendet werden.
+  rejected_success: Abwesenheit abgelehnt.
+  reason_required: Bitte eine Begründung angeben.
+  only_pending: Nur ausstehende Anträge können bearbeitet werden.
+  own_request_error: Eigene Anträge können nicht bearbeitet werden.
+
+admin_quota:
+  title: Kontingente
+  subtitle: Kontingente pro User/Typ/Jahr verwalten.
+  create: Kontingent anlegen
+  edit: Kontingent bearbeiten
+  form_subtitle: Kontingent pro User/Typ/Jahr festlegen.
+  none: Noch keine Kontingente gepflegt.
+  over_limit: Überziehung
+
+admin_absence_type:
+  title: Abwesenheitstypen
+  create: Abwesenheitstyp anlegen
+  edit: Abwesenheitstyp bearbeiten
+  create_short: Typ anlegen
+  subtitle: Typen verwalten (Aktiv, Genehmigung, Kontingent).
+  form_subtitle: Abwesenheitstyp konfigurieren.
+  none: Noch keine Typen angelegt.
+  approval: Genehmigung
+  quota: Kontingent
+  over_limit: Überziehung
+  default_per_year: Standard / Jahr
 
 holiday:
-    name: Name
-    date: Datum
-    users: Gilt für Benutzer
+  title: Feiertage
+  subtitle: Feiertage anlegen, verwalten und Benutzern zuweisen.
+  new: Neuer Feiertag
+  create: Feiertag anlegen
+  create_subtitle: Lege einen neuen Feiertag an.
+  edit: Feiertag bearbeiten
+  edit_subtitle: "Bearbeite den Feiertag: name"
+  name: Name
+  date: Datum
+  users: Gilt für Benutzer
+  no_holidays: Keine Feiertage vorhanden.
+  confirm_delete: Feiertag wirklich löschen?
 
-time_entry:
-    start_time: Start
-    end_time: Ende
+admin_time:
+  title: Mitarbeiter-Arbeitszeiten
+  subtitle: Wähle einen User aus, um die Jahresübersicht zu sehen.
+  no_users: Keine User gefunden.
+  user_year_title: "Admin · Time Tracking · user · year"
+  user_year_heading: Admin · Time Tracking
+  user_year_subtitle: "Übersicht für user (email) - nur Ansicht."
+  back_to_users: Zurück zur User-Liste
 
 user:
-    name: Name
-    email: E-Mail-Adresse
-    daily_work_minutes:
-        title: Tägl. Arbeitszeit
-        hint: Soll-Arbeitszeit pro Tag in Stunden
-        placeholder: z.B. 8.0
-    roles:
-        title: Rollen
-        hint: Mindestens ROLE_USER wird immer automatisch ergänzt.
-        user: Normaler Benutzer
-        admin: Administrator
-    password: Passwort
-    password_optional:
-        title: Neues Passwort (optional)
-        hint: Leer lassen, wenn das Passwort unverändert bleiben soll.
-    first_password: Neues Passwort
-    second_password: Passwort wiederholen
-    password_mismatch: Die Passwörter stimmen nicht überein
+  title: User Verwaltung
+  subtitle: User anlegen, Rollen verwalten, Passwörter zurücksetzen.
+  new: Neuer User
+  new_subtitle: Lege einen neuen Benutzer an.
+  edit: User bearbeiten
+  none: Keine User vorhanden.
+  confirm_delete: User wirklich löschen?
+  name: Name
+  email: E-Mail-Adresse
+  daily_work_minutes:
+    title: Tägl. Arbeitszeit
+    hint: Soll-Arbeitszeit pro Tag in Stunden
+    placeholder: z.B. 8.0
+  daily_target: Soll / Tag
+  roles:
+    title: Rollen
+    hint: Mindestens ROLE_USER wird immer automatisch ergänzt.
+    user: Normaler Benutzer
+    admin: Administrator
+  password: Passwort
+  password_optional:
+    title: Neues Passwort (optional)
+    hint: Leer lassen, wenn das Passwort unverändert bleiben soll.
+  first_password: Neues Passwort
+  second_password: Passwort wiederholen
+  password_mismatch: Die Passwörter stimmen nicht überein
+
+work_location_type:
+  title: Arbeitsort-Typen
+  create: Arbeitsort-Typ anlegen
+  edit: Arbeitsort-Typ bearbeiten
+  create_short: Typ anlegen
+  subtitle: Konfigurierbare Orte (z. B. Büro, Home Office, Geschäftsreise).
+  form_subtitle: Arbeitsort-Typ konfigurieren.
+  none: Noch keine Typen angelegt.
+  name: Name
+  key_name: Schlüssel
+  key_name_help: Interner eindeutiger Bezeichner (z. B. office, home_office)
+  is_active: Aktiv
+  is_default: Standard (wird bei neuen Tagen vorausgewählt)
+  icon: Icon (FontAwesome-Klasse)
+  icon_help: Optional, z. B. fa-solid fa-house oder fa-solid fa-building
+
+profile:
+  title: Profil
+  subtitle: Deine Stammdaten und (optional) Passwort ändern.
+  master_data: Stammdaten
+  master_data_subtitle: Diese Daten werden für dein Konto verwendet.
+  change_password: Passwort ändern (optional)
+  change_password_subtitle: Leer lassen, wenn du dein Passwort nicht ändern möchtest.
+
+auth:
+  login: Login
+  login_subtitle: Bitte melde dich an, um fortzufahren.
+  forgot_password: Passwort vergessen?
+  sign_in: Anmelden
+  back_to_login: Zurück zum Login
 
 password_reset:
-    password:
-        first:
-            title: Neues Passwort
-            blank: Bitte geben Sie ein Passwort ein
-        second: Passwort wiederholen
-    password_mismatch: Die Passwörter stimmen nicht überein
-    email:
-        title: E-Mail-Adresse
-        blank: Bitte gib eine E-Mail-Adresse an
+  request:
+    title: Passwort vergessen
+    subtitle: Gib deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen deines Passworts.
+    send_email: E-Mail senden
+  check:
+    title: E-Mail versendet
+    subtitle: Wenn ein Benutzerkonto mit dieser E-Mail-Adresse existiert, wurde soeben eine Nachricht mit einem Link zum Zurücksetzen des Passworts versendet.
+    valid_for: Der Link ist gültig für
+    retry: Erneut versuchen
+  reset:
+    title: Passwort zurücksetzen
+    heading: Neues Passwort festlegen
+    subtitle: Bitte vergib ein neues Passwort für dein Benutzerkonto.
+    save: Passwort speichern
+  email:
+    subject: Passwort zurücksetzen | Time Tracking
+    greeting: Guten Tag,
+    intro: Sie haben für Ihr Benutzerkonto eine Zurücksetzung des Passworts angefordert. Über den folgenden Link können Sie ein neues Passwort vergeben:
+    valid_for: Der Link ist gültig für
+    ignore: Falls Sie diese Anfrage nicht selbst gestellt haben, können Sie diese E-Mail ignorieren.
+    closing: Freundliche Grüße
+    signature: Ihr Time Tracking-Team
+  password:
+    first:
+      title: Neues Passwort
+      blank: Bitte geben Sie ein Passwort ein
+    second: Passwort wiederholen
+  password_mismatch: Die Passwörter stimmen nicht überein
+  email_field:
+    title: E-Mail-Adresse
+    blank: Bitte gib eine E-Mail-Adresse an
 
 settings:
-    title: Einstellungen
-    successfully_saved: Einstellungen wurden gespeichert
-    auto_pause_after_six_hours:
-        title: Automatische Pause nach 6 Stunden (Minuten)
-        help: 0 deaktiviert die Funktion.
-    auto_pause_after_nine_hours:
-        title: Automatische Pause nach 9 Stunden (Minuten)
-        help: 0 deaktiviert die Funktion.
-    users_are_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nachträglich ändern
-    users_not_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nicht nachträglich ändern
-    logo:
-        section_title: Logo & Favicon
-        title: Logo hochladen
-        help: "Empfohlen: quadratisches PNG oder WEBP mit transparentem Hintergrund, mindestens 512x512 Pixel."
-        current: Aktuelles Logo
+  title: Einstellungen
+  successfully_saved: Einstellungen wurden gespeichert
+  auto_pause_after_six_hours:
+    title: Automatische Pause nach 6 Stunden (Minuten)
+    help: 0 deaktiviert die Funktion.
+  auto_pause_after_nine_hours:
+    title: Automatische Pause nach 9 Stunden (Minuten)
+    help: 0 deaktiviert die Funktion.
+  users_are_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nachträglich ändern
+  users_not_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nicht nachträglich ändern
+  logo:
+    section_title: Logo & Favicon
+    title: Logo hochladen
+    help: "Empfohlen: quadratisches PNG oder WEBP mit transparentem Hintergrund, mindestens 512x512 Pixel."
+    current: Aktuelles Logo
+    invalid_type: Bitte lade ein gültiges Bild hoch (PNG, JPG, WEBP oder SVG).
+
+email:
+  automated: Diese E-Mail wurde automatisch versendet.
+  open_overview: "Übersicht öffnen:"
+  your_overview: "Deine Übersicht findest du hier:"
+  absence_created:
+    subject: "Neue Abwesenheit beantragt: user (start - end)"
+    title: Neue Abwesenheit beantragt
+    intro: Es wurde eine neue Abwesenheit beantragt.
+  absence_approved:
+    subject: "Dein Abwesenheitsantrag wurde genehmigt (range)"
+    title: Dein Abwesenheitsantrag wurde genehmigt
+    greeting: "Hallo user,"
+    intro: dein Antrag auf Abwesenheit wurde genehmigt.
+  absence_rejected:
+    subject: "Dein Abwesenheitsantrag wurde abgelehnt (range)"
+    title: Dein Abwesenheitsantrag wurde abgelehnt
+    greeting: "Hallo user,"
+    intro: dein Antrag auf Abwesenheit wurde abgelehnt.
+    reason: Begründung
+  employee: Mitarbeiter
+  period: Zeitraum

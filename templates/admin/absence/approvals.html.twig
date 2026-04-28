@@ -1,36 +1,36 @@
 {% extends 'base.html.twig' %}
-{% block title %}Abwesenheiten genehmigen{% endblock %}
+{% block title %}{{ 'admin_absence.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">Genehmigungen</h1>
-                <p class="text-muted mb-0">Offene und bereits bearbeitete Abwesenheitsanträge im Überblick.</p>
+                <h1 class="h3 mb-1">{{ 'admin_absence.heading'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'admin_absence.subtitle'|trans }}</p>
             </div>
         </div>
 
         <section class="card shadow-sm mb-4">
             <div class="card-header bg-white">
-                <h2 class="h5 mb-0">Offene Genehmigungen</h2>
+                <h2 class="h5 mb-0">{{ 'admin_absence.pending_title'|trans }}</h2>
             </div>
             <div class="card-body p-0">
                 {% if pending is empty %}
                     <div class="p-3 text-muted">
-                        Keine offenen Genehmigungen.
+                        {{ 'admin_absence.no_pending'|trans }}
                     </div>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                             <tr>
-                                <th>User</th>
-                                <th>Typ</th>
-                                <th>Von</th>
-                                <th>Bis</th>
-                                <th>Tage</th>
-                                <th>Kommentar</th>
-                                <th class="text-end">Aktion</th>
+                                <th>{{ 'general.user'|trans }}</th>
+                                <th>{{ 'general.type'|trans }}</th>
+                                <th>{{ 'general.from'|trans }}</th>
+                                <th>{{ 'general.to'|trans }}</th>
+                                <th>{{ 'general.days'|trans }}</th>
+                                <th>{{ 'general.comment'|trans }}</th>
+                                <th class="text-end">{{ 'general.action'|trans }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -47,7 +47,7 @@
                                     <td>{{ a.endDate|date('d.m.Y') }}</td>
                                     <td>{{ row.days }}</td>
                                     <td class="text-muted">
-                                        {{ a.comment ?: '—' }}
+                                        {{ a.comment ?: 'general.none'|trans }}
                                     </td>
                                     <td class="text-end">
                                         {% if app.user.id != a.requestedBy.id %}
@@ -58,7 +58,7 @@
                                                     <input type="hidden" name="_token" value="{{ csrf_token('approve_absence_' ~ a.id) }}">
                                                     <button class="btn btn-sm btn-success w-100" type="submit">
                                                         <i class="fa-solid fa-check me-1"></i>
-                                                        Genehmigen
+                                                        {{ 'admin_absence.approve'|trans }}
                                                     </button>
                                                 </form>
 
@@ -70,17 +70,17 @@
                                                         <input class="form-control"
                                                                type="text"
                                                                name="reason"
-                                                               placeholder="Ablehnungsgrund"
+                                                               placeholder="{{ 'admin_absence.reject_reason'|trans }}"
                                                                required>
                                                         <button class="btn btn-outline-danger" type="submit">
                                                             <i class="fa-solid fa-xmark me-1"></i>
-                                                            Ablehnen
+                                                            {{ 'admin_absence.reject'|trans }}
                                                         </button>
                                                     </div>
                                                 </form>
                                             </div>
                                         {% else %}
-                                            <span class="text-muted small">Eigener Antrag</span>
+                                            <span class="text-muted small">{{ 'admin_absence.own_request'|trans }}</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -94,27 +94,27 @@
 
         <section class="card shadow-sm">
             <div class="card-header bg-white">
-                <h2 class="h5 mb-0">Bereits bearbeitete Anträge</h2>
+                <h2 class="h5 mb-0">{{ 'admin_absence.processed_title'|trans }}</h2>
             </div>
             <div class="card-body p-0">
                 {% if processed is empty %}
                     <div class="p-3 text-muted">
-                        Keine bereits bearbeiteten Anträge vorhanden.
+                        {{ 'admin_absence.no_processed'|trans }}
                     </div>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                             <tr>
-                                <th>User</th>
-                                <th>Typ</th>
-                                <th>Von</th>
-                                <th>Bis</th>
-                                <th>Tage</th>
-                                <th>Status</th>
-                                <th>Bearbeitet von</th>
-                                <th>Bearbeitet am</th>
-                                <th>Kommentar / Grund</th>
+                                <th>{{ 'general.user'|trans }}</th>
+                                <th>{{ 'general.type'|trans }}</th>
+                                <th>{{ 'general.from'|trans }}</th>
+                                <th>{{ 'general.to'|trans }}</th>
+                                <th>{{ 'general.days'|trans }}</th>
+                                <th>{{ 'general.status'|trans }}</th>
+                                <th>{{ 'admin_absence.processed_by'|trans }}</th>
+                                <th>{{ 'admin_absence.processed_at'|trans }}</th>
+                                <th>{{ 'admin_absence.comment_or_reason'|trans }}</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -133,27 +133,27 @@
                                     <td>
                                         {% if a.status == 'approved' %}
                                             <span class="badge text-bg-success">
-                                                <i class="fa-solid fa-check me-1"></i>Genehmigt
+                                                <i class="fa-solid fa-check me-1"></i>{{ 'general.approved'|trans }}
                                             </span>
                                         {% elseif a.status == 'rejected' %}
                                             <span class="badge text-bg-danger">
-                                                <i class="fa-solid fa-xmark me-1"></i>Abgelehnt
+                                                <i class="fa-solid fa-xmark me-1"></i>{{ 'general.rejected'|trans }}
                                             </span>
                                         {% else %}
-                                            <span class="badge text-bg-secondary">{{ a.status }}</span>
+                                            <span class="badge text-bg-secondary">{{ ('general.' ~ a.status)|trans }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
-                                        {{ a.approvedBy ? a.approvedBy.name : '—' }}
+                                        {{ a.approvedBy ? a.approvedBy.name : 'general.none'|trans }}
                                     </td>
                                     <td>
-                                        {{ a.approvedAt ? a.approvedAt|date('d.m.Y H:i') : '—' }}
+                                        {{ a.approvedAt ? a.approvedAt|date('d.m.Y H:i') : 'general.none'|trans }}
                                     </td>
                                     <td class="text-muted">
-                                        {{ a.comment ?: '—' }}
+                                        {{ a.comment ?: 'general.none'|trans }}
                                         {% if a.status == 'rejected' %}
                                             <hr class="mt-5 mb-5">
-                                            {{ a.rejectReason ?: '—' }}
+                                            {{ a.rejectReason ?: 'general.none'|trans }}
                                         {% endif %}
                                     </td>
                                 </tr>

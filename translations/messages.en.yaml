@@ -1,0 +1,448 @@
+month:
+  "1": January
+  "2": February
+  "3": March
+  "4": April
+  "5": May
+  "6": June
+  "7": July
+  "8": August
+  "9": September
+  "10": October
+  "11": November
+  "12": December
+  January: January
+  February: February
+  March: March
+  April: April
+  May: May
+  June: June
+  July: July
+  August: August
+  September: September
+  October: October
+  November: November
+  December: December
+  Jan: Jan
+  Feb: Feb
+  Mar: Mar
+  Apr: Apr
+  Jun: Jun
+  Jul: Jul
+  Aug: Aug
+  Sep: Sep
+  Oct: Oct
+  Nov: Nov
+  Dec: Dec
+
+app:
+  title: Time Tracker
+  brand: TimeTracker
+  menu: Menu
+  logout: Logout
+  profile: Profile
+
+general:
+  general: General
+  admin: Admin
+  save: Save
+  back: Back
+  cancel: Cancel
+  create: Create
+  edit: Edit
+  delete: Delete
+  open: Open
+  show: Show
+  today: Today
+  please_choose: Please choose...
+  yes: Yes
+  no: No
+  unlimited: unlimited
+  none: —
+  action: Action
+  actions: Actions
+  name: Name
+  email: Email
+  user: User
+  type: Type
+  status: Status
+  comment: Comment
+  start: Start
+  stop: Stop
+  end: End
+  from: From
+  to: To
+  days: Days
+  year: Year
+  month: Month
+  key: Key
+  active: Active
+  default: Default
+  preview: Preview
+  allowed: allowed
+  blocked: blocked
+  by_type: by type
+  pending: Pending
+  approved: Approved
+  rejected: Rejected
+  cancelled: Cancelled
+  current: Running
+  impersonate: Impersonate
+
+navbar:
+  dashboard: Dashboard
+  time_tracking: Time Tracking
+  absences: Absences
+  absence_overview: Absence overview
+  users: Users
+  holidays: Holidays
+  approvals: Approvals
+  absence_types: Absence types
+  work_location_types: Work location types
+  absence_contingents: Quotas
+  admin_time_tracking: Employee work times
+  impersonating: You are currently signed in as user.
+  back_to_admin: Back to admin
+
+flash:
+  invalid_csrf: Invalid CSRF token.
+  timer_already_running: A timer is already running.
+  timer_started: Timer started.
+  no_running_timer: No running timer found.
+  timer_stopped: Timer stopped.
+  profile_saved: Profile was saved.
+  month_not_editable: This month can no longer be edited.
+  time_range_fully_overlaps: The selected period is fully covered by existing work time.
+  time_entry_created: Entry was created.
+  time_entry_saved: Entry was saved.
+  time_entry_deleted: Entry was deleted.
+  time_range_adjusted: The period was automatically adjusted to the free range without overlap.
+  work_location_invalid: Invalid work location type.
+  work_location_saved: Work location saved.
+  user_created: User was created.
+  user_saved: User was saved.
+  user_deleted: User was deleted.
+  holiday_created: Holiday created.
+  holiday_saved: Holiday saved.
+  holiday_deleted: Holiday deleted.
+  absence_type_saved: Type saved.
+  absence_quota_saved: Quota saved.
+  work_location_type_saved: Work location type saved.
+
+dashboard:
+  title: Dashboard
+  subtitle: Start/stop and overview of your times.
+  today_worked: Worked today
+  week: Week
+  month: Month
+  target: "Target: value"
+  status: Status
+  running: Running
+  stopped: Stopped
+  since: since time
+  absences_year: "Absences (year)"
+  absences_meta: Quota / Approved / Pending
+  last_absence: Last absence
+  next_absence: Next absence
+
+time_tracking:
+  title: Time Tracking
+  subtitle: Overview by month and day (read only).
+  year_selection: Year selection
+  work_locations_csv: Work locations CSV
+  no_times_year: No times have been recorded for year yet.
+  month: Month
+  actual: Actual
+  target: Target
+  delta_target_actual: Δ Target-Actual
+  delta: Δ
+  day: Day
+  action: Action
+  no_entries_month: No entries in this month.
+  holiday: Holiday
+  absence: Absence
+  edit: Edit
+  day_title: "date - Time Tracking"
+  day_subtitle_editable: Entries for this day (editable).
+  day_subtitle_readonly: Entries for this day (read only).
+  back_to_overview: Back to overview
+  add_entry: Add entry
+  work_location: Work location
+  no_entries: No entries.
+  confirm_delete_entry: Really delete this entry?
+  entry_add: Add entry
+  entry_edit: Edit entry
+  end_time_help: Leave empty = entry continues running
+
+absence:
+  request:
+    type: Absence type
+    start_date: Start date
+    end_date: End date
+    comment: Comment
+    title: Request absence
+    subtitle: For year - please choose a period and type.
+    request: Request
+    cancel: Cancel
+    submit_error: The request could not be submitted.
+    created_warning: Absence was created, but the admin notification email could not be sent.
+    created_success: Absence requested.
+    cannot_cancel: This request cannot be cancelled.
+    cancelled: Absence cancelled.
+    confirm_cancel: Really cancel this absence?
+    end_before_start: The end date must not be before the start date.
+    wrong_year: The absence must fall into the selected year.
+    overlaps_existing: There is already a pending or approved absence overlapping this period.
+  quota:
+    user: User
+    type: Type
+    year: Year
+    quota_days: Number of days
+    empty_unlimited: Empty = unlimited
+    allow_over_limit: Allow quota overrun
+    allow_over_limit_help: Only explicit values override the absence type's default setting.
+  type:
+    name: Name
+    key_name:
+      title: Slug
+      hint: e.g. vacation, sick, unpaid
+    is_active: Active
+    requires_approval: Requires approval
+    requires_quota: Enable quota
+    default_yearly_quota_days:
+      title: Default quota
+      hint: Empty = unlimited
+    allow_over_limit: Allow quota overrun
+    allow_over_limit_help: Default setting for this absence type. Quotas can override it.
+  title: Absences year
+  subtitle: Overview of quotas and your requests.
+  contingents:
+    title: Quotas
+    subtitle: Approved and pending days per type.
+  absence_type: Type
+  contingent: Quota
+  used: Used (approved)
+  pending: Pending
+  available: Remaining
+  unlimited: unlimited
+  my_absences: My absences
+  absences_for_year: Requests for year (including status and reason if applicable).
+  no_absences: No absences for this year yet.
+  from: From
+  to: To
+  days: Days
+  status: Status
+  reject_reason: "Reason: reason"
+  cancel: Cancel
+
+absence_overview:
+  title: Absence overview
+  title_month: "Absence overview - month year"
+  month_label: "Month:"
+  employee: Employee
+  user_fallback: "User #id"
+  holiday_title: "Holiday: names"
+  tooltip_period_separator: to
+  tooltip_status: "Status: status"
+  tooltip_comment: "Comment: comment"
+  legend: "Legend:"
+
+admin_absence:
+  title: Approve absences
+  heading: Approvals
+  subtitle: Overview of pending and already processed absence requests.
+  pending_title: Pending approvals
+  no_pending: No pending approvals.
+  approve: Approve
+  reject: Reject
+  reject_reason: Rejection reason
+  own_request: Own request
+  processed_title: Already processed requests
+  no_processed: No processed requests available.
+  processed_by: Processed by
+  processed_at: Processed at
+  comment_or_reason: Comment / reason
+  approved_warning: The request was approved, but the notification email could not be sent.
+  approved_success: Absence approved.
+  rejected_warning: The request was rejected, but the notification email could not be sent.
+  rejected_success: Absence rejected.
+  reason_required: Please provide a reason.
+  only_pending: Only pending requests can be processed.
+  own_request_error: Own requests cannot be processed.
+
+admin_quota:
+  title: Quotas
+  subtitle: Manage quotas per user/type/year.
+  create: Create quota
+  edit: Edit quota
+  form_subtitle: Set quota per user/type/year.
+  none: No quotas maintained yet.
+  over_limit: Overrun
+
+admin_absence_type:
+  title: Absence types
+  create: Create absence type
+  edit: Edit absence type
+  create_short: Create type
+  subtitle: Manage types (active, approval, quota).
+  form_subtitle: Configure absence type.
+  none: No types created yet.
+  approval: Approval
+  quota: Quota
+  over_limit: Overrun
+  default_per_year: Default / year
+
+holiday:
+  title: Holidays
+  subtitle: Create, manage, and assign holidays to users.
+  new: New holiday
+  create: Create holiday
+  create_subtitle: Create a new holiday.
+  edit: Edit holiday
+  edit_subtitle: "Edit holiday: name"
+  name: Name
+  date: Date
+  users: Applies to users
+  no_holidays: No holidays available.
+  confirm_delete: Really delete this holiday?
+
+admin_time:
+  title: Employee work times
+  subtitle: Select a user to view the yearly overview.
+  no_users: No users found.
+  user_year_title: "Admin · Time Tracking · user · year"
+  user_year_heading: Admin · Time Tracking
+  user_year_subtitle: "Overview for user (email) - read only."
+  back_to_users: Back to user list
+
+user:
+  title: User management
+  subtitle: Create users, manage roles, reset passwords.
+  new: New user
+  new_subtitle: Create a new user.
+  edit: Edit user
+  none: No users available.
+  confirm_delete: Really delete this user?
+  name: Name
+  email: Email address
+  daily_work_minutes:
+    title: Daily work time
+    hint: Target work time per day in hours
+    placeholder: e.g. 8.0
+  daily_target: Target / day
+  roles:
+    title: Roles
+    hint: ROLE_USER is always added automatically.
+    user: Regular user
+    admin: Administrator
+  password: Password
+  password_optional:
+    title: New password (optional)
+    hint: Leave empty if the password should remain unchanged.
+  first_password: New password
+  second_password: Repeat password
+  password_mismatch: The passwords do not match
+
+work_location_type:
+  title: Work location types
+  create: Create work location type
+  edit: Edit work location type
+  create_short: Create type
+  subtitle: Configurable locations (e.g. office, home office, business trip).
+  form_subtitle: Configure work location type.
+  none: No types created yet.
+  name: Name
+  key_name: Key
+  key_name_help: Internal unique identifier (e.g. office, home_office)
+  is_active: Active
+  is_default: Default (preselected for new days)
+  icon: Icon (FontAwesome class)
+  icon_help: Optional, e.g. fa-solid fa-house or fa-solid fa-building
+
+profile:
+  title: Profile
+  subtitle: Your master data and optional password change.
+  master_data: Master data
+  master_data_subtitle: This data is used for your account.
+  change_password: Change password (optional)
+  change_password_subtitle: Leave empty if you do not want to change your password.
+
+auth:
+  login: Login
+  login_subtitle: Please sign in to continue.
+  forgot_password: Forgot password?
+  sign_in: Sign in
+  back_to_login: Back to login
+
+password_reset:
+  request:
+    title: Forgot password
+    subtitle: Enter your email address. We will send you a link to reset your password.
+    send_email: Send email
+  check:
+    title: Email sent
+    subtitle: If an account with this email address exists, a message with a password reset link has just been sent.
+    valid_for: The link is valid for
+    retry: Try again
+  reset:
+    title: Reset password
+    heading: Set new password
+    subtitle: Please choose a new password for your account.
+    save: Save password
+  email:
+    subject: Reset password | Time Tracking
+    greeting: Hello,
+    intro: You requested a password reset for your account. Use the following link to set a new password:
+    valid_for: The link is valid for
+    ignore: If you did not make this request, you can ignore this email.
+    closing: Best regards
+    signature: Your Time Tracking team
+  password:
+    first:
+      title: New password
+      blank: Please enter a password
+    second: Repeat password
+  password_mismatch: The passwords do not match
+  email_field:
+    title: Email address
+    blank: Please enter an email address
+
+settings:
+  title: Settings
+  successfully_saved: Settings were saved
+  auto_pause_after_six_hours:
+    title: Automatic break after 6 hours (minutes)
+    help: 0 disables this function.
+  auto_pause_after_nine_hours:
+    title: Automatic break after 9 hours (minutes)
+    help: 0 disables this function.
+  users_are_allowed_to_change_time_entries: Users may change time entries afterwards
+  users_not_allowed_to_change_time_entries: Users may not change time entries afterwards
+  logo:
+    section_title: Logo & favicon
+    title: Upload logo
+    help: "Recommended: square PNG or WEBP with transparent background, at least 512x512 pixels."
+    current: Current logo
+    invalid_type: Please upload a valid image (PNG, JPG, WEBP, or SVG).
+
+email:
+  automated: This email was sent automatically.
+  open_overview: "Open overview:"
+  your_overview: "You can find your overview here:"
+  absence_created:
+    subject: "New absence requested: user (start - end)"
+    title: New absence requested
+    intro: A new absence was requested.
+  absence_approved:
+    subject: "Your absence request was approved (range)"
+    title: Your absence request was approved
+    greeting: "Hello user,"
+    intro: your absence request was approved.
+  absence_rejected:
+    subject: "Your absence request was rejected (range)"
+    title: Your absence request was rejected
+    greeting: "Hello user,"
+    intro: your absence request was rejected.
+    reason: Reason
+  employee: Employee
+  period: Period

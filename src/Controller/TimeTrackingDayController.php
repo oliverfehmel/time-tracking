@@ -75,7 +75,7 @@ final class TimeTrackingDayController extends AbstractController
         $dayStart = new DateTimeImmutable($date . ' 00:00:00');
 
         if (!$this->calc->isEditableMonth($dayStart, $now)) {
-            $this->addFlash('error', 'Dieser Monat ist nicht mehr bearbeitbar.');
+            $this->addFlash('error', 'flash.month_not_editable');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
@@ -89,21 +89,21 @@ final class TimeTrackingDayController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$this->resolveOverlaps($entry, $entryRepo, $overlapResolver, null)) {
-                $this->addFlash('error', 'Der Zeitraum liegt vollständig in bereits erfasster Arbeitszeit.');
+                $this->addFlash('error', 'flash.time_range_fully_overlaps');
                 return $this->redirectToRoute('_time_day', ['date' => $date]);
             }
 
             $em->persist($entry);
             $em->flush();
 
-            $this->addFlash('success', 'Eintrag wurde angelegt.');
+            $this->addFlash('success', 'flash.time_entry_created');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
         return $this->render('time_tracking/entry_form.html.twig', [
             'day'   => $dayStart,
             'form'  => $form,
-            'title' => 'Eintrag hinzufügen',
+            'title' => 'time_tracking.entry_add',
         ]);
     }
 
@@ -130,7 +130,7 @@ final class TimeTrackingDayController extends AbstractController
         $date     = $dayStart->format('Y-m-d');
 
         if (!$this->calc->isEditableMonth($dayStart, $now)) {
-            $this->addFlash('error', 'Dieser Monat ist nicht mehr bearbeitbar.');
+            $this->addFlash('error', 'flash.month_not_editable');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
@@ -139,20 +139,20 @@ final class TimeTrackingDayController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             if (!$this->resolveOverlaps($entry, $entryRepo, $overlapResolver, $entry)) {
-                $this->addFlash('error', 'Der Zeitraum liegt vollständig in bereits erfasster Arbeitszeit.');
+                $this->addFlash('error', 'flash.time_range_fully_overlaps');
                 return $this->redirectToRoute('_time_day', ['date' => $date]);
             }
 
             $em->flush();
 
-            $this->addFlash('success', 'Eintrag wurde gespeichert.');
+            $this->addFlash('success', 'flash.time_entry_saved');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
         return $this->render('time_tracking/entry_form.html.twig', [
             'day'   => $dayStart,
             'form'  => $form,
-            'title' => 'Eintrag bearbeiten',
+            'title' => 'time_tracking.entry_edit',
         ]);
     }
 
@@ -177,19 +177,19 @@ final class TimeTrackingDayController extends AbstractController
         $date     = $dayStart->format('Y-m-d');
 
         if (!$this->calc->isEditableMonth($dayStart, $now)) {
-            $this->addFlash('error', 'Dieser Monat ist nicht mehr bearbeitbar.');
+            $this->addFlash('error', 'flash.month_not_editable');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
         if (!$this->isCsrfTokenValid('delete_time_entry_' . $entry->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
         $em->remove($entry);
         $em->flush();
 
-        $this->addFlash('success', 'Eintrag wurde gelöscht.');
+        $this->addFlash('success', 'flash.time_entry_deleted');
         return $this->redirectToRoute('_time_day', ['date' => $date]);
     }
 
@@ -228,7 +228,7 @@ final class TimeTrackingDayController extends AbstractController
         }
 
         if ($entry->getStartedAt() != $originalStart || $entry->getStoppedAt() != $originalEnd) {
-            $this->addFlash('warning', 'Der Zeitraum wurde automatisch auf den freien Bereich ohne Überschneidung angepasst.');
+            $this->addFlash('warning', 'flash.time_range_adjusted');
         }
 
         return true;

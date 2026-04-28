@@ -34,13 +34,13 @@ final class AbsenceTypeAdminController extends AbstractController
         $type = new AbsenceType();
         $type->setIsActive(true);
 
-        return $this->handleForm($type, $request, 'Abwesenheitstyp anlegen');
+        return $this->handleForm($type, $request, 'admin_absence_type.create');
     }
 
     #[Route('/{id<\d+>}/edit', name: '_admin_absence_type_edit', methods: ['GET', 'POST'])]
     public function edit(AbsenceType $type, Request $request): Response
     {
-        return $this->handleForm($type, $request, 'Abwesenheitstyp bearbeiten');
+        return $this->handleForm($type, $request, 'admin_absence_type.edit');
     }
 
     private function handleForm(AbsenceType $type, Request $request, string $title): Response
@@ -51,7 +51,7 @@ final class AbsenceTypeAdminController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $this->em->persist($type);
             $this->em->flush();
-            $this->addFlash('success', 'Typ gespeichert.');
+            $this->addFlash('success', 'flash.absence_type_saved');
             return $this->redirectToRoute('_admin_absence_type_index');
         }
 

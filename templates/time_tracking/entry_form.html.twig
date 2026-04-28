@@ -1,12 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{{ title|trans }}{% endblock %}
 
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">{{ title }}</h1>
+                <h1 class="h3 mb-1">{{ title|trans }}</h1>
                 <p class="text-muted mb-0">{{ day|date('d.m.Y') }}</p>
             </div>
 
@@ -14,7 +14,7 @@
                 <a class="btn btn-sm btn-outline-secondary"
                    href="{{ path('_time_day', {date: day|date('Y-m-d')}) }}">
                     <i class="fa-solid fa-arrow-left me-1"></i>
-                    Zurück
+                    {{ 'general.back'|trans }}
                 </a>
             </div>
         </div>
@@ -33,13 +33,13 @@
                     {{ form_row(form.endTime, {
                         row_attr: { class: 'mb-0' }
                     }) }}
-                    <small class="text-muted">Leer lassen = Eintrag läuft weiter</small>
+                    <small class="text-muted">{{ 'time_tracking.end_time_help'|trans }}</small>
                 </div>
 
                 <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                     <button class="btn btn-primary" type="submit">
                         <i class="fa-regular fa-floppy-disk me-1"></i>
-                        Speichern
+                        {{ 'general.save'|trans }}
                     </button>
                 </div>
 

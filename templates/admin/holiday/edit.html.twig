@@ -1,18 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Feiertag bearbeiten{% endblock %}
+{% block title %}{{ 'holiday.edit'|trans }}{% endblock %}
 
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">Feiertag bearbeiten</h1>
-                <p class="text-muted mb-0">Bearbeite den Feiertag: {{ holiday.name }}</p>
+                <h1 class="h3 mb-1">{{ 'holiday.edit'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'holiday.edit_subtitle'|trans({'name': holiday.name}) }}</p>
             </div>
 
             <a class="btn btn-sm btn-outline-secondary" href="{{ path('_admin_holiday_index') }}">
                 <i class="fa-solid fa-arrow-left me-1"></i>
-                Zurück
+                {{ 'general.back'|trans }}
             </a>
         </div>
 
@@ -34,11 +34,11 @@
 
                 <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                     <a class="btn btn-outline-secondary" href="{{ path('_admin_holiday_index') }}">
-                        Abbrechen
+                        {{ 'general.cancel'|trans }}
                     </a>
                     <button class="btn btn-primary" type="submit">
                         <i class="fa-regular fa-floppy-disk me-1"></i>
-                        Speichern
+                        {{ 'general.save'|trans }}
                     </button>
                 </div>
 

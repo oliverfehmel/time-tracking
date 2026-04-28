@@ -4,63 +4,63 @@
 <aside class="sidebar">
     <div id="sidebarNav" class="collapse d-lg-block">
         <div class="sidebar-inner p-3">
-            <div class="sidebar-heading">Allgemein</div>
+            <div class="sidebar-heading">{{ 'general.general'|trans }}</div>
             <nav class="nav nav-pills flex-column gap-1 mb-3">
                 <a class="nav-link {{ currentRoute == '_home' ? 'active' : '' }}" href="{{ path('_home') }}">
-                    <i class="fa-solid fa-gauge-high me-2"></i>Dashboard
+                    <i class="fa-solid fa-gauge-high me-2"></i>{{ 'navbar.dashboard'|trans }}
                 </a>
                 <a class="nav-link {{ currentRoute starts with '_time_' ? 'active' : '' }}"
                    href="{{ path('_time_index', {year: currentYear}) }}">
-                    <i class="fa-regular fa-clock me-2"></i>Time Tracking
+                    <i class="fa-regular fa-clock me-2"></i>{{ 'navbar.time_tracking'|trans }}
                 </a>
                 <a class="nav-link {{ currentRoute starts with '_absence_' ? 'active' : '' }}"
                    href="{{ path('_absence_index', {year: currentYear}) }}">
-                    <i class="fa-regular fa-calendar-xmark me-2"></i>Abwesenheiten
+                    <i class="fa-regular fa-calendar-xmark me-2"></i>{{ 'navbar.absences'|trans }}
                 </a>
                 <a class="nav-link {{ currentRoute == '_absences_overview' ? 'active' : '' }}"
                    href="{{ path('_absences_overview') }}">
-                    <i class="fa-regular fa-calendar me-2"></i>Abwesenheitsübersicht
+                    <i class="fa-regular fa-calendar me-2"></i>{{ 'navbar.absence_overview'|trans }}
                 </a>
                 {% if is_granted('IS_IMPERSONATOR') %}
                     <div class="alert alert-warning">
-                        Du bist gerade als {{ app.user.name }} angemeldet.
+                        {{ 'navbar.impersonating'|trans({'user': app.user.name}) }}
                         <a href="{{ path('_admin_users_index', {'_switch_user': '_exit'}) }}">
-                            Zurück zum Admin
+                            {{ 'navbar.back_to_admin'|trans }}
                         </a>
                     </div>
                 {% endif %}
             </nav>
 
             {% if is_granted('ROLE_ADMIN') %}
-                <div class="sidebar-heading">Admin</div>
+                <div class="sidebar-heading">{{ 'general.admin'|trans }}</div>
                 <nav class="nav nav-pills flex-column gap-1">
                     <a class="nav-link {{ currentRoute starts with '_admin_time_' ? 'active' : '' }}"
                        href="{{ path('_admin_time_users') }}">
-                        <i class="fa-regular fa-chart-bar me-2"></i>Mitarbeiter-Arbeitszeiten
+                        <i class="fa-regular fa-chart-bar me-2"></i>{{ 'navbar.admin_time_tracking'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_users_' ? 'active' : '' }}"
                        href="{{ path('_admin_users_index') }}">
-                        <i class="fa-solid fa-users me-2"></i>Benutzer
+                        <i class="fa-solid fa-users me-2"></i>{{ 'navbar.users'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_holiday_' ? 'active' : '' }}"
                        href="{{ path('_admin_holiday_index') }}">
-                        <i class="fa-regular fa-calendar-days me-2"></i>Feiertage
+                        <i class="fa-regular fa-calendar-days me-2"></i>{{ 'navbar.holidays'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_absence_a' ? 'active' : '' }}"
                        href="{{ path('_admin_absence_approvals') }}">
-                        <i class="fa-regular fa-circle-check me-2"></i>Genehmigungen
+                        <i class="fa-regular fa-circle-check me-2"></i>{{ 'navbar.approvals'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_absence_type_' ? 'active' : '' }}"
                        href="{{ path('_admin_absence_type_index') }}">
-                        <i class="fa-solid fa-tags me-2"></i>Abwesenheitstypen
+                        <i class="fa-solid fa-tags me-2"></i>{{ 'navbar.absence_types'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_work_location_type_' ? 'active' : '' }}"
                        href="{{ path('_admin_work_location_type_index') }}">
-                        <i class="fa-solid fa-location-dot me-2"></i>Arbeitsort-Typen
+                        <i class="fa-solid fa-location-dot me-2"></i>{{ 'navbar.work_location_types'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_absence_quota_' ? 'active' : '' }}"
                        href="{{ path('_admin_absence_quota_index') }}">
-                        <i class="fa-solid fa-layer-group me-2"></i>Kontingente
+                        <i class="fa-solid fa-layer-group me-2"></i>{{ 'navbar.absence_contingents'|trans }}
                     </a>
                     <a class="nav-link {{ currentRoute starts with '_settings' ? 'active' : '' }}"
                        href="{{ path('_settings_edit') }}">
@@ -75,7 +75,7 @@
                     <i class="fa-regular fa-user me-1"></i>{{ app.user.name }}
                 </a>
                 <a class="btn btn-sm btn-outline-secondary w-100" href="{{ path('_logout') }}">
-                    <i class="fa-solid fa-right-from-bracket me-1"></i>Logout
+                    <i class="fa-solid fa-right-from-bracket me-1"></i>{{ 'app.logout'|trans }}
                 </a>
             </div>
         </div>

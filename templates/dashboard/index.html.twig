@@ -1,22 +1,20 @@
-{# templates/dashboard/index.html.twig (oder dein Dashboard-Template) #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}{{ 'dashboard.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="container-fluid px-0">
         <div class="d-flex align-items-start justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">Dashboard</h1>
-                <p class="text-muted mb-0">Start/Stop und Überblick über deine Zeiten.</p>
+                <h1 class="h3 mb-1">{{ 'dashboard.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'dashboard.subtitle'|trans }}</p>
             </div>
         </div>
 
-        {# Today / Start-Stop #}
         <div class="card shadow-sm mb-3">
             <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
                 <div>
-                    <div class="text-muted small">Heute gearbeitet</div>
+                    <div class="text-muted small">{{ 'dashboard.today_worked'|trans }}</div>
                     <div class="display-6 fw-bold lh-1 mt-1">{{ todayWorked }}</div>
                 </div>
 
@@ -26,7 +24,7 @@
                             <input type="hidden" name="_token" value="{{ csrf_token('time_stop') }}">
                             <button class="btn btn-danger" type="submit">
                                 <i class="fa-solid fa-stop me-1"></i>
-                                Stop
+                                {{ 'general.stop'|trans }}
                             </button>
                         </form>
                     {% else %}
@@ -34,7 +32,7 @@
                             <input type="hidden" name="_token" value="{{ csrf_token('time_start') }}">
                             <button class="btn btn-success" type="submit">
                                 <i class="fa-solid fa-play me-1"></i>
-                                Start
+                                {{ 'general.start'|trans }}
                             </button>
                         </form>
                     {% endif %}
@@ -42,14 +40,13 @@
             </div>
         </div>
 
-        {# KPI cards #}
         <div class="row g-3">
             <div class="col-12 col-md-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small">Woche</div>
+                        <div class="text-muted small">{{ 'dashboard.week'|trans }}</div>
                         <div class="h4 fw-bold mt-2 mb-1">{{ weekIst }}</div>
-                        <div class="text-muted small">Soll: {{ weekSoll }}</div>
+                        <div class="text-muted small">{{ 'dashboard.target'|trans({'value': weekSoll}) }}</div>
                     </div>
                 </div>
             </div>
@@ -57,9 +54,9 @@
             <div class="col-12 col-md-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small">Monat</div>
+                        <div class="text-muted small">{{ 'dashboard.month'|trans }}</div>
                         <div class="h4 fw-bold mt-2 mb-1">{{ monthIst }}</div>
-                        <div class="text-muted small">Soll: {{ monthSoll }}</div>
+                        <div class="text-muted small">{{ 'dashboard.target'|trans({'value': monthSoll}) }}</div>
                     </div>
                 </div>
             </div>
@@ -67,26 +64,26 @@
             <div class="col-12 col-md-4">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small">Status</div>
+                        <div class="text-muted small">{{ 'dashboard.status'|trans }}</div>
 
                         {% if running %}
                             <div class="h5 fw-bold mt-2 mb-1">
                                 <span class="badge text-bg-success">
                                     <i class="fa-regular fa-circle-play me-1"></i>
-                                    Läuft
+                                    {{ 'dashboard.running'|trans }}
                                 </span>
                             </div>
                             <div class="text-muted small">
-                                seit {{ running.startedAt|date('H:i') }}
+                                {{ 'dashboard.since'|trans({'time': running.startedAt|date('H:i')}) }}
                             </div>
                         {% else %}
                             <div class="h5 fw-bold mt-2 mb-1">
                                 <span class="badge text-bg-secondary">
                                     <i class="fa-regular fa-circle-stop me-1"></i>
-                                    Gestoppt
+                                    {{ 'dashboard.stopped'|trans }}
                                 </span>
                             </div>
-                            <div class="text-muted small">—</div>
+                            <div class="text-muted small">{{ 'general.none'|trans }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -97,8 +94,8 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <div>
-                                <div class="h5 mb-0">Abwesenheiten ({{ "now"|date("Y") }})</div>
-                                <div class="text-muted small">Kontingent / Genehmigt / Pending</div>
+                                <div class="h5 mb-0">{{ 'dashboard.absences_year'|trans({'year': "now"|date("Y")}) }}</div>
+                                <div class="text-muted small">{{ 'dashboard.absences_meta'|trans }}</div>
                             </div>
                         </div>
 
@@ -106,11 +103,11 @@
                             <table class="table table-sm align-middle mb-0">
                                 <thead>
                                 <tr class="text-muted small">
-                                    <th>Typ</th>
-                                    <th class="text-end">Kontingent</th>
-                                    <th class="text-end">Genehmigt</th>
-                                    <th class="text-end">Pending</th>
-                                    <th class="text-end">Verbleibend</th>
+                                    <th>{{ 'general.type'|trans }}</th>
+                                    <th class="text-end">{{ 'absence.contingent'|trans }}</th>
+                                    <th class="text-end">{{ 'general.approved'|trans }}</th>
+                                    <th class="text-end">{{ 'general.pending'|trans }}</th>
+                                    <th class="text-end">{{ 'absence.available'|trans }}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -124,7 +121,7 @@
 
                                         <td class="text-end">
                                             {% if not t.requiresQuota %}
-                                                —
+                                                {{ 'general.none'|trans }}
                                             {% else %}
                                                 {{ s.quotaDays is null ? '∞' : s.quotaDays }}
                                             {% endif %}
@@ -140,7 +137,7 @@
 
                                         <td class="text-end">
                                             {% if not t.requiresQuota %}
-                                                —
+                                                {{ 'general.none'|trans }}
                                             {% else %}
                                                 {{ s.remainingDays is null ? '∞' : s.remainingDays }}
                                             {% endif %}
@@ -157,22 +154,22 @@
             <div class="col-12 col-md-6">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small">Letzte Abwesenheit</div>
+                        <div class="text-muted small">{{ 'dashboard.last_absence'|trans }}</div>
 
                         {% if lastAbsence %}
                             <div class="h5 fw-bold mt-2 mb-1">
                                 {{ lastAbsence.type.name }}
                                 {% if lastAbsence.status == absenceRequestPending %}
-                                    <span class="badge text-bg-warning ms-1">Pending</span>
+                                    <span class="badge text-bg-warning ms-1">{{ 'general.pending'|trans }}</span>
                                 {% else %}
-                                    <span class="badge text-bg-success ms-1">Approved</span>
+                                    <span class="badge text-bg-success ms-1">{{ 'general.approved'|trans }}</span>
                                 {% endif %}
                             </div>
                             <div class="text-muted small">
-                                {{ lastAbsence.startDate|date('d.m.Y') }} – {{ lastAbsence.endDate|date('d.m.Y') }}
+                                {{ lastAbsence.startDate|date('d.m.Y') }} - {{ lastAbsence.endDate|date('d.m.Y') }}
                             </div>
                         {% else %}
-                            <div class="text-muted mt-2">—</div>
+                            <div class="text-muted mt-2">{{ 'general.none'|trans }}</div>
                         {% endif %}
                     </div>
                 </div>
@@ -181,36 +178,35 @@
             <div class="col-12 col-md-6">
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small">Nächste Abwesenheit</div>
+                        <div class="text-muted small">{{ 'dashboard.next_absence'|trans }}</div>
 
                         {% if currentAbsence %}
                             <div class="h5 fw-bold mt-2 mb-1">
                                 {{ currentAbsence.type.name }}
-                                <span class="badge text-bg-info ms-1">Läuft</span>
+                                <span class="badge text-bg-info ms-1">{{ 'general.current'|trans }}</span>
                             </div>
                             <div class="text-muted small">
-                                {{ currentAbsence.startDate|date('d.m.Y') }} – {{ currentAbsence.endDate|date('d.m.Y') }}
+                                {{ currentAbsence.startDate|date('d.m.Y') }} - {{ currentAbsence.endDate|date('d.m.Y') }}
                             </div>
 
                         {% elseif nextAbsence %}
                             <div class="h5 fw-bold mt-2 mb-1">
                                 {{ nextAbsence.type.name }}
                                 {% if nextAbsence.status == absenceRequestPending %}
-                                    <span class="badge text-bg-warning ms-1">Pending</span>
+                                    <span class="badge text-bg-warning ms-1">{{ 'general.pending'|trans }}</span>
                                 {% else %}
-                                    <span class="badge text-bg-success ms-1">Approved</span>
+                                    <span class="badge text-bg-success ms-1">{{ 'general.approved'|trans }}</span>
                                 {% endif %}
                             </div>
                             <div class="text-muted small">
-                                {{ nextAbsence.startDate|date('d.m.Y') }} – {{ nextAbsence.endDate|date('d.m.Y') }}
+                                {{ nextAbsence.startDate|date('d.m.Y') }} - {{ nextAbsence.endDate|date('d.m.Y') }}
                             </div>
                         {% else %}
-                            <div class="text-muted mt-2">—</div>
+                            <div class="text-muted mt-2">{{ 'general.none'|trans }}</div>
                         {% endif %}
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 {% endblock %}

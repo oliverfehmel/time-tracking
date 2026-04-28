@@ -1,25 +1,25 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin · Time Tracking · {{ userEntity.name }} · {{ year }}{% endblock %}
+{% block title %}{{ 'admin_time.user_year_title'|trans({'user': userEntity.name, 'year': year}) }}{% endblock %}
 
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">Admin · Time Tracking</h1>
+                <h1 class="h3 mb-1">{{ 'admin_time.user_year_heading'|trans }}</h1>
                 <p class="text-muted mb-0">
-                    Übersicht für <strong>{{ userEntity.name }}</strong> ({{ userEntity.email }}) – nur Ansicht.
+                    {{ 'admin_time.user_year_subtitle'|trans({'user': userEntity.name, 'email': userEntity.email}) }}
                 </p>
 
                 <div class="mt-2">
                     <a class="btn btn-sm btn-outline-secondary" href="{{ path('_admin_time_users') }}">
                         <i class="fa-solid fa-arrow-left me-1"></i>
-                        Zurück zur User-Liste
+                        {{ 'admin_time.back_to_users'|trans }}
                     </a>
                 </div>
             </div>
 
-            <nav class="d-flex flex-wrap gap-2" aria-label="Jahresauswahl">
+            <nav class="d-flex flex-wrap gap-2" aria-label="{{ 'time_tracking.year_selection'|trans }}">
                 {% for y in years %}
                     <a class="btn btn-sm {{ y == year ? 'btn-dark' : 'btn-outline-secondary' }}"
                        href="{{ path('_admin_time_user_year', {id: userEntity.id, year: y}) }}">
@@ -32,7 +32,7 @@
         {% if months is empty %}
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <p class="mb-0 text-muted">Für {{ year }} wurden noch keine Zeiten erfasst.</p>
+                    <p class="mb-0 text-muted">{{ 'time_tracking.no_times_year'|trans({'year': year}) }}</p>
                 </div>
             </div>
         {% else %}
@@ -44,20 +44,20 @@
                                 <div class="tt-month-title">
                                     {{ ('month.' ~ m.start|date('n'))|trans }} {{ m.start|date('Y') }}
                                 </div>
-                                <div class="tt-month-meta">Monat</div>
+                                <div class="tt-month-meta">{{ 'time_tracking.month'|trans }}</div>
                             </div>
 
                             <div class="tt-month-right">
                                 <div class="tt-kpi">
-                                    <div class="tt-kpi-label">Ist</div>
+                                    <div class="tt-kpi-label">{{ 'time_tracking.actual'|trans }}</div>
                                     <div class="tt-kpi-value">{{ m.ist }}</div>
                                 </div>
                                 <div class="tt-kpi">
-                                    <div class="tt-kpi-label">Soll</div>
+                                    <div class="tt-kpi-label">{{ 'time_tracking.target'|trans }}</div>
                                     <div class="tt-kpi-value">{{ m.soll }}</div>
                                 </div>
                                 <div class="tt-kpi">
-                                    <div class="tt-kpi-label">Δ Soll–Ist</div>
+                                    <div class="tt-kpi-label">{{ 'time_tracking.delta_target_actual'|trans }}</div>
                                     <div class="tt-kpi-value {{ m.deltaSeconds < 0 ? 'tt-delta-neg' : (m.deltaSeconds > 0 ? 'tt-delta-pos' : 'tt-delta-zero') }}">
                                         {{ m.delta }}
                                     </div>
@@ -67,18 +67,18 @@
 
                         <div class="tt-month-body px-3 pb-3 pt-0">
                             {% if m.days is empty %}
-                                <div class="text-muted py-2">Keine Einträge in diesem Monat.</div>
+                                <div class="text-muted py-2">{{ 'time_tracking.no_entries_month'|trans }}</div>
                             {% else %}
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0 tt-table">
                                         <thead class="table-light">
                                         <tr>
-                                            <th>Tag</th>
-                                            <th>Start</th>
-                                            <th>Ende</th>
-                                            <th class="text-end">Ist</th>
-                                            <th class="text-end">Soll</th>
-                                            <th class="text-end">Δ</th>
+                                            <th>{{ 'time_tracking.day'|trans }}</th>
+                                            <th>{{ 'general.start'|trans }}</th>
+                                            <th>{{ 'general.end'|trans }}</th>
+                                            <th class="text-end">{{ 'time_tracking.actual'|trans }}</th>
+                                            <th class="text-end">{{ 'time_tracking.target'|trans }}</th>
+                                            <th class="text-end">Î”</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -96,11 +96,11 @@
                                                         {{ d.date|date('D') }}
 
                                                         {% if d.holiday %}
-                                                            <span class="badge text-bg-info ms-2">Feiertag</span>
+                                                            <span class="badge text-bg-info ms-2">{{ 'time_tracking.holiday'|trans }}</span>
                                                         {% endif %}
                                                         {% if d.absence %}
                                                             <span class="badge text-bg-warning ms-2">
-                                                                Abwesenheit{% if d.absenceTypeName %}: {{ d.absenceTypeName }}{% endif %}
+                                                                {{ 'time_tracking.absence'|trans }}{% if d.absenceTypeName %}: {{ d.absenceTypeName }}{% endif %}
                                                             </span>
                                                         {% endif %}
                                                         {% if d.workLocationName %}
@@ -111,8 +111,8 @@
                                                         {% endif %}
                                                     </div>
                                                 </td>
-                                                <td>{{ d.start ? d.start|date('H:i') : '—' }}</td>
-                                                <td>{{ d.end ? d.end|date('H:i') : '—' }}</td>
+                                                <td>{{ d.start ? d.start|date('H:i') : 'general.none'|trans }}</td>
+                                                <td>{{ d.end ? d.end|date('H:i') : 'general.none'|trans }}</td>
                                                 <td class="text-end">{{ d.ist }}</td>
                                                 <td class="text-end">{{ d.soll }}</td>
                                                 <td class="text-end">

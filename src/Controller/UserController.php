@@ -48,7 +48,7 @@ final class UserController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            $this->addFlash('success', 'User wurde angelegt.');
+            $this->addFlash('success', 'flash.user_created');
 
             return $this->redirectToRoute('_admin_users_index');
         }
@@ -77,7 +77,7 @@ final class UserController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', 'User wurde gespeichert.');
+            $this->addFlash('success', 'flash.user_saved');
 
             return $this->redirectToRoute('_admin_users_index');
         }
@@ -97,14 +97,14 @@ final class UserController extends AbstractController
         $token = (string) $request->request->get('_token');
 
         if (!$this->isCsrfTokenValid('delete_user_'.$user->getId(), $token)) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_admin_users_index');
         }
 
         $em->remove($user);
         $em->flush();
 
-        $this->addFlash('success', 'User wurde gelöscht.');
+        $this->addFlash('success', 'flash.user_deleted');
 
         return $this->redirectToRoute('_admin_users_index');
     }

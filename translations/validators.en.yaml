@@ -1,0 +1,5 @@
+password_reset.password.first.blank: Please enter a password
+password_reset.email_field.blank: Please enter an email address
+settings.logo.invalid_type: Please upload a valid image (PNG, JPG, WEBP, or SVG).
+user.password_min_length: "The password must be at least {{ limit }} characters long."
+"Your password should be at least {{ limit }} characters": "Your password should be at least {{ limit }} characters long."

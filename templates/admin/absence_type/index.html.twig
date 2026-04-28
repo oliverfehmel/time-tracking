@@ -1,37 +1,37 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Abwesenheitstypen{% endblock %}
+{% block title %}{{ 'admin_absence_type.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">Abwesenheitstypen</h1>
-                <p class="text-muted mb-0">Typen verwalten (Aktiv, Genehmigung, Kontingent).</p>
+                <h1 class="h3 mb-1">{{ 'admin_absence_type.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'admin_absence_type.subtitle'|trans }}</p>
             </div>
 
             <a class="btn btn-sm btn-primary" href="{{ path('_admin_absence_type_new') }}">
                 <i class="fa-solid fa-plus me-1"></i>
-                Typ anlegen
+                {{ 'admin_absence_type.create_short'|trans }}
             </a>
         </div>
 
         <section class="card shadow-sm">
             <div class="card-body p-0">
                 {% if types is empty %}
-                    <div class="p-3 text-muted">Noch keine Typen angelegt.</div>
+                    <div class="p-3 text-muted">{{ 'admin_absence_type.none'|trans }}</div>
                 {% else %}
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead class="table-light">
                             <tr>
-                                <th>Name</th>
-                                <th>Key</th>
-                                <th>Aktiv</th>
-                                <th>Genehmigung</th>
-                                <th>Kontingent</th>
-                                <th>Überziehung</th>
-                                <th>Standard / Jahr</th>
+                                <th>{{ 'general.name'|trans }}</th>
+                                <th>{{ 'general.key'|trans }}</th>
+                                <th>{{ 'general.active'|trans }}</th>
+                                <th>{{ 'admin_absence_type.approval'|trans }}</th>
+                                <th>{{ 'absence.contingent'|trans }}</th>
+                                <th>{{ 'admin_quota.over_limit'|trans }}</th>
+                                <th>{{ 'admin_absence_type.default_per_year'|trans }}</th>
                                 <th class="text-end"></th>
                             </tr>
                             </thead>
@@ -42,38 +42,38 @@
                                     <td><code>{{ t.keyName }}</code></td>
                                     <td>
                                         {% if t.isActive %}
-                                            <span class="badge text-bg-success">Ja</span>
+                                            <span class="badge text-bg-success">{{ 'general.yes'|trans }}</span>
                                         {% else %}
-                                            <span class="badge text-bg-secondary">Nein</span>
+                                            <span class="badge text-bg-secondary">{{ 'general.no'|trans }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if t.requiresApproval %}
-                                            <span class="badge text-bg-warning">Ja</span>
+                                            <span class="badge text-bg-warning">{{ 'general.yes'|trans }}</span>
                                         {% else %}
-                                            <span class="badge text-bg-secondary">Nein</span>
+                                            <span class="badge text-bg-secondary">{{ 'general.no'|trans }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if t.requiresQuota %}
-                                            <span class="badge text-bg-info">Ja</span>
+                                            <span class="badge text-bg-info">{{ 'general.yes'|trans }}</span>
                                         {% else %}
-                                            <span class="badge text-bg-secondary">Nein</span>
+                                            <span class="badge text-bg-secondary">{{ 'general.no'|trans }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if t.allowOverLimit %}
-                                            <span class="badge text-bg-warning">erlaubt</span>
+                                            <span class="badge text-bg-warning">{{ 'general.allowed'|trans }}</span>
                                         {% else %}
-                                            <span class="badge text-bg-secondary">gesperrt</span>
+                                            <span class="badge text-bg-secondary">{{ 'general.blocked'|trans }}</span>
                                         {% endif %}
                                     </td>
                                     <td>
                                         {% if not t.requiresQuota %}
-                                            <span class="text-muted">—</span>
+                                            <span class="text-muted">{{ 'general.none'|trans }}</span>
                                         {% else %}
                                             {% if t.defaultYearlyQuotaDays is null %}
-                                                <span class="text-muted">unbegrenzt</span>
+                                                <span class="text-muted">{{ 'general.unlimited'|trans }}</span>
                                             {% else %}
                                                 {{ t.defaultYearlyQuotaDays }}
                                             {% endif %}
@@ -83,7 +83,7 @@
                                         <a class="btn btn-sm btn-outline-secondary"
                                            href="{{ path('_admin_absence_type_edit', {id: t.id}) }}">
                                             <i class="fa-regular fa-pen-to-square me-1"></i>
-                                            Bearbeiten
+                                            {{ 'general.edit'|trans }}
                                         </a>
                                     </td>
                                 </tr>

@@ -38,7 +38,7 @@ final class ProfileController extends AbstractController
 
             $em->flush();
 
-            $this->addFlash('success', 'Profil wurde gespeichert.');
+            $this->addFlash('success', 'flash.profile_saved');
 
             return $this->redirectToRoute('_profile');
         }

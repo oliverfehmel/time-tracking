@@ -10,6 +10,7 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 final readonly class AbsenceNotifier
 {
@@ -18,6 +19,7 @@ final readonly class AbsenceNotifier
         private LoggerInterface       $logger,
         private AbsenceDayCalculator  $dayCalc,
         private UrlGeneratorInterface $urlGenerator,
+        private TranslatorInterface   $translator,
         private string                $mailFrom,
     ) {}
 
@@ -71,11 +73,11 @@ final readonly class AbsenceNotifier
 
     private function buildSubject(bool $approved, DateTimeInterface $start, DateTimeInterface $end): string
     {
-        $range = sprintf('%s – %s', $start->format('d.m.Y'), $end->format('d.m.Y'));
+        $range = sprintf('%s - %s', $start->format('d.m.Y'), $end->format('d.m.Y'));
 
-        return $approved
-            ? "Dein Abwesenheitsantrag wurde genehmigt ($range)"
-            : "Dein Abwesenheitsantrag wurde abgelehnt ($range)";
+        return $this->translator->trans($approved ? 'email.absence_approved.subject' : 'email.absence_rejected.subject', [
+            'range' => $range,
+        ]);
     }
 
     public function sendCreatedNotification(AbsenceRequest $absence, array $adminEmails, int $year): bool
@@ -94,12 +96,11 @@ final readonly class AbsenceNotifier
         $email = (new TemplatedEmail())
             ->from(new Address($this->mailFrom, 'TimeTracker'))
             ->to(...array_map(fn(string $addr) => new Address($addr), $adminEmails))
-            ->subject(sprintf(
-                'Neue Abwesenheit beantragt: %s (%s – %s)',
-                $user->getName() ?: $user->getEmail(),
-                $start->format('d.m.Y'),
-                $end->format('d.m.Y'),
-            ))
+            ->subject($this->translator->trans('email.absence_created.subject', [
+                'user' => $user->getName() ?: $user->getEmail(),
+                'start' => $start->format('d.m.Y'),
+                'end' => $end->format('d.m.Y'),
+            ]))
             ->htmlTemplate('emails/absence_request_created.html.twig')
             ->context([
                 'absence'     => $absence,

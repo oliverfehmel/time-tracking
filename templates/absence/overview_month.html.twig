@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Abwesenheitsübersicht – {{ ('month.' ~ monthStart|date('F'))|trans }} {{ monthStart|date('Y') }}{% endblock %}
+{% block title %}{{ 'absence_overview.title_month'|trans({'month': ('month.' ~ monthStart|date('F'))|trans, 'year': monthStart|date('Y')}) }}{% endblock %}
 
 {% block body %}
     {% set dayPercent = 100 / daysInMonth %}
@@ -17,8 +17,8 @@
 
         <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
             <div>
-                <h1 class="h4 mb-1">Abwesenheitsübersicht</h1>
-                <div class="text-muted">Monat: <strong>{{ ('month.' ~ monthStart|date('F'))|trans }} {{ monthStart|date('Y') }}</strong></div>
+                <h1 class="h4 mb-1">{{ 'absence_overview.title'|trans }}</h1>
+                <div class="text-muted">{{ 'absence_overview.month_label'|trans }} <strong>{{ ('month.' ~ monthStart|date('F'))|trans }} {{ monthStart|date('Y') }}</strong></div>
             </div>
 
             <div class="d-flex flex-wrap gap-2 align-items-center">
@@ -29,7 +29,7 @@
 
                 <a class="btn btn-outline-secondary btn-sm"
                    href="{{ path('_absences_overview', { month: 'now'|date('Y-m') }) }}">
-                    Heute
+                    {{ 'general.today'|trans }}
                 </a>
 
                 <a class="btn btn-outline-secondary btn-sm"
@@ -39,7 +39,7 @@
 
                 <form class="d-flex gap-2 align-items-center" method="get" action="{{ path('_absences_overview') }}">
                     <input type="month" class="form-control form-control-sm" name="month" value="{{ monthStart|date('Y-m') }}">
-                    <button class="btn btn-primary btn-sm" type="submit">Anzeigen</button>
+                    <button class="btn btn-primary btn-sm" type="submit">{{ 'general.show'|trans }}</button>
                 </form>
             </div>
         </div>
@@ -49,7 +49,7 @@
 
                 <div class="absence-grid">
                     <div class="absence-grid__cell absence-grid__cell--sticky absence-grid__cell--header-left">
-                        <div class="px-3 py-2 fw-semibold">Mitarbeiter</div>
+                        <div class="px-3 py-2 fw-semibold">{{ 'absence_overview.employee'|trans }}</div>
                     </div>
 
                     <div class="absence-grid__cell absence-grid__cell--header-days">
@@ -71,7 +71,7 @@
                         <div class="absence-grid__cell absence-grid__cell--sticky absence-grid__cell--user">
                             <div class="px-3 py-2 text-truncate">
                                 <div class="fw-semibold">
-                                    {{ user.name ?? ('User #' ~ uid) }}
+                                    {{ user.name ?? 'absence_overview.user_fallback'|trans({'id': uid}) }}
                                 </div>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
                                         {% set names = holidayDays[d.day] %}
                                         <div class="holiday-dot"
                                              style="left: calc((({{ d.day - 0.5 }}) * {{ dayPercent }}) * 1%);"
-                                             title="Feiertag: {{ names|join(' / ') }}">
+                                             title="{{ 'absence_overview.holiday_title'|trans({'names': names|join(' / ')}) }}">
                                         </div>
                                     {% endif %}
                                 {% endfor %}
@@ -118,13 +118,13 @@
                                          data-absence-tooltip="
                        <strong>{{ bar.typeName }}</strong><br>
                        {{ monthStart|date('Y') }}-{{ monthStart|date('m') }}-{{ '%02d'|format(bar.startDay) }}
-                       bis
+                       {{ 'absence_overview.tooltip_period_separator'|trans }}
                        {{ monthStart|date('Y') }}-{{ monthStart|date('m') }}-{{ '%02d'|format(bar.endDay) }}<br>
-                       Status: {{ bar.status }}
-                       {% if bar.comment %}<br>Kommentar: {{ bar.comment|e('html_attr') }}{% endif %}
+                       {{ 'absence_overview.tooltip_status'|trans({'status': bar.status}) }}
+                       {% if bar.comment %}<br>{{ 'absence_overview.tooltip_comment'|trans({'comment': bar.comment|e('html_attr')}) }}{% endif %}
                      ">
                   <span class="absence-bar__label">
-                    {{ bar.typeName }}{% if isPending %} (pending){% endif %}
+                    {{ bar.typeName }}{% if isPending %} ({{ 'general.pending'|trans }}){% endif %}
                   </span>
                                     </div>
                                 {% endfor %}
@@ -137,15 +137,15 @@
         </div>
 
         <div class="mt-3 small text-muted d-flex flex-wrap gap-3 align-items-center">
-            <span class="fw-semibold">Legende:</span>
+            <span class="fw-semibold">{{ 'absence_overview.legend'|trans }}</span>
             {% for key, cls in typeClassMap %}
                 <span class="legend-item">
                     <span class="legend-dot {{ cls }}"></span>
                     <span>{{ typeLabelMap[key] ?? key }}</span>
                 </span>
             {% endfor %}
-            <span class="legend-item"><span class="legend-dot legend-dot--holiday"></span> <span>Feiertag</span></span>
-            <span class="legend-item"><span class="legend-dot legend-dot--pending"></span> <span>Pending</span></span>
+            <span class="legend-item"><span class="legend-dot legend-dot--holiday"></span> <span>{{ 'time_tracking.holiday'|trans }}</span></span>
+            <span class="legend-item"><span class="legend-dot legend-dot--pending"></span> <span>{{ 'general.pending'|trans }}</span></span>
         </div>
 
         <div data-absence-overview-target="tooltip" class="abs-tooltip" hidden></div>

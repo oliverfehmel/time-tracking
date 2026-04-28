@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="{{ app.request.locale|default(app.request.defaultLocale|default('de')) }}">
     <head>
         {% include '_head.html.twig' %}
 
-        <title>{% block title %}Dashboard{% endblock %} | Time Tracking</title>
+        <title>{% block title %}{{ 'dashboard.title'|trans }}{% endblock %} | {{ 'app.title'|trans }}</title>
         {% block importmap %}{{ importmap('app') }}{% endblock %}
     </head>
 
@@ -21,12 +21,12 @@
                                 class="me-2"
                             >
                         {% endif %}
-                        TimeTracker
+                        {{ 'app.brand'|trans }}
                     </a>
 
                     <button class="navbar-toggler" type="button"
                             data-bs-toggle="collapse" data-bs-target="#sidebarNav"
-                            aria-controls="sidebarNav" aria-expanded="false" aria-label="Menü">
+                            aria-controls="sidebarNav" aria-expanded="false" aria-label="{{ 'app.menu'|trans }}">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
@@ -38,7 +38,7 @@
 
                         <a class="btn btn-sm btn-outline-secondary" href="{{ path('_logout') }}">
                             <i class="fa-solid fa-right-from-bracket me-1"></i>
-                            Logout
+                            {{ 'app.logout'|trans }}
                         </a>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                 {% for label, messages in app.flashes %}
                     {% for message in messages %}
                         <div class="alert alert-{{ label == 'error' ? 'danger' : (label == 'success' ? 'success' : 'info') }} mb-3">
-                            {{ message }}
+                            {{ message|trans }}
                         </div>
                     {% endfor %}
                 {% endfor %}

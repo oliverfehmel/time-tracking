@@ -33,17 +33,17 @@ class AbsenceQuotaType extends AbstractType
             ->add('quotaDays', IntegerType::class, [
                 'label' => 'absence.quota.quota_days',
                 'required' => false,
-                'help' => 'Leer = unbegrenzt',
+                'help' => 'absence.quota.empty_unlimited',
             ])
             ->add('allowOverLimit', ChoiceType::class, [
-                'label' => 'Überziehung des Kontingents erlauben',
+                'label' => 'absence.quota.allow_over_limit',
                 'required' => false,
                 'choices' => [
-                    'Vom Abwesenheitstyp übernehmen' => null,
-                    'Erlauben' => true,
-                    'Sperren' => false,
+                    'general.by_type' => null,
+                    'general.allowed' => true,
+                    'general.blocked' => false,
                 ],
-                'help' => 'Nur explizite Werte überschreiben die Grundeinstellung des Abwesenheitstyps.',
+                'help' => 'absence.quota.allow_over_limit_help',
             ]);
     }
 

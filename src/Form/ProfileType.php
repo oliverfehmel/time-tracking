@@ -48,7 +48,7 @@ class ProfileType extends AbstractType
                 ],
                 'invalid_message' => 'user.password_mismatch',
                 'constraints' => [
-                    new Length(min: 8, max: 4096, minMessage: 'Das Passwort muss mindestens {{ limit }} Zeichen lang sein.'),
+                    new Length(min: 8, max: 4096, minMessage: 'user.password_min_length'),
                 ],
             ]);
 

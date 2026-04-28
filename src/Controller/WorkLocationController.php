@@ -43,14 +43,14 @@ final class WorkLocationController extends AbstractController
         }
 
         if (!$this->isCsrfTokenValid('set_work_location_' . $date, (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
         $dayStart = new DateTimeImmutable($date . ' 00:00:00');
 
         if (!$this->calc->isEditableMonth($dayStart, new DateTimeImmutable())) {
-            $this->addFlash('error', 'Dieser Monat ist nicht mehr bearbeitbar.');
+            $this->addFlash('error', 'flash.month_not_editable');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
@@ -58,7 +58,7 @@ final class WorkLocationController extends AbstractController
         $type = $this->typeRepo->find($typeId);
 
         if (!$type || !$type->isActive()) {
-            $this->addFlash('error', 'Ungültiger Arbeitsort-Typ.');
+            $this->addFlash('error', 'flash.work_location_invalid');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
@@ -74,7 +74,7 @@ final class WorkLocationController extends AbstractController
         $location->setLocationType($type);
         $this->em->flush();
 
-        $this->addFlash('success', 'Arbeitsort gespeichert.');
+        $this->addFlash('success', 'flash.work_location_saved');
         return $this->redirectToRoute('_time_day', ['date' => $date]);
     }
 }

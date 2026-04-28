@@ -1,0 +1,5 @@
+password_reset.password.first.blank: Bitte geben Sie ein Passwort ein
+password_reset.email_field.blank: Bitte gib eine E-Mail-Adresse an
+settings.logo.invalid_type: Bitte lade ein gültiges Bild hoch (PNG, JPG, WEBP oder SVG).
+user.password_min_length: "Das Passwort muss mindestens {{ limit }} Zeichen lang sein."
+"Your password should be at least {{ limit }} characters": "Das Passwort muss mindestens {{ limit }} Zeichen lang sein."

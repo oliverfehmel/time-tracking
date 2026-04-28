@@ -1,17 +1,17 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Time Tracking{% endblock %}
+{% block title %}{{ 'time_tracking.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="tt-page" data-controller="tt-open-month" data-tt-open-month-open-month-value="{{ open_month ?? '' }}">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">Time Tracking</h1>
-                <p class="text-muted mb-0">Übersicht nach Monat und Tag (nur Ansicht).</p>
+                <h1 class="h3 mb-1">{{ 'time_tracking.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'time_tracking.subtitle'|trans }}</p>
             </div>
 
             <div class="d-flex flex-wrap align-items-center gap-2">
-                <nav class="d-flex flex-wrap gap-2" aria-label="Jahresauswahl">
+                <nav class="d-flex flex-wrap gap-2" aria-label="{{ 'time_tracking.year_selection'|trans }}">
                     {% for y in years %}
                         <a class="btn btn-sm {{ y == year ? 'btn-dark' : 'btn-outline-secondary' }}" href="{{ path('_time_index', {year: y}) }}">
                             {{ y }}
@@ -21,7 +21,7 @@
                 <a class="btn btn-sm btn-outline-success"
                    href="{{ path('_time_locations_csv', {year: year}) }}">
                     <i class="fa-solid fa-file-csv me-1"></i>
-                    Arbeitsorte CSV
+                    {{ 'time_tracking.work_locations_csv'|trans }}
                 </a>
             </div>
         </div>
@@ -30,7 +30,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <p class="mb-0 text-muted">
-                        Für {{ year }} wurden noch keine Zeiten erfasst.
+                        {{ 'time_tracking.no_times_year'|trans({'year': year}) }}
                     </p>
                 </div>
             </div>
@@ -46,20 +46,20 @@
                                 <div class="tt-month-title">
                                     {{ ('month.' ~ m.start|date('n'))|trans }} {{ m.start|date('Y') }}
                                 </div>
-                                <div class="tt-month-meta">Monat</div>
+                                <div class="tt-month-meta">{{ 'time_tracking.month'|trans }}</div>
                             </div>
 
                             <div class="tt-month-right">
                                 <div class="tt-kpi">
-                                    <div class="tt-kpi-label">Ist</div>
+                                    <div class="tt-kpi-label">{{ 'time_tracking.actual'|trans }}</div>
                                     <div class="tt-kpi-value">{{ m.ist }}</div>
                                 </div>
                                 <div class="tt-kpi">
-                                    <div class="tt-kpi-label">Soll</div>
+                                    <div class="tt-kpi-label">{{ 'time_tracking.target'|trans }}</div>
                                     <div class="tt-kpi-value">{{ m.soll }}</div>
                                 </div>
                                 <div class="tt-kpi">
-                                    <div class="tt-kpi-label">Δ Soll–Ist</div>
+                                    <div class="tt-kpi-label">{{ 'time_tracking.delta_target_actual'|trans }}</div>
                                     <div class="tt-kpi-value {{ m.deltaSeconds < 0 ? 'tt-delta-neg' : (m.deltaSeconds > 0 ? 'tt-delta-pos' : 'tt-delta-zero') }}">
                                         {{ m.delta }}
                                     </div>
@@ -70,21 +70,21 @@
                         <div class="tt-month-body px-3 pb-3 pt-0">
                             {% if m.days is empty %}
                                 <div class="text-muted py-2">
-                                    Keine Einträge in diesem Monat.
+                                    {{ 'time_tracking.no_entries_month'|trans }}
                                 </div>
                             {% else %}
                                 <div class="table-responsive">
                                     <table class="table table-sm table-hover align-middle mb-0 tt-table">
                                         <thead class="table-light">
                                         <tr>
-                                            <th>Tag</th>
-                                            <th>Start</th>
-                                            <th>Ende</th>
-                                            <th class="text-end">Ist</th>
-                                            <th class="text-end">Soll</th>
-                                            <th class="text-end">Δ</th>
+                                            <th>{{ 'time_tracking.day'|trans }}</th>
+                                            <th>{{ 'general.start'|trans }}</th>
+                                            <th>{{ 'general.end'|trans }}</th>
+                                            <th class="text-end">{{ 'time_tracking.actual'|trans }}</th>
+                                            <th class="text-end">{{ 'time_tracking.target'|trans }}</th>
+                                            <th class="text-end">{{ 'time_tracking.delta'|trans }}</th>
                                             {% if settings.usersAreAllowedToChangeTimeEntries %}
-                                            <th class="text-end">Aktion</th>
+                                            <th class="text-end">{{ 'general.action'|trans }}</th>
                                             {% endif %}
                                         </tr>
                                         </thead>
@@ -105,11 +105,11 @@
 
                                                         {% if d.holiday %}
                                                             <span class="badge text-bg-info ms-2">
-                                                                <i class="fa-regular fa-calendar me-1"></i>Feiertag
+                                                                <i class="fa-regular fa-calendar me-1"></i>{{ 'time_tracking.holiday'|trans }}
                                                             </span>
                                                         {% elseif d.absence %}
                                                             <span class="badge text-bg-warning ms-2">
-                                                                <i class="fa-regular fa-circle-user me-1"></i>{{ d.absenceTypeName ?: 'Abwesenheit' }}
+                                                                <i class="fa-regular fa-circle-user me-1"></i>{{ d.absenceTypeName ?: 'time_tracking.absence'|trans }}
                                                             </span>
                                                         {% endif %}
                                                         {% if d.workLocationName %}
@@ -123,8 +123,8 @@
                                                         {% endif %}
                                                     </div>
                                                 </td>
-                                                <td>{{ d.start ? d.start|date('H:i') : '—' }}</td>
-                                                <td>{{ d.end ? d.end|date('H:i') : '—' }}</td>
+                                                <td>{{ d.start ? d.start|date('H:i') : 'general.none'|trans }}</td>
+                                                <td>{{ d.end ? d.end|date('H:i') : 'general.none'|trans }}</td>
                                                 <td class="text-end">{{ d.ist }}</td>
                                                 <td class="text-end">{{ d.soll }}</td>
                                                 <td class="text-end">
@@ -139,10 +139,10 @@
                                                         <a class="btn btn-sm btn-outline-secondary"
                                                            href="{{ path('_time_day', {date: d.date|date('Y-m-d')}) }}">
                                                             <i class="fa-regular fa-pen-to-square me-1"></i>
-                                                            Bearbeiten
+                                                            {{ 'general.edit'|trans }}
                                                         </a>
                                                     {% else %}
-                                                        <span class="text-muted">—</span>
+                                                        <span class="text-muted">{{ 'general.none'|trans }}</span>
                                                     {% endif %}
                                                 </td>
                                                 {% endif %}

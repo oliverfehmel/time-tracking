@@ -7,12 +7,12 @@
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
                 <h1 class="h3 mb-1">{{ title }}</h1>
-                <p class="text-muted mb-0">Arbeitsort-Typ konfigurieren.</p>
+                <p class="text-muted mb-0">{{ 'work_location_type.form_subtitle'|trans }}</p>
             </div>
 
             <a class="btn btn-sm btn-outline-secondary" href="{{ path('_admin_work_location_type_index') }}">
                 <i class="fa-solid fa-arrow-left me-1"></i>
-                Zurück
+                {{ 'general.back'|trans }}
             </a>
         </div>
 
@@ -32,7 +32,7 @@
                     {{ form_row(form.icon) }}
                     {% if form.vars.data.icon %}
                         <div class="mt-1 text-muted small">
-                            Vorschau: <i class="{{ form.vars.data.icon }}"></i>
+                            {{ 'general.preview'|trans }}: <i class="{{ form.vars.data.icon }}"></i>
                         </div>
                     {% endif %}
                 </div>
@@ -62,10 +62,10 @@
                 <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                     <button class="btn btn-primary" type="submit">
                         <i class="fa-regular fa-floppy-disk me-1"></i>
-                        Speichern
+                        {{ 'general.save'|trans }}
                     </button>
                     <a class="btn btn-outline-secondary" href="{{ path('_admin_work_location_type_index') }}">
-                        Abbrechen
+                        {{ 'general.cancel'|trans }}
                     </a>
                 </div>
 

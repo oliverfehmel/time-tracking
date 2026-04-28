@@ -36,12 +36,12 @@ final class DashboardController extends AbstractController
         EntityManagerInterface $em,
     ): Response {
         if (!$this->isCsrfTokenValid('time_start', (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_home');
         }
 
         if ($repo->findRunningForUser($user)) {
-            $this->addFlash('error', 'Es läuft bereits ein Timer.');
+            $this->addFlash('error', 'flash.timer_already_running');
             return $this->redirectToRoute('_home');
         }
 
@@ -52,7 +52,7 @@ final class DashboardController extends AbstractController
         $em->persist($entry);
         $em->flush();
 
-        $this->addFlash('success', 'Timer gestartet.');
+        $this->addFlash('success', 'flash.timer_started');
         return $this->redirectToRoute('_home');
     }
 
@@ -64,20 +64,20 @@ final class DashboardController extends AbstractController
         EntityManagerInterface $em,
     ): Response {
         if (!$this->isCsrfTokenValid('time_stop', (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_home');
         }
 
         $running = $repo->findRunningForUser($user);
         if (!$running) {
-            $this->addFlash('error', 'Kein laufender Timer gefunden.');
+            $this->addFlash('error', 'flash.no_running_timer');
             return $this->redirectToRoute('_home');
         }
 
         $running->setStoppedAt(new DateTimeImmutable());
         $em->flush();
 
-        $this->addFlash('success', 'Timer gestoppt.');
+        $this->addFlash('success', 'flash.timer_stopped');
         return $this->redirectToRoute('_home');
     }
 }

@@ -1,15 +1,15 @@
 {# templates/security/login.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Login{% endblock %}
+{% block title %}{{ 'auth.login'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-center">
         <div class="card shadow-sm auth-card">
             <div class="card-body">
                 <div class="mb-3">
-                    <h1 class="h3 mb-1">Login</h1>
-                    <p class="text-muted mb-0">Bitte melde dich an, um fortzufahren.</p>
+                    <h1 class="h3 mb-1">{{ 'auth.login'|trans }}</h1>
+                    <p class="text-muted mb-0">{{ 'auth.login_subtitle'|trans }}</p>
                 </div>
 
                 {% if error %}
@@ -21,7 +21,7 @@
 
                 <form method="post" class="d-grid gap-3">
                     <div>
-                        <label for="inputEmail" class="form-label">E-Mail</label>
+                        <label for="inputEmail" class="form-label">{{ 'general.email'|trans }}</label>
                         <input
                             type="email"
                             value="{{ last_username }}"
@@ -36,7 +36,7 @@
                     </div>
 
                     <div>
-                        <label for="inputPassword" class="form-label">Passwort</label>
+                        <label for="inputPassword" class="form-label">{{ 'user.password'|trans }}</label>
                         <input
                             type="password"
                             name="_password"
@@ -50,7 +50,7 @@
                         <div class="mt-2 text-end">
                             <a href="{{ path('app_forgot_password_request') }}"
                                class="small text-decoration-none">
-                                Passwort vergessen?
+                                {{ 'auth.forgot_password'|trans }}
                             </a>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
 
                     <button class="btn btn-primary" type="submit">
                         <i class="fa-solid fa-right-to-bracket me-1"></i>
-                        Anmelden
+                        {{ 'auth.sign_in'|trans }}
                     </button>
                 </form>
             </div>

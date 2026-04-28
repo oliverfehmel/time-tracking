@@ -34,13 +34,13 @@ final class WorkLocationTypeAdminController extends AbstractController
         $type = new WorkLocationType();
         $type->setIsActive(true);
 
-        return $this->handleForm($type, $request, 'Arbeitsort-Typ anlegen');
+        return $this->handleForm($type, $request, 'work_location_type.create');
     }
 
     #[Route('/{id<\d+>}/edit', name: '_admin_work_location_type_edit', methods: ['GET', 'POST'])]
     public function edit(WorkLocationType $type, Request $request): Response
     {
-        return $this->handleForm($type, $request, 'Arbeitsort-Typ bearbeiten');
+        return $this->handleForm($type, $request, 'work_location_type.edit');
     }
 
     private function handleForm(WorkLocationType $type, Request $request, string $title): Response
@@ -60,7 +60,7 @@ final class WorkLocationTypeAdminController extends AbstractController
 
             $this->em->persist($type);
             $this->em->flush();
-            $this->addFlash('success', 'Arbeitsort-Typ gespeichert.');
+            $this->addFlash('success', 'flash.work_location_type_saved');
             return $this->redirectToRoute('_admin_work_location_type_index');
         }
 

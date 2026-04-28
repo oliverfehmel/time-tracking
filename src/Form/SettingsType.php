@@ -65,7 +65,7 @@ class SettingsType extends AbstractType
                             'image/webp',
                             'image/svg+xml',
                         ],
-                        mimeTypesMessage: 'Bitte lade ein gültiges Bild hoch (PNG, JPG, WEBP oder SVG).'
+                        mimeTypesMessage: 'settings.logo.invalid_type'
                     ),
                 ],
             ])

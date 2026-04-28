@@ -53,7 +53,7 @@ final class AbsenceAdminController extends AbstractController
         }
 
         if (!$this->isCsrfTokenValid('approve_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
@@ -61,9 +61,9 @@ final class AbsenceAdminController extends AbstractController
         $this->em->flush();
 
         if (!$this->notifier->sendDecision($absence, approved: true)) {
-            $this->addFlash('warning', 'Der Antrag wurde genehmigt, aber die Benachrichtigungs-E-Mail konnte nicht gesendet werden.');
+            $this->addFlash('warning', 'admin_absence.approved_warning');
         } else {
-            $this->addFlash('success', 'Abwesenheit genehmigt.');
+            $this->addFlash('success', 'admin_absence.approved_success');
         }
 
         return $this->redirectToRoute('_admin_absence_approvals');
@@ -77,13 +77,13 @@ final class AbsenceAdminController extends AbstractController
         }
 
         if (!$this->isCsrfTokenValid('reject_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
         $reason = trim((string) $request->request->get('reason', ''));
         if ($reason === '') {
-            $this->addFlash('error', 'Bitte eine Begründung angeben.');
+            $this->addFlash('error', 'admin_absence.reason_required');
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
@@ -91,9 +91,9 @@ final class AbsenceAdminController extends AbstractController
         $this->em->flush();
 
         if (!$this->notifier->sendDecision($absence, approved: false)) {
-            $this->addFlash('warning', 'Der Antrag wurde abgelehnt, aber die Benachrichtigungs-E-Mail konnte nicht gesendet werden.');
+            $this->addFlash('warning', 'admin_absence.rejected_warning');
         } else {
-            $this->addFlash('success', 'Abwesenheit abgelehnt.');
+            $this->addFlash('success', 'admin_absence.rejected_success');
         }
 
         return $this->redirectToRoute('_admin_absence_approvals');
@@ -102,12 +102,12 @@ final class AbsenceAdminController extends AbstractController
     private function guardAbsenceAction(AbsenceRequest $absence, User $admin): ?Response
     {
         if ($absence->getStatus() !== AbsenceRequest::STATUS_PENDING) {
-            $this->addFlash('error', 'Nur ausstehende Anträge können bearbeitet werden.');
+            $this->addFlash('error', 'admin_absence.only_pending');
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
         if ($absence->getRequestedBy()->getId() === $admin->getId()) {
-            $this->addFlash('error', 'Eigene Anträge können nicht bearbeitet werden.');
+            $this->addFlash('error', 'admin_absence.own_request_error');
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 

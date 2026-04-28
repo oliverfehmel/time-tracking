@@ -15,23 +15,23 @@ class WorkLocationTypeType extends AbstractType
     {
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Name',
+                'label' => 'work_location_type.name',
             ])
             ->add('keyName', TextType::class, [
-                'label' => 'Schlüssel',
-                'help' => 'Interner eindeutiger Bezeichner (z. B. office, home_office)',
+                'label' => 'work_location_type.key_name',
+                'help' => 'work_location_type.key_name_help',
             ])
             ->add('isActive', CheckboxType::class, [
-                'label' => 'Aktiv',
+                'label' => 'work_location_type.is_active',
                 'required' => false,
             ])
             ->add('isDefault', CheckboxType::class, [
-                'label' => 'Standard (wird bei neuen Tagen vorausgewählt)',
+                'label' => 'work_location_type.is_default',
                 'required' => false,
             ])
             ->add('icon', TextType::class, [
-                'label' => 'Icon (FontAwesome-Klasse)',
-                'help' => 'Optional, z. B. fa-solid fa-house oder fa-solid fa-building',
+                'label' => 'work_location_type.icon',
+                'help' => 'work_location_type.icon_help',
                 'required' => false,
             ]);
     }

@@ -1,44 +1,44 @@
 <div style="font-family: Arial, sans-serif; line-height: 1.4;">
-    <h2 style="margin: 0 0 12px 0;">Neue Abwesenheit beantragt</h2>
+    <h2 style="margin: 0 0 12px 0;">{{ 'email.absence_created.title'|trans }}</h2>
 
     <p style="margin: 0 0 12px 0;">
-        Es wurde eine neue Abwesenheit beantragt.
+        {{ 'email.absence_created.intro'|trans }}
     </p>
 
     <table style="border-collapse: collapse; width: 100%; max-width: 640px;">
         <tr>
-            <td style="padding: 6px 0; width: 180px;"><strong>Mitarbeiter</strong></td>
+            <td style="padding: 6px 0; width: 180px;"><strong>{{ 'email.employee'|trans }}</strong></td>
             <td style="padding: 6px 0;">{{ user.name ?? user.email }}</td>
         </tr>
         <tr>
-            <td style="padding: 6px 0;"><strong>E-Mail</strong></td>
+            <td style="padding: 6px 0;"><strong>{{ 'general.email'|trans }}</strong></td>
             <td style="padding: 6px 0;">{{ user.email }}</td>
         </tr>
         <tr>
-            <td style="padding: 6px 0;"><strong>Typ</strong></td>
-            <td style="padding: 6px 0;">{{ absence.type.name ?? '—' }}</td>
+            <td style="padding: 6px 0;"><strong>{{ 'general.type'|trans }}</strong></td>
+            <td style="padding: 6px 0;">{{ absence.type.name ?? 'general.none'|trans }}</td>
         </tr>
         <tr>
-            <td style="padding: 6px 0;"><strong>Zeitraum</strong></td>
+            <td style="padding: 6px 0;"><strong>{{ 'email.period'|trans }}</strong></td>
             <td style="padding: 6px 0;">
-                {{ absence.startDate|date('d.m.Y') }} – {{ absence.endDate|date('d.m.Y') }}
-                {% if days is defined %} ({{ days }} Tage){% endif %}
+                {{ absence.startDate|date('d.m.Y') }} - {{ absence.endDate|date('d.m.Y') }}
+                {% if days is defined %} ({{ days }} {{ 'general.days'|trans }}){% endif %}
             </td>
         </tr>
         <tr>
-            <td style="padding: 6px 0;"><strong>Status</strong></td>
+            <td style="padding: 6px 0;"><strong>{{ 'general.status'|trans }}</strong></td>
             <td style="padding: 6px 0;">{{ absence.status }}</td>
         </tr>
     </table>
 
     <p style="margin: 16px 0 0 0;">
-        Übersicht öffnen:
+        {{ 'email.open_overview'|trans }}
         <a href="{{ overviewUrl }}">{{ overviewUrl }}</a>
     </p>
 
     <hr style="margin: 18px 0; border: none; border-top: 1px solid #e5e7eb;" />
 
     <p style="margin: 0; color: #6b7280; font-size: 12px;">
-        Diese E-Mail wurde automatisch versendet.
+        {{ 'email.automated'|trans }}
     </p>
 </div>

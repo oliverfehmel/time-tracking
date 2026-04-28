@@ -23,7 +23,7 @@
                 {% if form.vars.submitted and not form.vars.valid %}
                     <div class="col-12">
                         <div class="alert alert-danger mb-0" role="alert">
-                            <div class="fw-semibold mb-1">Der Antrag konnte nicht gesendet werden.</div>
+                            <div class="fw-semibold mb-1">{{ 'absence.request.submit_error'|trans }}</div>
                             {{ form_errors(form) }}
                         </div>
                     </div>

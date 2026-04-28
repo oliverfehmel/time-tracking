@@ -1,18 +1,16 @@
-<h2>Dein Abwesenheitsantrag wurde genehmigt</h2>
+<h2>{{ 'email.absence_approved.title'|trans }}</h2>
 
-<p>Hallo {{ user.name ?: user.email }},</p>
+<p>{{ 'email.absence_approved.greeting'|trans({'user': user.name ?: user.email}) }}</p>
 
-<p>
-    dein Antrag auf Abwesenheit wurde genehmigt.
-</p>
+<p>{{ 'email.absence_approved.intro'|trans }}</p>
 
 <ul>
-    <li><strong>Zeitraum:</strong> {{ absence.startDate|date('d.m.Y') }} – {{ absence.endDate|date('d.m.Y') }}</li>
-    <li><strong>Tage:</strong> {{ days }}</li>
-    <li><strong>Typ:</strong> {{ absence.type.name }}</li>
+    <li><strong>{{ 'email.period'|trans }}:</strong> {{ absence.startDate|date('d.m.Y') }} - {{ absence.endDate|date('d.m.Y') }}</li>
+    <li><strong>{{ 'general.days'|trans }}:</strong> {{ days }}</li>
+    <li><strong>{{ 'general.type'|trans }}:</strong> {{ absence.type.name }}</li>
 </ul>
 
 <p>
-    Deine Übersicht findest du hier:
+    {{ 'email.your_overview'|trans }}
     <a href="{{ overviewUrl }}">{{ overviewUrl }}</a>
 </p>

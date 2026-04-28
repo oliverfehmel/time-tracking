@@ -1,15 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Passwort zurücksetzen{% endblock %}
+{% block title %}{{ 'password_reset.reset.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="page-center">
         <div class="card shadow-sm auth-card">
             <div class="card-body">
                 <div class="mb-3">
-                    <h1 class="h3 mb-1">Neues Passwort festlegen</h1>
+                    <h1 class="h3 mb-1">{{ 'password_reset.reset.heading'|trans }}</h1>
                     <p class="text-muted mb-0">
-                        Bitte vergib ein neues Passwort für dein Benutzerkonto.
+                        {{ 'password_reset.reset.subtitle'|trans }}
                     </p>
                 </div>
 
@@ -17,19 +17,19 @@
 
                 {{ form_row(resetForm.plainPassword, {
                     attr: {
-                        placeholder: 'Neues Passwort',
+                        placeholder: 'user.first_password'|trans,
                         autocomplete: 'new-password'
                     }
                 }) }}
 
                 <div class="d-flex justify-content-between align-items-center gap-2 mt-1">
                     <a class="small text-decoration-none" href="{{ path('_login') }}">
-                        Abbrechen
+                        {{ 'general.cancel'|trans }}
                     </a>
 
                     <button class="btn btn-primary" type="submit">
                         <i class="fa-regular fa-floppy-disk me-1"></i>
-                        Passwort speichern
+                        {{ 'password_reset.reset.save'|trans }}
                     </button>
                 </div>
 

@@ -40,9 +40,9 @@ class AbsenceTypeType extends AbstractType
                 'help' => 'absence.type.default_yearly_quota_days.hint',
             ])
             ->add('allowOverLimit', CheckboxType::class, [
-                'label' => 'Überziehung des Kontingents erlauben',
+                'label' => 'absence.type.allow_over_limit',
                 'required' => false,
-                'help' => 'Grundeinstellung für diesen Abwesenheitstyp. Kontingente können sie überschreiben.',
+                'help' => 'absence.type.allow_over_limit_help',
             ]);
     }
 

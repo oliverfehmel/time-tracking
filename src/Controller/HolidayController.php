@@ -35,7 +35,7 @@ final class HolidayController extends AbstractController
             $em->persist($holiday);
             $em->flush();
 
-            $this->addFlash('success', 'Feiertag angelegt.');
+            $this->addFlash('success', 'flash.holiday_created');
             return $this->redirectToRoute('_admin_holiday_index');
         }
 
@@ -53,7 +53,7 @@ final class HolidayController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->flush();
 
-            $this->addFlash('success', 'Feiertag gespeichert.');
+            $this->addFlash('success', 'flash.holiday_saved');
             return $this->redirectToRoute('_admin_holiday_index');
         }
 
@@ -69,7 +69,7 @@ final class HolidayController extends AbstractController
         if ($this->isCsrfTokenValid('delete_holiday_'.$holiday->getId(), (string)$request->request->get('_token'))) {
             $em->remove($holiday);
             $em->flush();
-            $this->addFlash('success', 'Feiertag gelöscht.');
+            $this->addFlash('success', 'flash.holiday_deleted');
         }
 
         return $this->redirectToRoute('_admin_holiday_index');

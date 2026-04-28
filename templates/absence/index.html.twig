@@ -112,7 +112,7 @@
                                     <td>{{ row.days }}</td>
                                     <td>
                                         <span class="badge {{ statusBadge }}">
-                                            {{ a.status }}
+                                            {{ ('general.' ~ a.status)|trans }}
                                         </span>
 
                                         {% if a.status == 'rejected' and a.rejectReason %}
@@ -127,7 +127,7 @@
                                             <form method="post"
                                                   action="{{ path('_absence_cancel', {id: a.id}) }}"
                                                   class="m-0"
-                                                  onsubmit="return confirm('Abwesenheit wirklich stornieren?');">
+                                                  onsubmit="return confirm('{{ 'absence.request.confirm_cancel'|trans|e('js') }}');">
                                                 <input type="hidden" name="_token" value="{{ csrf_token('cancel_absence_' ~ a.id) }}">
                                                 <button class="btn btn-sm btn-outline-danger" type="submit">
                                                     <i class="fa-regular fa-circle-xmark me-1"></i>

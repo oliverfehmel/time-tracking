@@ -97,10 +97,10 @@ final class AbsenceController extends AbstractController
             $days = $dayCalc->countChargeableDays($start, $end, user: $user);
 
             if (!$this->notifier->sendCreatedNotification($absence, $userRepo->findAdminEmails(), $year)) {
-                $this->addFlash('warning', 'Abwesenheit wurde erstellt, aber die Admin-Benachrichtigung konnte nicht gesendet werden.');
+                $this->addFlash('warning', 'absence.request.created_warning');
             }
 
-            $this->addFlash('success', sprintf('Abwesenheit beantragt (%d Tage).', $days));
+            $this->addFlash('success', 'absence.request.created_success');
             return $this->redirectToRoute('_absence_index', ['year' => $year]);
         }
 
@@ -119,19 +119,19 @@ final class AbsenceController extends AbstractController
         }
 
         if (!in_array($absence->getStatus(), [AbsenceRequest::STATUS_PENDING, AbsenceRequest::STATUS_APPROVED], true)) {
-            $this->addFlash('error', 'Dieser Antrag kann nicht storniert werden.');
+            $this->addFlash('error', 'absence.request.cannot_cancel');
             return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
         }
 
         if (!$this->isCsrfTokenValid('cancel_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
-            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
         }
 
         $absence->cancel();
         $this->em->flush();
 
-        $this->addFlash('success', 'Abwesenheit storniert.');
+        $this->addFlash('success', 'absence.request.cancelled');
         return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
     }
 
@@ -146,15 +146,15 @@ final class AbsenceController extends AbstractController
         User $user,
     ): ?string {
         if ($end < $start) {
-            return 'Enddatum darf nicht vor dem Startdatum liegen.';
+            return 'absence.request.end_before_start';
         }
 
         if ((int) $start->format('Y') !== $year && (int) $end->format('Y') !== $year) {
-            return 'Abwesenheit muss in das ausgewählte Jahr fallen.';
+            return 'absence.request.wrong_year';
         }
 
         if ($requestRepo->hasOverlappingApprovedOrPending($user, $start, $end)) {
-            return 'Es gibt bereits eine (ausstehende oder genehmigte) Abwesenheit, die sich mit dem Zeitraum überschneidet.';
+            return 'absence.request.overlaps_existing';
         }
 
         return null;

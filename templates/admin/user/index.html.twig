@@ -1,18 +1,18 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}User Verwaltung{% endblock %}
+{% block title %}{{ 'user.title'|trans }}{% endblock %}
 
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
             <div>
-                <h1 class="h3 mb-1">User Verwaltung</h1>
-                <p class="text-muted mb-0">User anlegen, Rollen verwalten, Passwörter zurücksetzen.</p>
+                <h1 class="h3 mb-1">{{ 'user.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'user.subtitle'|trans }}</p>
             </div>
 
             <a class="btn btn-sm btn-primary" href="{{ path('_admin_users_new') }}">
                 <i class="fa-solid fa-plus me-1"></i>
-                Neuer User
+                {{ 'user.new'|trans }}
             </a>
         </div>
 
@@ -22,11 +22,11 @@
                     <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                         <tr>
-                            <th>Name</th>
-                            <th>Soll / Tag</th>
-                            <th>E-Mail</th>
-                            <th>Rollen</th>
-                            <th class="text-end">Aktionen</th>
+                            <th>{{ 'general.name'|trans }}</th>
+                            <th>{{ 'user.daily_target'|trans }}</th>
+                            <th>{{ 'general.email'|trans }}</th>
+                            <th>{{ 'user.roles.title'|trans }}</th>
+                            <th class="text-end">{{ 'general.actions'|trans }}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -51,15 +51,15 @@
 
                                         <a class="btn btn-sm btn-outline-secondary" href="{{ path('_admin_users_edit', {id: u.id}) }}">
                                             <i class="fa-regular fa-pen-to-square me-1"></i>
-                                            Bearbeiten
+                                            {{ 'general.edit'|trans }}
                                         </a>
 
                                         <form method="post" action="{{ path('_admin_users_delete', {id: u.id}) }}"
-                                              class="m-0 d-inline" onsubmit="return confirm('User wirklich löschen?');">
+                                              class="m-0 d-inline" onsubmit="return confirm('{{ 'user.confirm_delete'|trans|e('js') }}');">
                                             <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ u.id) }}">
                                             <button class="btn btn-sm btn-outline-danger" type="submit">
                                                 <i class="fa-regular fa-trash-can me-1"></i>
-                                                Löschen
+                                                {{ 'general.delete'|trans }}
                                             </button>
                                         </form>
                                     </div>
@@ -68,7 +68,7 @@
                         {% else %}
                             <tr>
                                 <td colspan="5" class="p-3 text-muted">
-                                    Keine User vorhanden.
+                                    {{ 'user.none'|trans }}
                                 </td>
                             </tr>
                         {% endfor %}
