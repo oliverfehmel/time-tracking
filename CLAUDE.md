@@ -46,7 +46,7 @@ Two roles: `ROLE_USER` (all authenticated users) and `ROLE_ADMIN` (which implici
 - **Holiday**: Named dates assigned to specific users via a many-to-many join (`holiday_user`). These are personal non-working days (e.g. regional public holidays) that reduce Soll-time.
 - **Settings**: Single-row global config (auto-pause thresholds, branding). Use `SettingsRepository::getOrCreate()` to retrieve it.
 - **WorkLocationType**: Admin-configured work location categories (e.g. Büro, Home Office, Geschäftsreise). Has `name`, `keyName`, `isActive`, `isDefault`, and optional `icon` (FontAwesome class string). Exactly one type should carry `isDefault = true`; the admin controller enforces this on save.
-- **WorkLocation**: Per-user, per-day location record. Unique constraint on `(user_id, date)`. Absence of a record means the default type is used as a display fallback (only on days with actual time entries).
+- **WorkLocation**: Per-user, per-day location record. Unique constraint on `(user_id, date)`. Absence of a record means the default type is used as a display fallback (only on days with actual time entries). Users can export a yearly location summary as CSV via `GET /time-tracking/{year}/work-locations.csv` (`_time_locations_csv`).
 
 ### Core Calculation Services
 

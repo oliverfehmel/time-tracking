@@ -2,14 +2,19 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-04-28
+
+### Added
+- **Work location CSV export**: Users can download a CSV file at `/time-tracking/{year}/work-locations.csv` listing the number of booked working days per location for the year (useful for tax returns). A download button appears in the yearly overview next to the year selector.
+
 ## [1.1.0] - 2026-04-28
 
 ### Added
-- **Arbeitsort-Tracking**: Pro Arbeitstag kann der Arbeitsort (Büro, Home Office, Geschäftsreise) erfasst werden
-  - Ortstypen sind admin-konfigurierbar (`/admin/work-location-types`) mit Name, Schlüssel, optionalem FontAwesome-Icon und Standard-Flag
-  - Standardmäßig werden drei Typen angelegt: Büro (Standard), Home Office, Geschäftsreise
-  - Der Arbeitsort wird auf der Tagesansicht (`/time-tracking/day/{date}`) als Dropdown angezeigt und ist dort setz- und nachträglich änderbar
-  - In der Jahresübersicht (`/time-tracking/{year}`) und der Admin-Jahresansicht erscheint der Ort als Badge im Tag-Feld — nur für Tage mit gebuchter Arbeitszeit; der Standard-Typ wird als Fallback angezeigt wenn kein expliziter Eintrag existiert
+- **Work location tracking**: The work location (e.g. office, home office, business trip) can be recorded per working day
+  - Location types are admin-configurable (`/admin/work-location-types`) with name, key, optional FontAwesome icon, and a default flag
+  - Three types are created by default: Office (default), Home Office, Business Trip
+  - The work location is shown as a dropdown on the day view (`/time-tracking/day/{date}`) and can be set or changed there at any time
+  - In the yearly overview (`/time-tracking/{year}`) and the admin year view, the location appears as a badge in the day row — only for days with booked working time; the default type is shown as a fallback when no explicit record exists
 - GitHub Actions CI workflow: runs PHPUnit tests against a MariaDB 11.8 service container on push/PR to `main`
 
 ### Changed

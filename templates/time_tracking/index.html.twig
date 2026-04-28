@@ -10,13 +10,20 @@
                 <p class="text-muted mb-0">Übersicht nach Monat und Tag (nur Ansicht).</p>
             </div>
 
-            <nav class="d-flex flex-wrap gap-2" aria-label="Jahresauswahl">
-                {% for y in years %}
-                    <a class="btn btn-sm {{ y == year ? 'btn-dark' : 'btn-outline-secondary' }}" href="{{ path('_time_index', {year: y}) }}">
-                        {{ y }}
-                    </a>
-                {% endfor %}
-            </nav>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <nav class="d-flex flex-wrap gap-2" aria-label="Jahresauswahl">
+                    {% for y in years %}
+                        <a class="btn btn-sm {{ y == year ? 'btn-dark' : 'btn-outline-secondary' }}" href="{{ path('_time_index', {year: y}) }}">
+                            {{ y }}
+                        </a>
+                    {% endfor %}
+                </nav>
+                <a class="btn btn-sm btn-outline-success"
+                   href="{{ path('_time_locations_csv', {year: year}) }}">
+                    <i class="fa-solid fa-file-csv me-1"></i>
+                    Arbeitsorte CSV
+                </a>
+            </div>
         </div>
 
         {% if months is empty %}
