@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-04-28
+
+### Fixed
+- **Delta hours capped to today**: Soll hours in the yearly overview (monthly totals, individual day rows) and on the dashboard (week/month) are now only counted up to and including today. Previously, future workdays were included in the Soll, making the delta appear as a deficit even though those days haven't happened yet.
+
 ## [1.1.1] - 2026-04-28
 
 ### Added

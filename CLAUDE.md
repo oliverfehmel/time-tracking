@@ -54,7 +54,7 @@ Two roles: `ROLE_USER` (all authenticated users) and `ROLE_ADMIN` (which implici
 - **`WorktimeSollCalculator`**: Computes target (Soll) seconds for a date range for a given user. Skips weekends, user-assigned holidays, and approved absences.
 - **`AbsenceDayCalculator`**: Counts chargeable absence days, excluding weekends, user-assigned holidays, and (optionally) global public holidays via `HolidayProviderInterface`.
 - **`AbsenceNotifier`**: Sends Twig-templated emails — to the requester on approval/rejection, and to all admin email addresses when a new request is created.
-- **`UserYearReportBuilder`**: Assembles the full year report for a user. Each day row includes `workLocationName` and `workLocationIcon` — resolved from an explicit `WorkLocation` record or (for real workdays with entries) from the default `WorkLocationType`. All work locations for the year are loaded in a single query via `WorkLocationRepository::buildTypeMapForUser()`.
+- **`UserYearReportBuilder`**: Assembles the full year report for a user. Each day row includes `workLocationName` and `workLocationIcon` — resolved from an explicit `WorkLocation` record or (for real workdays with entries) from the default `WorkLocationType`. All work locations for the year are loaded in a single query via `WorkLocationRepository::buildTypeMapForUser()`. Soll seconds are capped to today (exclusive: tomorrow 00:00) so that future workdays do not create a phantom deficit in the delta.
 
 ### Frontend
 

@@ -114,7 +114,11 @@ final class UserYearReportBuilder
         $daysWithEntries  = $byMonthDay[$monthKey] ?? [];
         ksort($daysWithEntries);
 
-        $monthSollSeconds = $this->sollCalc->sollSecondsForRange($user, $monthStart, $monthEnd);
+        $tomorrow         = $now->setTime(0, 0)->modify('+1 day');
+        $sollEnd          = $monthEnd <= $tomorrow ? $monthEnd : $tomorrow;
+        $monthSollSeconds = $monthStart < $tomorrow
+            ? $this->sollCalc->sollSecondsForRange($user, $monthStart, $sollEnd)
+            : 0;
         $monthIstSeconds  = 0;
         $dayRows          = [];
 
@@ -161,7 +165,8 @@ final class UserYearReportBuilder
         $isHoliday = isset($holidaySet[$dayKey]);
         $isAbsence = isset($absenceSets['absenceSet'][$dayKey]);
 
-        $daySollSeconds = ($isWorkday && !$isHoliday && !$isAbsence)
+        $isFuture       = $dayStart > $now->setTime(0, 0);
+        $daySollSeconds = (!$isFuture && $isWorkday && !$isHoliday && !$isAbsence)
             ? ($user->getDailyWorkMinutes() * 60)
             : 0;
 

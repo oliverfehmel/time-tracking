@@ -58,13 +58,17 @@ final class DashboardDataBuilder
         $weekNet  = $this->calc->sumNetSecondsPerDay($weekEntries, $weekStart, $weekEnd, $now, $settings);
         $monthNet = $this->calc->sumNetSecondsPerDay($monthEntries, $monthStart, $monthEnd, $now, $settings);
 
+        $tomorrow     = $today->modify('+1 day');
+        $weekSollEnd  = $weekEnd <= $tomorrow ? $weekEnd : $tomorrow;
+        $monthSollEnd = $monthEnd <= $tomorrow ? $monthEnd : $tomorrow;
+
         return [
             'running'     => $this->timeEntryRepo->findRunningForUser($user),
             'todayWorked' => $this->calc->formatSeconds($todayNet),
             'weekIst'     => $this->calc->formatSeconds($weekNet),
-            'weekSoll'    => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $weekStart, $weekEnd)),
+            'weekSoll'    => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $weekStart, $weekSollEnd)),
             'monthIst'    => $this->calc->formatSeconds($monthNet),
-            'monthSoll'   => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $monthStart, $monthEnd)),
+            'monthSoll'   => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $monthStart, $monthSollEnd)),
         ];
     }
 
