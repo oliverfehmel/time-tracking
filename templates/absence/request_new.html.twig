@@ -20,6 +20,15 @@
             <div class="card-body">
                 {{ form_start(form, { attr: { class: 'row g-3' } }) }}
 
+                {% if form.vars.submitted and not form.vars.valid %}
+                    <div class="col-12">
+                        <div class="alert alert-danger mb-0" role="alert">
+                            <div class="fw-semibold mb-1">Der Antrag konnte nicht gesendet werden.</div>
+                            {{ form_errors(form) }}
+                        </div>
+                    </div>
+                {% endif %}
+
                 <div class="col-12 col-md-4">
                     {{ form_row(form.type) }}
                 </div>

@@ -15,6 +15,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -77,12 +78,12 @@ final class AbsenceController extends AbstractController
             $end   = $absence->getEndDate();
 
             if ($error = $this->validateAbsenceDates($start, $end, $year, $requestRepo, $user)) {
-                $this->addFlash('error', $error);
+                $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
 
             if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end)) {
-                $this->addFlash('error', $error);
+                $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
 
