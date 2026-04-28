@@ -105,6 +105,15 @@
                                                                 <i class="fa-regular fa-circle-user me-1"></i>{{ d.absenceTypeName ?: 'Abwesenheit' }}
                                                             </span>
                                                         {% endif %}
+                                                        {% if d.workLocationName %}
+                                                            <span class="badge text-bg-secondary ms-2">
+                                                                {% if d.workLocationIcon %}
+                                                                    <i class="{{ d.workLocationIcon }} me-1"></i>
+                                                                {% else %}
+                                                                    {{ d.workLocationName }}
+                                                                {% endif %}
+                                                            </span>
+                                                        {% endif %}
                                                     </div>
                                                 </td>
                                                 <td>{{ d.start ? d.start|date('H:i') : '—' }}</td>

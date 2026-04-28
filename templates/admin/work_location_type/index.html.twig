@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Arbeitsort-Typen{% endblock %}
+
+{% block body %}
+    <div class="tt-page">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">Arbeitsort-Typen</h1>
+                <p class="text-muted mb-0">Konfigurierbare Orte (z. B. Büro, Home Office, Geschäftsreise).</p>
+            </div>
+
+            <a class="btn btn-sm btn-primary" href="{{ path('_admin_work_location_type_new') }}">
+                <i class="fa-solid fa-plus me-1"></i>
+                Typ anlegen
+            </a>
+        </div>
+
+        <section class="card shadow-sm">
+            <div class="card-body p-0">
+                {% if types is empty %}
+                    <div class="p-3 text-muted">Noch keine Typen angelegt.</div>
+                {% else %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Name</th>
+                                <th>Schlüssel</th>
+                                <th>Icon</th>
+                                <th>Aktiv</th>
+                                <th>Standard</th>
+                                <th class="text-end"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for t in types %}
+                                <tr>
+                                    <td class="fw-semibold">
+                                        {% if t.icon %}<i class="{{ t.icon }} me-1"></i>{% endif %}
+                                        {{ t.name }}
+                                    </td>
+                                    <td><code>{{ t.keyName }}</code></td>
+                                    <td>
+                                        {% if t.icon %}
+                                            <i class="{{ t.icon }}"></i>
+                                            <code class="ms-1 small">{{ t.icon }}</code>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if t.isActive %}
+                                            <span class="badge text-bg-success">Ja</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">Nein</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if t.isDefault %}
+                                            <span class="badge text-bg-primary">Standard</span>
+                                        {% else %}
+                                            <span class="text-muted">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-secondary"
+                                           href="{{ path('_admin_work_location_type_edit', {id: t.id}) }}">
+                                            <i class="fa-regular fa-pen-to-square me-1"></i>
+                                            Bearbeiten
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+{% endblock %}

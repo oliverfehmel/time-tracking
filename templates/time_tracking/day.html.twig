@@ -27,6 +27,43 @@
             </div>
         </div>
 
+        {% if locationTypes is not empty %}
+            {% set currentType = workLocation ? workLocation.locationType : defaultLocation %}
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-muted"></i>
+                            <span class="fw-semibold">Arbeitsort:</span>
+                            {% if currentType %}
+                                <span class="badge text-bg-secondary fs-6 fw-normal">{{ currentType.name }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </div>
+
+                        {% if editable %}
+                            <form method="post" action="{{ path('_time_location_set', {date: day|date('Y-m-d')}) }}" class="d-flex align-items-center gap-2 m-0">
+                                <input type="hidden" name="_token" value="{{ csrf_token('set_work_location_' ~ day|date('Y-m-d')) }}">
+                                <select name="location_type_id" class="form-select form-select-sm" style="width: auto;">
+                                    {% for type in locationTypes %}
+                                        <option value="{{ type.id }}"
+                                            {{ currentType and currentType.id == type.id ? 'selected' : '' }}>
+                                            {{ type.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-outline-primary">
+                                    <i class="fa-regular fa-floppy-disk me-1"></i>
+                                    Speichern
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 {% if entries is empty %}

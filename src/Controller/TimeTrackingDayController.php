@@ -7,6 +7,8 @@ use App\Entity\User;
 use App\Form\TimeEntryType;
 use App\Repository\SettingsRepository;
 use App\Repository\TimeEntryRepository;
+use App\Repository\WorkLocationRepository;
+use App\Repository\WorkLocationTypeRepository;
 use App\Service\TimeTrackingCalculator;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,6 +34,8 @@ final class TimeTrackingDayController extends AbstractController
         string $date,
         #[CurrentUser] User $user,
         TimeEntryRepository $repo,
+        WorkLocationRepository $locationRepo,
+        WorkLocationTypeRepository $locationTypeRepo,
         TranslatorInterface $translator,
     ): Response {
         if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
@@ -43,9 +47,12 @@ final class TimeTrackingDayController extends AbstractController
         $dayEnd   = $dayStart->modify('+1 day');
 
         return $this->render('time_tracking/day.html.twig', [
-            'day'      => $dayStart,
-            'entries'  => $repo->findForUserBetween($user, $dayStart, $dayEnd),
-            'editable' => $this->calc->isEditableMonth($dayStart, $now),
+            'day'             => $dayStart,
+            'entries'         => $repo->findForUserBetween($user, $dayStart, $dayEnd),
+            'editable'        => $this->calc->isEditableMonth($dayStart, $now),
+            'workLocation'    => $locationRepo->findForUserOnDate($user, $dayStart),
+            'locationTypes'   => $locationTypeRepo->findActive(),
+            'defaultLocation' => $locationTypeRepo->findDefault(),
         ]);
     }
 

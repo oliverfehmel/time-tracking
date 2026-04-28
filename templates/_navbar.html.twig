@@ -54,6 +54,10 @@
                        href="{{ path('_admin_absence_type_index') }}">
                         <i class="fa-solid fa-tags me-2"></i>Abwesenheitstypen
                     </a>
+                    <a class="nav-link {{ currentRoute starts with '_admin_work_location_type_' ? 'active' : '' }}"
+                       href="{{ path('_admin_work_location_type_index') }}">
+                        <i class="fa-solid fa-location-dot me-2"></i>Arbeitsort-Typen
+                    </a>
                     <a class="nav-link {{ currentRoute starts with '_admin_absence_quota_' ? 'active' : '' }}"
                        href="{{ path('_admin_absence_quota_index') }}">
                         <i class="fa-solid fa-layer-group me-2"></i>Kontingente

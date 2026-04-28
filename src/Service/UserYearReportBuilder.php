@@ -7,6 +7,9 @@ use App\Entity\User;
 use App\Repository\AbsenceRequestRepository;
 use App\Repository\HolidayRepository;
 use App\Repository\TimeEntryRepository;
+use App\Entity\WorkLocationType;
+use App\Repository\WorkLocationRepository;
+use App\Repository\WorkLocationTypeRepository;
 use DateTimeImmutable;
 
 final class UserYearReportBuilder
@@ -15,6 +18,8 @@ final class UserYearReportBuilder
         private readonly TimeEntryRepository $timeEntryRepo,
         private readonly HolidayRepository $holidayRepo,
         private readonly AbsenceRequestRepository $absenceRepo,
+        private readonly WorkLocationRepository $workLocationRepo,
+        private readonly WorkLocationTypeRepository $workLocationTypeRepo,
         private readonly TimeTrackingCalculator $calc,
         private readonly WorktimeSollCalculator $sollCalc,
     ) {}
@@ -25,14 +30,16 @@ final class UserYearReportBuilder
         $yearStart = new DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $year));
         $yearEnd   = $yearStart->modify('+1 year');
 
-        $entries         = $this->timeEntryRepo->findForUserBetween($user, $yearStart, $yearEnd);
-        $holidaySet      = $this->buildHolidaySet($user, $yearStart, $yearEnd);
-        $absenceSets     = $this->buildAbsenceSets($user, $yearStart, $yearEnd);
-        $byMonthDay      = $this->groupEntriesByMonthDay($entries);
+        $entries            = $this->timeEntryRepo->findForUserBetween($user, $yearStart, $yearEnd);
+        $holidaySet         = $this->buildHolidaySet($user, $yearStart, $yearEnd);
+        $absenceSets        = $this->buildAbsenceSets($user, $yearStart, $yearEnd);
+        $workLocationMap    = $this->workLocationRepo->buildTypeMapForUser($user, $yearStart, $yearEnd);
+        $defaultLocationType = $this->workLocationTypeRepo->findDefault();
+        $byMonthDay         = $this->groupEntriesByMonthDay($entries);
 
         $months = [];
         for ($m = 1; $m <= 12; $m++) {
-            $months[] = $this->buildMonth($user, $year, $m, $entries, $byMonthDay, $holidaySet, $absenceSets, $settings, $now);
+            $months[] = $this->buildMonth($user, $year, $m, $entries, $byMonthDay, $holidaySet, $absenceSets, $workLocationMap, $defaultLocationType, $settings, $now);
         }
 
         return $months;
@@ -95,6 +102,8 @@ final class UserYearReportBuilder
         array $byMonthDay,
         array $holidaySet,
         array $absenceSets,
+        array $workLocationMap,
+        ?WorkLocationType $defaultLocationType,
         Settings $settings,
         DateTimeImmutable $now,
     ): array {
@@ -110,7 +119,7 @@ final class UserYearReportBuilder
         $dayRows          = [];
 
         for ($day = $monthStart; $day < $monthEnd; $day = $day->modify('+1 day')) {
-            $row              = $this->buildDayRow($user, $day, $allEntries, $daysWithEntries, $holidaySet, $absenceSets, $settings, $now);
+            $row              = $this->buildDayRow($user, $day, $allEntries, $daysWithEntries, $holidaySet, $absenceSets, $workLocationMap, $defaultLocationType, $settings, $now);
             $monthIstSeconds += $row['netSeconds'];
             $dayRows[]        = $row;
         }
@@ -138,6 +147,8 @@ final class UserYearReportBuilder
         array $daysWithEntries,
         array $holidaySet,
         array $absenceSets,
+        array $workLocationMap,
+        ?WorkLocationType $defaultLocationType,
         Settings $settings,
         DateTimeImmutable $now,
     ): array {
@@ -159,24 +170,29 @@ final class UserYearReportBuilder
 
         [$firstStart, $lastEnd] = $this->extractDayStartEnd($daysWithEntries[$dayKey] ?? [], $dayStart, $dayEnd, $now);
 
-        $absenceInfo = $absenceSets['absenceInfoSet'][$dayKey] ?? null;
-        $dayDelta    = $net - $daySollSeconds;
+        $absenceInfo  = $absenceSets['absenceInfoSet'][$dayKey] ?? null;
+        $dayDelta     = $net - $daySollSeconds;
+        $isRealWorkday = $isWorkday && !$isHoliday && !$isAbsence;
+        $hasEntries    = !empty($daysWithEntries[$dayKey] ?? []);
+        $workLocation  = $workLocationMap[$dayKey] ?? ($isRealWorkday && $hasEntries ? $defaultLocationType : null);
 
         return [
-            'date'            => $dayStart,
-            'start'           => $firstStart,
-            'end'             => $lastEnd,
-            'ist'             => $this->calc->formatSeconds($net),
-            'soll'            => $this->calc->formatSeconds($daySollSeconds),
-            'delta'           => $this->calc->formatSignedSeconds($dayDelta),
-            'deltaSeconds'    => $dayDelta,
-            'netSeconds'      => $net,
-            'rowClass'        => $this->buildRowClass($isWorkday, $isHoliday, $isAbsence, empty($daysWithEntries[$dayKey] ?? [])),
-            'editable'        => $this->calc->isEditableMonth($dayStart, $now),
-            'holiday'         => $isHoliday,
-            'absence'         => $isAbsence,
-            'absenceTypeName' => $absenceInfo['typeName'] ?? null,
-            'absenceTypeKey'  => $absenceInfo['typeKey'] ?? null,
+            'date'              => $dayStart,
+            'start'             => $firstStart,
+            'end'               => $lastEnd,
+            'ist'               => $this->calc->formatSeconds($net),
+            'soll'              => $this->calc->formatSeconds($daySollSeconds),
+            'delta'             => $this->calc->formatSignedSeconds($dayDelta),
+            'deltaSeconds'      => $dayDelta,
+            'netSeconds'        => $net,
+            'rowClass'          => $this->buildRowClass($isWorkday, $isHoliday, $isAbsence, empty($daysWithEntries[$dayKey] ?? [])),
+            'editable'          => $this->calc->isEditableMonth($dayStart, $now),
+            'holiday'           => $isHoliday,
+            'absence'           => $isAbsence,
+            'absenceTypeName'   => $absenceInfo['typeName'] ?? null,
+            'absenceTypeKey'    => $absenceInfo['typeKey'] ?? null,
+            'workLocationName'  => $workLocation?->getName(),
+            'workLocationIcon'  => $workLocation?->getIcon(),
         ];
     }
 

@@ -103,6 +103,12 @@
                                                                 Abwesenheit{% if d.absenceTypeName %}: {{ d.absenceTypeName }}{% endif %}
                                                             </span>
                                                         {% endif %}
+                                                        {% if d.workLocationName %}
+                                                            <span class="badge text-bg-secondary ms-2">
+                                                                {% if d.workLocationIcon %}<i class="{{ d.workLocationIcon }} me-1"></i>{% endif %}
+                                                                {{ d.workLocationName }}
+                                                            </span>
+                                                        {% endif %}
                                                     </div>
                                                 </td>
                                                 <td>{{ d.start ? d.start|date('H:i') : '—' }}</td>
