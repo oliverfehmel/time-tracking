@@ -2,6 +2,22 @@
 
 ## [Unreleased]
 
+## [1.1.3] - 2026-04-28
+
+### Added
+- **Complete English and German translations**: Added full `messages.en.yaml` and validator translations, moved UI labels, flash messages, templates, and notification emails to translation keys, and made the default locale configurable through `APP_DEFAULT_LOCALE`.
+- **Absence quota overrun controls**: Absence types now define whether quota overruns are allowed, and individual user quotas can inherit or override that setting.
+- **Time-entry overlap handling**: New and edited time entries are checked against existing entries and automatically adjusted to a free time range when possible.
+
+### Changed
+- **Runtime requirements clarified**: The documented PHP requirement is now `>=8.4`, Symfony package constraints were tightened, `ext-dom` is listed explicitly, and PHPUnit was updated.
+- **Favicon support extended**: The shared head template now includes the SVG favicon variant with the existing cache-busting version.
+
+### Fixed
+- **CSRF protection for absence actions**: Cancelling, approving, and rejecting absence requests now validate CSRF tokens.
+- **Quota enforcement on absence requests**: Requests that exceed a blocked quota are rejected with a clear form error before they are saved.
+- **Absence request form errors**: Validation errors are now shown directly in the request form instead of only through flash messages.
+
 ## [1.1.2] - 2026-04-28
 
 ### Fixed
