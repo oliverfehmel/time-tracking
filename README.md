@@ -13,7 +13,7 @@ A modern, self-hosted time tracking application built with Symfony 8.
 
 ## Tech Stack
 
-- PHP 8.5
+- PHP >= 8.4
 - Symfony 8
 - Doctrine ORM
 - Twig
@@ -24,7 +24,7 @@ A modern, self-hosted time tracking application built with Symfony 8.
 
 ### Requirements
 
-- PHP >= 8.5
+- PHP >= 8.4
 - Composer
 - Database (MySQL, MariaDB or PostgreSQL)
 - Symfony CLI (optional)
@@ -64,11 +64,6 @@ php -S localhost:8000 -t public
 ### Run Tests
 ```bash
 php bin/phpunit
-```
-
-### Code Quality
-```bash
-vendor/bin/phpstan analyse
 ```
 
 ## Configuration

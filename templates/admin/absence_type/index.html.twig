@@ -30,6 +30,7 @@
                                 <th>Aktiv</th>
                                 <th>Genehmigung</th>
                                 <th>Kontingent</th>
+                                <th>Überziehung</th>
                                 <th>Standard / Jahr</th>
                                 <th class="text-end"></th>
                             </tr>
@@ -58,6 +59,13 @@
                                             <span class="badge text-bg-info">Ja</span>
                                         {% else %}
                                             <span class="badge text-bg-secondary">Nein</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if t.allowOverLimit %}
+                                            <span class="badge text-bg-warning">erlaubt</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">gesperrt</span>
                                         {% endif %}
                                     </td>
                                     <td>

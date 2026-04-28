@@ -25,19 +25,14 @@ class BrandingManager
         $filesystem->mkdir($brandingDir);
         $filesystem->mkdir($faviconDir);
 
-        if ($oldFilename) {
-            $oldPath = $brandingDir . '/' . $oldFilename;
-            if (is_file($oldPath)) {
-                @unlink($oldPath);
-            }
-        }
-
         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $safeName = (string) $this->slugger->slug($originalName);
 
-        // MIME und Extension VOR dem move() ermitteln
         $mimeType = $file->getMimeType();
         $extension = $file->guessExtension() ?: 'bin';
+        if ($mimeType === 'image/svg+xml') {
+            $extension = 'svg';
+        }
 
         $filename = sprintf(
             'logo-%s-%s.%s',
@@ -46,11 +41,21 @@ class BrandingManager
             $extension
         );
 
+        $sourcePath = $brandingDir . '/' . $filename;
+        if ($mimeType === 'image/svg+xml') {
+            $this->storeSanitizedSvg($file, $sourcePath);
+            $filesystem->copy($sourcePath, $faviconDir . '/favicon.svg', true);
+            $this->writeManifest($faviconDir);
+            $this->deleteOldLogo($brandingDir, $oldFilename);
+
+            return [
+                'logoFilename' => $filename,
+                'faviconVersion' => (string) time(),
+            ];
+        }
+
         $file->move($brandingDir, $filename);
 
-        $sourcePath = $brandingDir . '/' . $filename;
-
-        // Falls du ganz sicher den MIME-Type anhand der verschobenen Datei brauchst:
         if (!$mimeType && is_file($sourcePath)) {
             $mimeType = (new MimeTypes())->guessMimeType($sourcePath);
         }
@@ -84,6 +89,7 @@ class BrandingManager
         imagedestroy($sourceImage);
 
         $this->writeManifest($faviconDir);
+        $this->deleteOldLogo($brandingDir, $oldFilename);
 
         return [
             'logoFilename' => $filename,
@@ -164,5 +170,66 @@ class BrandingManager
             $faviconDir . '/site.webmanifest',
             json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
+    }
+
+    private function storeSanitizedSvg(UploadedFile $file, string $targetPath): void
+    {
+        $content = file_get_contents($file->getPathname());
+        if ($content === false) {
+            throw new \RuntimeException('Das SVG konnte nicht gelesen werden.');
+        }
+
+        $previousUseErrors = libxml_use_internal_errors(true);
+        $dom = new \DOMDocument();
+        $loaded = $dom->loadXML($content, LIBXML_NONET);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previousUseErrors);
+
+        if (!$loaded || $dom->documentElement?->tagName !== 'svg') {
+            throw new \RuntimeException('Bitte lade eine gueltige SVG-Datei hoch.');
+        }
+
+        foreach (['script', 'foreignObject', 'iframe', 'object', 'embed'] as $tagName) {
+            $nodes = $dom->getElementsByTagName($tagName);
+            for ($i = $nodes->length - 1; $i >= 0; $i--) {
+                $node = $nodes->item($i);
+                $node?->parentNode?->removeChild($node);
+            }
+        }
+
+        foreach ($dom->getElementsByTagName('*') as $element) {
+            if (!$element instanceof \DOMElement) {
+                continue;
+            }
+
+            for ($i = $element->attributes->length - 1; $i >= 0; $i--) {
+                $attribute = $element->attributes->item($i);
+                if (!$attribute instanceof \DOMAttr) {
+                    continue;
+                }
+
+                $name = strtolower($attribute->name);
+                $value = strtolower(trim($attribute->value));
+                if (str_starts_with($name, 'on') || str_starts_with($value, 'javascript:')) {
+                    $element->removeAttributeNode($attribute);
+                }
+            }
+        }
+
+        if (file_put_contents($targetPath, $dom->saveXML()) === false) {
+            throw new \RuntimeException('Das SVG konnte nicht gespeichert werden.');
+        }
+    }
+
+    private function deleteOldLogo(string $brandingDir, ?string $oldFilename): void
+    {
+        if (!$oldFilename) {
+            return;
+        }
+
+        $oldPath = $brandingDir . '/' . $oldFilename;
+        if (is_file($oldPath)) {
+            @unlink($oldPath);
+        }
     }
 }

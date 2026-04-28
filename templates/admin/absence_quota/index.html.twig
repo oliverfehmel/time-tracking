@@ -33,6 +33,7 @@
                                 <th>User</th>
                                 <th>Typ</th>
                                 <th>Kontingent</th>
+                                <th>Überziehung</th>
                                 <th class="text-end"></th>
                             </tr>
                             </thead>
@@ -47,6 +48,15 @@
                                             <span class="text-muted">unbegrenzt</span>
                                         {% else %}
                                             {{ q.quotaDays }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if q.allowOverLimit is same as(null) %}
+                                            <span class="badge text-bg-light text-dark">vom Typ</span>
+                                        {% elseif q.allowOverLimit %}
+                                            <span class="badge text-bg-warning">erlaubt</span>
+                                        {% else %}
+                                            <span class="badge text-bg-secondary">gesperrt</span>
                                         {% endif %}
                                     </td>
                                     <td class="text-end">

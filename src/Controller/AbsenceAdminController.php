@@ -46,10 +46,15 @@ final class AbsenceAdminController extends AbstractController
     }
 
     #[Route('/{id<\d+>}/approve', name: '_admin_absence_approve', methods: ['POST'])]
-    public function approve(AbsenceRequest $absence, #[CurrentUser] User $admin): Response
+    public function approve(AbsenceRequest $absence, #[CurrentUser] User $admin, Request $request): Response
     {
         if ($error = $this->guardAbsenceAction($absence, $admin)) {
             return $error;
+        }
+
+        if (!$this->isCsrfTokenValid('approve_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            return $this->redirectToRoute('_admin_absence_approvals');
         }
 
         $absence->approve($admin);
@@ -69,6 +74,11 @@ final class AbsenceAdminController extends AbstractController
     {
         if ($error = $this->guardAbsenceAction($absence, $admin)) {
             return $error;
+        }
+
+        if (!$this->isCsrfTokenValid('reject_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Ungültiges CSRF-Token.');
+            return $this->redirectToRoute('_admin_absence_approvals');
         }
 
         $reason = trim((string) $request->request->get('reason', ''));

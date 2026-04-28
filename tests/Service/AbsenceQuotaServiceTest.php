@@ -57,6 +57,7 @@ final class AbsenceQuotaServiceTest extends TestCase
 
         $this->assertSame($type, $row['type']);
         $this->assertSame(30, $row['quotaDays']);
+        $this->assertFalse($row['allowOverLimit']);
         $this->assertSame(0, $row['usedApprovedDays']);
         $this->assertSame(0, $row['usedPendingDays']);
         $this->assertSame(30, $row['remainingDays']);
@@ -164,15 +165,146 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertNull($result[1]['quotaDays']);
     }
 
+    public function testValidateRequestWithinQuota_allowsWhenQuotaIsNotExceeded(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 5);
+
+        $this->quotaRepo->method('findOneFor')->willReturn(null);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+        ]);
+
+        $result = $this->service->validateRequestWithinQuota(
+            $user,
+            $type,
+            2024,
+            new DateTimeImmutable('2024-07-04'),
+            new DateTimeImmutable('2024-07-05'),
+        );
+
+        $this->assertNull($result);
+    }
+
+    public function testValidateRequestWithinQuota_blocksWhenQuotaWouldBeExceeded(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4);
+
+        $this->quotaRepo->method('findOneFor')->willReturn(null);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+        ]);
+
+        $result = $this->service->validateRequestWithinQuota(
+            $user,
+            $type,
+            2024,
+            new DateTimeImmutable('2024-07-04'),
+            new DateTimeImmutable('2024-07-05'),
+        );
+
+        $this->assertIsString($result);
+    }
+
+    public function testValidateRequestWithinQuota_allowsOverLimitWhenConfigured(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4);
+        $quota = $this->makeQuota($type, 4, allowOverLimit: true);
+
+        $this->quotaRepo->method('findOneFor')->willReturn($quota);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+        ]);
+
+        $result = $this->service->validateRequestWithinQuota(
+            $user,
+            $type,
+            2024,
+            new DateTimeImmutable('2024-07-04'),
+            new DateTimeImmutable('2024-07-05'),
+        );
+
+        $this->assertNull($result);
+    }
+
+    public function testValidateRequestWithinQuota_allowsOverLimitFromAbsenceType(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4, allowOverLimit: true);
+
+        $this->quotaRepo->method('findOneFor')->willReturn(null);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+        ]);
+
+        $result = $this->service->validateRequestWithinQuota(
+            $user,
+            $type,
+            2024,
+            new DateTimeImmutable('2024-07-04'),
+            new DateTimeImmutable('2024-07-05'),
+        );
+
+        $this->assertNull($result);
+    }
+
+    public function testValidateRequestWithinQuota_quotaCanBlockOverLimitAllowedByAbsenceType(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4, allowOverLimit: true);
+        $quota = $this->makeQuota($type, 4, allowOverLimit: false);
+
+        $this->quotaRepo->method('findOneFor')->willReturn($quota);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+        ]);
+
+        $result = $this->service->validateRequestWithinQuota(
+            $user,
+            $type,
+            2024,
+            new DateTimeImmutable('2024-07-04'),
+            new DateTimeImmutable('2024-07-05'),
+        );
+
+        $this->assertIsString($result);
+    }
+
+    public function testGetQuotaOverview_resolvesOverLimitFromQuotaOrType(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 30, allowOverLimit: true);
+        $quota = $this->makeQuota($type, 20, allowOverLimit: null);
+
+        $this->typeRepo->method('findActive')->willReturn([$type]);
+        $this->quotaRepo->method('findOneFor')->willReturn($quota);
+        $this->requestRepo->method('findForUserInYear')->willReturn([]);
+
+        $result = $this->service->getQuotaOverview($user, 2024);
+
+        $this->assertTrue($result[0]['allowOverLimit']);
+        $this->assertNull($result[0]['allowOverLimitOverride']);
+    }
+
     // --- Helpers ---
 
-    private function makeType(int $id, string $name, string $key, bool $quota, ?int $defaultDays): AbsenceType
+    private function makeType(
+        int $id,
+        string $name,
+        string $key,
+        bool $quota,
+        ?int $defaultDays,
+        bool $allowOverLimit = false,
+    ): AbsenceType
     {
         $type = new AbsenceType();
         $type->setName($name);
         $type->setKeyName($key);
         $type->setRequiresQuota($quota);
         $type->setDefaultYearlyQuotaDays($defaultDays);
+        $type->setAllowOverLimit($allowOverLimit);
 
         // Set private $id via reflection so the service can use it as a map key
         (new ReflectionClass($type))->getProperty('id')->setValue($type, $id);
@@ -192,13 +324,14 @@ final class AbsenceQuotaServiceTest extends TestCase
         return $request;
     }
 
-    private function makeQuota(AbsenceType $type, int $days): AbsenceQuota
+    private function makeQuota(AbsenceType $type, int $days, ?bool $allowOverLimit = false): AbsenceQuota
     {
         $quota = new AbsenceQuota();
         $quota->setUser(new User());
         $quota->setType($type);
         $quota->setYear(2024);
         $quota->setQuotaDays($days);
+        $quota->setAllowOverLimit($allowOverLimit);
 
         return $quota;
     }

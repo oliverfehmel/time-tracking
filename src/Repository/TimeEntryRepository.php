@@ -35,4 +35,22 @@ class TimeEntryRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return TimeEntry[]
+     */
+    public function findOverlappingForUser(User $user, \DateTimeImmutable $from, \DateTimeImmutable $to, ?TimeEntry $exclude = null): array
+    {
+        $qb = $this->createQueryBuilder('t')
+            ->andWhere('t.user = :u')->setParameter('u', $user)
+            ->andWhere('t.startedAt < :to')->setParameter('to', $to)
+            ->andWhere('(t.stoppedAt IS NULL OR t.stoppedAt > :from)')->setParameter('from', $from)
+            ->orderBy('t.startedAt', 'ASC');
+
+        if ($exclude?->getId() !== null) {
+            $qb->andWhere('t.id != :excludeId')->setParameter('excludeId', $exclude->getId());
+        }
+
+        return $qb->getQuery()->getResult();
+    }
 }

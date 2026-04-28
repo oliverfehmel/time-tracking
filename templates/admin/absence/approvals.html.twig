@@ -55,6 +55,7 @@
                                                 <form method="post"
                                                       action="{{ path('_admin_absence_approve', {id: a.id}) }}"
                                                       class="m-0">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('approve_absence_' ~ a.id) }}">
                                                     <button class="btn btn-sm btn-success w-100" type="submit">
                                                         <i class="fa-solid fa-check me-1"></i>
                                                         Genehmigen
@@ -64,6 +65,7 @@
                                                 <form method="post"
                                                       action="{{ path('_admin_absence_reject', {id: a.id}) }}"
                                                       class="m-0">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('reject_absence_' ~ a.id) }}">
                                                     <div class="input-group input-group-sm">
                                                         <input class="form-control"
                                                                type="text"

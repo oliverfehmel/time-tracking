@@ -16,9 +16,6 @@ php bin/phpunit
 # Run a single test file
 php bin/phpunit tests/Service/TimeTrackingCalculatorTest.php
 
-# Static analysis
-vendor/bin/phpstan analyse
-
 # Database migrations
 php bin/console doctrine:migrations:migrate
 

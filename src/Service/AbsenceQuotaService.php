@@ -3,10 +3,13 @@
 namespace App\Service;
 
 use App\Entity\AbsenceRequest;
+use App\Entity\AbsenceQuota;
+use App\Entity\AbsenceType;
 use App\Entity\User;
 use App\Repository\AbsenceQuotaRepository;
 use App\Repository\AbsenceRequestRepository;
 use App\Repository\AbsenceTypeRepository;
+use DateTimeImmutable;
 
 final class AbsenceQuotaService
 {
@@ -50,6 +53,7 @@ final class AbsenceQuotaService
 
         $result = [];
         foreach ($types as $type) {
+            $quota = null;
             $quotaDays = null;
 
             if ($type->requiresQuota()) {
@@ -69,6 +73,8 @@ final class AbsenceQuotaService
             $result[] = [
                 'type' => $type,
                 'quotaDays' => $quotaDays,
+                'allowOverLimit' => $this->resolveAllowOverLimit($type, $quota),
+                'allowOverLimitOverride' => $quota?->isAllowOverLimit(),
                 'usedApprovedDays' => $approved,
                 'usedPendingDays' => $pending,
                 'remainingDays' => $remaining,
@@ -76,5 +82,65 @@ final class AbsenceQuotaService
         }
 
         return $result;
+    }
+
+    public function validateRequestWithinQuota(
+        User $user,
+        AbsenceType $type,
+        int $year,
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
+        ?string $holidayRegion = null,
+    ): ?string {
+        if (!$type->requiresQuota()) {
+            return null;
+        }
+
+        $quota = $this->quotaRepo->findOneFor($user, $type, $year);
+        if ($this->resolveAllowOverLimit($type, $quota)) {
+            return null;
+        }
+
+        $quotaDays = $quota?->getQuotaDays() ?? $type->getDefaultYearlyQuotaDays();
+        if ($quotaDays === null) {
+            return null;
+        }
+
+        $alreadyRequested = 0;
+        foreach ($this->requestRepo->findForUserInYear($user, $year) as $request) {
+            if ($request->getType()->getId() !== $type->getId()) {
+                continue;
+            }
+
+            if (!in_array($request->getStatus(), [AbsenceRequest::STATUS_APPROVED, AbsenceRequest::STATUS_PENDING], true)) {
+                continue;
+            }
+
+            $alreadyRequested += $this->dayCalc->countChargeableDays(
+                $request->getStartDate(),
+                $request->getEndDate(),
+                $holidayRegion,
+                $user,
+            );
+        }
+
+        $requestedDays = $this->dayCalc->countChargeableDays($start, $end, $holidayRegion, $user);
+        if ($alreadyRequested + $requestedDays <= $quotaDays) {
+            return null;
+        }
+
+        return sprintf(
+            'Das Kontingent reicht nicht aus: %d von %d Tagen sind bereits genehmigt oder offen, der neue Antrag umfasst %d Tage.',
+            $alreadyRequested,
+            $quotaDays,
+            $requestedDays,
+        );
+    }
+
+    private function resolveAllowOverLimit(AbsenceType $type, ?AbsenceQuota $quota): bool
+    {
+        $quotaSetting = $quota?->isAllowOverLimit();
+
+        return $quotaSetting ?? $type->isAllowOverLimit();
     }
 }

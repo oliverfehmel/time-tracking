@@ -29,6 +29,9 @@ class AbsenceQuota
     #[ORM\Column(nullable: true)]
     private ?int $quotaDays = null; // null = unlimited
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $allowOverLimit = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +78,17 @@ class AbsenceQuota
     public function setQuotaDays(?int $quotaDays): self
     {
         $this->quotaDays = $quotaDays;
+        return $this;
+    }
+
+    public function isAllowOverLimit(): ?bool
+    {
+        return $this->allowOverLimit;
+    }
+
+    public function setAllowOverLimit(?bool $allowOverLimit): self
+    {
+        $this->allowOverLimit = $allowOverLimit;
         return $this;
     }
 }

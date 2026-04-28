@@ -63,6 +63,7 @@ final class AbsenceController extends AbstractController
         AbsenceRequestRepository $requestRepo,
         AbsenceDayCalculator $dayCalc,
         UserRepository $userRepo,
+        AbsenceQuotaService $quotaService,
     ): Response {
 
         $absence = new AbsenceRequest();
@@ -76,6 +77,11 @@ final class AbsenceController extends AbstractController
             $end   = $absence->getEndDate();
 
             if ($error = $this->validateAbsenceDates($start, $end, $year, $requestRepo, $user)) {
+                $this->addFlash('error', $error);
+                return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
+            }
+
+            if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end)) {
                 $this->addFlash('error', $error);
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
@@ -104,7 +110,7 @@ final class AbsenceController extends AbstractController
     }
 
     #[Route('/absence/{id<\d+>}/cancel', name: '_absence_cancel', methods: ['POST'])]
-    public function cancel(AbsenceRequest $absence, #[CurrentUser] User $user): Response
+    public function cancel(AbsenceRequest $absence, #[CurrentUser] User $user, Request $request): Response
     {
 
         if ($absence->getRequestedBy()->getId() !== $user->getId()) {
@@ -113,6 +119,11 @@ final class AbsenceController extends AbstractController
 
         if (!in_array($absence->getStatus(), [AbsenceRequest::STATUS_PENDING, AbsenceRequest::STATUS_APPROVED], true)) {
             $this->addFlash('error', 'Dieser Antrag kann nicht storniert werden.');
+            return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
+        }
+
+        if (!$this->isCsrfTokenValid('cancel_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Ungültiges CSRF-Token.');
             return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
         }
 

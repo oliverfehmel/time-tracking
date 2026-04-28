@@ -10,6 +10,7 @@ use App\Repository\TimeEntryRepository;
 use App\Repository\WorkLocationRepository;
 use App\Repository\WorkLocationTypeRepository;
 use App\Service\TimeTrackingCalculator;
+use App\Service\TimeEntryOverlapResolver;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -63,6 +64,8 @@ final class TimeTrackingDayController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         TranslatorInterface $translator,
+        TimeEntryRepository $entryRepo,
+        TimeEntryOverlapResolver $overlapResolver,
     ): Response {
         if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
             return $redirect;
@@ -85,6 +88,11 @@ final class TimeTrackingDayController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->resolveOverlaps($entry, $entryRepo, $overlapResolver, null)) {
+                $this->addFlash('error', 'Der Zeitraum liegt vollständig in bereits erfasster Arbeitszeit.');
+                return $this->redirectToRoute('_time_day', ['date' => $date]);
+            }
+
             $em->persist($entry);
             $em->flush();
 
@@ -106,6 +114,8 @@ final class TimeTrackingDayController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         TranslatorInterface $translator,
+        TimeEntryRepository $entryRepo,
+        TimeEntryOverlapResolver $overlapResolver,
     ): Response {
         if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
             return $redirect;
@@ -128,6 +138,11 @@ final class TimeTrackingDayController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            if (!$this->resolveOverlaps($entry, $entryRepo, $overlapResolver, $entry)) {
+                $this->addFlash('error', 'Der Zeitraum liegt vollständig in bereits erfasster Arbeitszeit.');
+                return $this->redirectToRoute('_time_day', ['date' => $date]);
+            }
+
             $em->flush();
 
             $this->addFlash('success', 'Eintrag wurde gespeichert.');
@@ -186,5 +201,36 @@ final class TimeTrackingDayController extends AbstractController
         }
 
         return null;
+    }
+
+    private function resolveOverlaps(
+        TimeEntry $entry,
+        TimeEntryRepository $entryRepo,
+        TimeEntryOverlapResolver $overlapResolver,
+        ?TimeEntry $exclude,
+    ): bool {
+        $start = $entry->getStartedAt();
+        $end = $entry->getStoppedAt();
+
+        if (!$start instanceof DateTimeImmutable || !$end instanceof DateTimeImmutable) {
+            return true;
+        }
+
+        $existingEntries = $entryRepo->findOverlappingForUser($entry->getUser(), $start, $end, $exclude);
+        if ($existingEntries === []) {
+            return true;
+        }
+
+        $originalStart = $start;
+        $originalEnd = $end;
+        if (!$overlapResolver->resolve($entry, $existingEntries, new DateTimeImmutable())) {
+            return false;
+        }
+
+        if ($entry->getStartedAt() != $originalStart || $entry->getStoppedAt() != $originalEnd) {
+            $this->addFlash('warning', 'Der Zeitraum wurde automatisch auf den freien Bereich ohne Überschneidung angepasst.');
+        }
+
+        return true;
     }
 }

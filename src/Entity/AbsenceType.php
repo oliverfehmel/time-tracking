@@ -32,6 +32,9 @@ class AbsenceType
     #[ORM\Column(nullable: true)]
     private ?int $defaultYearlyQuotaDays = null; // null = unlimited
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $allowOverLimit = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -100,6 +103,17 @@ class AbsenceType
     public function setDefaultYearlyQuotaDays(?int $days): self
     {
         $this->defaultYearlyQuotaDays = $days;
+        return $this;
+    }
+
+    public function isAllowOverLimit(): bool
+    {
+        return $this->allowOverLimit;
+    }
+
+    public function setAllowOverLimit(bool $allowOverLimit): self
+    {
+        $this->allowOverLimit = $allowOverLimit;
         return $this;
     }
 }

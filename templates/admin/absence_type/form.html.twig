@@ -58,6 +58,15 @@
                                 </div>
                                 {{ form_errors(form.requiresQuota) }}
                             </div>
+
+                            <div class="col-12 col-md-4">
+                                <div class="form-check">
+                                    {{ form_widget(form.allowOverLimit, { attr: { class: 'form-check-input' } }) }}
+                                    {{ form_label(form.allowOverLimit, null, { label_attr: { class: 'form-check-label' } }) }}
+                                </div>
+                                <div class="form-text">{{ form_help(form.allowOverLimit) }}</div>
+                                {{ form_errors(form.allowOverLimit) }}
+                            </div>
                         </div>
                     </div>
                 </div>
