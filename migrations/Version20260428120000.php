@@ -14,6 +14,11 @@ final class Version20260428120000 extends AbstractMigration
         return 'Add work_location_type and work_location tables with default types';
     }
 
+    public function isTransactional(): bool
+    {
+        return false;
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('CREATE TABLE work_location_type (

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Doctrine migration transactions disabled explicitly**: DDL migrations now opt out of transactions per migration class to avoid Doctrine's implicit-commit deprecation notice on MySQL/MariaDB.
+
 ## [1.1.3] - 2026-04-28
 
 ### Added

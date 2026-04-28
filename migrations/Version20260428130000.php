@@ -14,6 +14,11 @@ final class Version20260428130000 extends AbstractMigration
         return 'Add inheritable flags for allowing absence requests over the configured limit';
     }
 
+    public function isTransactional(): bool
+    {
+        return false;
+    }
+
     public function up(Schema $schema): void
     {
         $this->addSql('ALTER TABLE absence_type ADD allow_over_limit TINYINT(1) DEFAULT 0 NOT NULL');
