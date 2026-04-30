@@ -4,8 +4,13 @@ namespace App\Controller;
 
 use App\Entity\TimeEntry;
 use App\Entity\User;
+use App\Entity\WorkLocation;
+use App\Repository\SettingsRepository;
 use App\Repository\TimeEntryRepository;
+use App\Repository\WorkLocationRepository;
+use App\Repository\WorkLocationTypeRepository;
 use App\Service\DashboardDataBuilder;
+use App\Service\TimeTrackingCalculator;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_USER')]
 final class DashboardController extends AbstractController
@@ -78,6 +84,58 @@ final class DashboardController extends AbstractController
         $em->flush();
 
         $this->addFlash('success', 'flash.timer_stopped');
+        return $this->redirectToRoute('_home');
+    }
+
+    #[Route('/time/work-location', name: '_time_location_dashboard', methods: ['POST'])]
+    public function setTodayWorkLocation(
+        #[CurrentUser] User $user,
+        Request $request,
+        WorkLocationRepository $locationRepo,
+        WorkLocationTypeRepository $typeRepo,
+        SettingsRepository $settingsRepo,
+        TimeTrackingCalculator $calc,
+        EntityManagerInterface $em,
+        TranslatorInterface $translator,
+    ): Response {
+        if (!$settingsRepo->getOrCreate()->isUsersAreAllowedToChangeTimeEntries()) {
+            $this->addFlash('error', $translator->trans('settings.users_not_allowed_to_change_time_entries'));
+            return $this->redirectToRoute('_home');
+        }
+
+        if (!$this->isCsrfTokenValid('set_work_location_today', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'flash.invalid_csrf');
+            return $this->redirectToRoute('_home');
+        }
+
+        $today = new DateTimeImmutable('today');
+
+        if (!$calc->isEditableMonth($today, new DateTimeImmutable())) {
+            $this->addFlash('error', 'flash.month_not_editable');
+            return $this->redirectToRoute('_home');
+        }
+
+        $typeId = (int) $request->request->get('location_type_id');
+        $type   = $typeRepo->find($typeId);
+
+        if (!$type || !$type->isActive()) {
+            $this->addFlash('error', 'flash.work_location_invalid');
+            return $this->redirectToRoute('_home');
+        }
+
+        $location = $locationRepo->findForUserOnDate($user, $today);
+
+        if ($location === null) {
+            $location = new WorkLocation();
+            $location->setUser($user);
+            $location->setDate($today);
+            $em->persist($location);
+        }
+
+        $location->setLocationType($type);
+        $em->flush();
+
+        $this->addFlash('success', 'flash.work_location_saved');
         return $this->redirectToRoute('_home');
     }
 }

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Work location on dashboard**: The work location for today can now be set directly from the dashboard. The top card shows the current location type (with icon) and a dropdown to change it — no need to navigate to the day view.
+
 ### Fixed
 - **Doctrine migration transactions disabled explicitly**: DDL migrations now opt out of transactions per migration class to avoid Doctrine's implicit-commit deprecation notice on MySQL/MariaDB.
 

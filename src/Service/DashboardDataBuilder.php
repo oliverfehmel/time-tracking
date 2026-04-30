@@ -12,6 +12,8 @@ use App\Repository\AbsenceTypeRepository;
 use App\Repository\HolidayRepository;
 use App\Repository\SettingsRepository;
 use App\Repository\TimeEntryRepository;
+use App\Repository\WorkLocationRepository;
+use App\Repository\WorkLocationTypeRepository;
 use DateTimeImmutable;
 
 final class DashboardDataBuilder
@@ -26,6 +28,8 @@ final class DashboardDataBuilder
         private readonly HolidayRepository $holidayRepo,
         private readonly AbsenceDayCalculator $dayCalc,
         private readonly SettingsRepository $settingsRepo,
+        private readonly WorkLocationRepository $workLocationRepo,
+        private readonly WorkLocationTypeRepository $workLocationTypeRepo,
     ) {}
 
     public function build(User $user): array
@@ -62,13 +66,18 @@ final class DashboardDataBuilder
         $weekSollEnd  = $weekEnd <= $tomorrow ? $weekEnd : $tomorrow;
         $monthSollEnd = $monthEnd <= $tomorrow ? $monthEnd : $tomorrow;
 
+        $locationTypes = $this->workLocationTypeRepo->findActive();
+
         return [
-            'running'     => $this->timeEntryRepo->findRunningForUser($user),
-            'todayWorked' => $this->calc->formatSeconds($todayNet),
-            'weekIst'     => $this->calc->formatSeconds($weekNet),
-            'weekSoll'    => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $weekStart, $weekSollEnd)),
-            'monthIst'    => $this->calc->formatSeconds($monthNet),
-            'monthSoll'   => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $monthStart, $monthSollEnd)),
+            'running'             => $this->timeEntryRepo->findRunningForUser($user),
+            'todayWorked'         => $this->calc->formatSeconds($todayNet),
+            'weekIst'             => $this->calc->formatSeconds($weekNet),
+            'weekSoll'            => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $weekStart, $weekSollEnd)),
+            'monthIst'            => $this->calc->formatSeconds($monthNet),
+            'monthSoll'           => $this->calc->formatSeconds($this->sollCalc->sollSecondsForRange($user, $monthStart, $monthSollEnd)),
+            'locationTypes'       => $locationTypes,
+            'todayWorkLocation'   => !empty($locationTypes) ? $this->workLocationRepo->findForUserOnDate($user, $today) : null,
+            'defaultLocationType' => !empty($locationTypes) ? $this->workLocationTypeRepo->findDefault() : null,
         ];
     }
 
