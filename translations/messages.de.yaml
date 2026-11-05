@@ -96,6 +96,7 @@ navbar:
   time_tracking: Time Tracking
   absences: Abwesenheiten
   absence_overview: Abwesenheitsübersicht
+  api: API
   users: Benutzer
   holidays: Feiertage
   approvals: Genehmigungen
@@ -459,3 +460,158 @@ email:
     reason: Begründung
   employee: Mitarbeiter
   period: Zeitraum
+
+api:
+  problem:
+    unauthorized: Ein gültiges API-Token ist erforderlich.
+    forbidden: Dafür fehlt die Berechtigung.
+    read_only_token: Dieses API-Token darf nur lesen.
+    foreign_user: Nur Admins dürfen auf Daten anderer Benutzer zugreifen.
+    not_found: Die Ressource existiert nicht.
+    bad_request: Die Anfrage ist fehlerhaft.
+    method_not_allowed: Diese HTTP-Methode wird hier nicht unterstützt.
+    unsupported_media_type: Bitte JSON senden (Content-Type application/json).
+    validation_failed: Die Anfrage enthält ungültige Daten.
+    conflict: Die Anfrage passt nicht zum aktuellen Zustand.
+    duplicate: Ein Eintrag mit diesen Werten existiert bereits.
+    still_referenced: Der Eintrag wird noch verwendet und kann nicht gelöscht werden.
+    cannot_delete_self: Du kannst dein eigenes Konto nicht löschen.
+    cannot_demote_self: Du kannst dir die Admin-Rechte nicht selbst entziehen.
+    unknown_type: Diese Abwesenheitsart gibt es nicht.
+    unknown_user: Mindestens einer der Benutzer existiert nicht.
+    running_entry: Laufende Einträge lassen sich nur über den Timer ändern.
+    internal_error: Ein unerwarteter Fehler ist aufgetreten.
+    http_error: Die Anfrage konnte nicht verarbeitet werden.
+
+api_token:
+  title: API-Tokens
+  subtitle: Persönliche Tokens für den Zugriff auf die REST-API. Ein Token hat dieselben Rechte wie du.
+  create: Token erstellen
+  create_subtitle: Das Token wird nur einmal angezeigt – kopiere es direkt.
+  name: Name
+  name_help: Wofür das Token gedacht ist, z. B. „Zeiterfassung-Skript“.
+  scope: Berechtigung
+  scope_read: Nur lesen
+  scope_read_write: Lesen und schreiben
+  validity: Gültigkeit
+  validity_30: 30 Tage
+  validity_90: 90 Tage
+  validity_365: 1 Jahr
+  validity_never: Unbegrenzt
+  created: Token erstellt.
+  copy_now: Kopiere das Token jetzt. Es wird nicht gespeichert und kann später nicht mehr angezeigt werden.
+  list: Vorhandene Tokens
+  none: Noch keine Tokens vorhanden.
+  created_at: Erstellt
+  last_used_at: Zuletzt genutzt
+  expires_at: Läuft ab
+  never_used: nie
+  never_expires: nie
+  revoke: Widerrufen
+  confirm_revoke: Token wirklich widerrufen? Programme, die es nutzen, verlieren sofort den Zugriff.
+  revoked: Token widerrufen.
+  impersonation_forbidden: Während du als anderer Benutzer angemeldet bist, kannst du keine API-Tokens erstellen.
+  admin_hint: Admins können Tokens anderer Benutzer widerrufen, aber keine für sie erstellen.
+
+api_guide:
+  nav: API-Anleitung
+  title: REST-API
+  subtitle: Benutzer, Zeiten, Abwesenheiten und Feiertage per HTTP lesen und ändern – mit den Rechten deines Kontos.
+  swagger: Swagger UI
+  openapi_json: OpenAPI (JSON)
+  back_to_app: Zurück zur Zeiterfassung
+  token:
+    title: API-Token erstellen
+    text: Unter Profil → API-Tokens erstellst du ein persönliches Token. Es wird genau einmal angezeigt; gespeichert wird nur ein Hash.
+    scopes: '„Nur lesen“ erlaubt ausschließlich GET-Anfragen, „Lesen und schreiben“ alle Anfragen, die du auch in der App ausführen darfst.'
+    expiry: Tokens laufen nach 30 Tagen, 90 Tagen, einem Jahr oder nie ab und lassen sich jederzeit widerrufen.
+    secret: Behandle ein Token wie ein Passwort. Während du als anderer Benutzer angemeldet bist, kannst du keine Tokens erstellen.
+  auth:
+    title: Authentifizierung
+    text: 'Sende das Token bei jeder Anfrage im Header „Authorization: Bearer …“. Die API nutzt keine Sitzung – das Anmelde-Cookie der App gilt dort nicht.'
+    base_url: 'Basis-URL: %url%'
+  permissions:
+    title: Berechtigungen
+    user: Normale Benutzer sehen und ändern nur ihre eigenen Daten (Zeiten, Timer, Arbeitsorte, Abwesenheiten, Kontingente, zugewiesene Feiertage).
+    admin: Admins sehen alle Daten, verwalten Benutzer, Feiertage, Abwesenheitsarten und Kontingente und genehmigen oder lehnen Anträge ab (nicht ihre eigenen).
+    locks: 'Für normale Benutzer gelten dieselben Sperren wie in der App: Zeiten und Arbeitsorte nur im aktuellen und im Vormonat und nur, wenn das Bearbeiten erlaubt ist.'
+    not_found: Daten anderer Benutzer werden mit 404 beantwortet, Admin-Funktionen mit 403.
+  format:
+    title: Formate
+    envelope: 'Jede Antwort steckt in „data“; Listen haben zusätzlich „meta“ mit page, perPage und total.'
+    dates: Datumswerte als YYYY-MM-DD, Zeitpunkte nach RFC 3339 mit Zeitzonen-Offset.
+    numbers: Dauern in Sekunden, Tage als Dezimalzahl (0.5 = halber Tag).
+    pagination: Listen mit ?page=1&perPage=50 (maximal 200).
+    patch: PATCH ändert nur die gesendeten Felder.
+    language: Fehlermeldungen kommen in der Sprache aus Accept-Language (de oder en).
+  endpoints:
+    title: Endpunkte
+    area: Bereich
+    paths: Pfade (unter /api/v1)
+    who: Wer
+    details: Alle Parameter, Felder und Antworten findest du in der Swagger UI.
+    me:
+      name: Ich
+      paths: GET /me
+      who: alle – eigenes Konto, Token und Feature-Schalter
+    users:
+      name: Benutzer
+      paths: GET /users, GET|PATCH|DELETE /users/{id}, POST /users
+      who: Lesen eigenes Konto; Verwalten nur Admins
+    time_entries:
+      name: Zeiteinträge
+      paths: GET|POST /time-entries, GET|PATCH|DELETE /time-entries/{id}
+      who: eigene; Admins alle
+    timer:
+      name: Timer
+      paths: GET /timer, POST /timer/start, POST /timer/stop
+      who: eigener Timer
+    report:
+      name: Auswertung
+      paths: GET /users/{id}/time-report/{year}
+      who: eigene; Admins alle
+    work_locations:
+      name: Arbeitsorte
+      paths: GET /work-location-types, GET /users/{id}/work-locations, PUT|DELETE /users/{id}/work-locations/{date}
+      who: eigene; Admins alle
+    absence_types:
+      name: Abwesenheitsarten
+      paths: GET /absence-types, GET|PATCH /absence-types/{id}, POST /absence-types
+      who: Lesen alle; Verwalten nur Admins
+    absence_requests:
+      name: Abwesenheiten
+      paths: GET|POST /absence-requests, GET /absence-requests/{id}, POST …/{id}/cancel, …/approve, …/reject
+      who: eigene; Admins alle und Genehmigung
+    quotas:
+      name: Kontingente
+      paths: GET /users/{id}/absence-quotas, PUT|DELETE /users/{id}/absence-quotas/{year}/{typeId}
+      who: Übersicht eigene; Setzen nur Admins
+    holidays:
+      name: Feiertage
+      paths: GET|POST /holidays, GET|PATCH|DELETE /holidays/{id}
+      who: zugewiesene lesen; Verwalten nur Admins
+  half_days:
+    title: Halbe Tage
+    enabled: Halbe Tage sind aktiviert
+    disabled: Halbe Tage sind deaktiviert
+    fraction: 'Anträge und Feiertage haben „halfDay“ und „dayFraction“ (1.0 oder 0.5); „days“ zählt die angerechneten Tage, z. B. 0.5.'
+    requests: Ein halber Tag ist nur für eintägige Anträge möglich. Zwei halbe Tage dürfen sich einen Tag teilen, außer auf einem halben Feiertag.
+    holidays: Neue halbe Tage (Anträge, Feiertage, 0,5er-Kontingente) gibt es nur, wenn das Feature aktiv ist – sonst antwortet die API mit 422 „half_days_disabled“.
+    existing: Bestehende halbe Tage werden immer als halbe Tage ausgegeben und berechnet, auch wenn das Feature aus ist.
+  errors:
+    title: Fehler
+    text: 'Fehler kommen als „application/problem+json“ mit einem maschinenlesbaren „code“ und – bei Eingabefehlern – den betroffenen Feldern.'
+    status_400: Ungültiges JSON oder fehlerhafte Anfrage
+    status_401: Token fehlt, ist unbekannt oder abgelaufen
+    status_403: Keine Berechtigung, Nur-Lese-Token oder Bearbeitungssperre
+    status_404: Unbekannt oder Daten eines anderen Benutzers
+    status_409: Konflikt, z. B. Timer läuft schon oder Antrag ist nicht mehr offen
+    status_415: Body ist kein JSON
+    status_422: Ungültige Eingabe oder verletzte Fachregel (z. B. Kontingent, Überschneidung)
+  examples:
+    title: Beispiele
+    token_hint: 'Setze vorher dein Token: export TOKEN=tt_…'
+    timer: Timer starten und stoppen
+    entry: Zeiteintrag nachtragen
+    absence: Halben Urlaubstag beantragen
+    report: Jahresauswertung abrufen

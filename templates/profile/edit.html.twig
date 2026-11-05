@@ -10,6 +10,9 @@
                 <h1 class="h3 mb-1">{{ 'profile.title'|trans }}</h1>
                 <p class="text-muted mb-0">{{ 'profile.subtitle'|trans }}</p>
             </div>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ path('_api_tokens') }}">
+                <i class="fa-solid fa-key me-1"></i>{{ 'api_token.title'|trans }}
+            </a>
         </div>
 
         {{ form_start(form, { attr: { novalidate: 'novalidate', class: 'row g-3' } }) }}

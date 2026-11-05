@@ -53,5 +53,13 @@
                 {{ form_end(form) }}
             </div>
         </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-white">
+                <div class="fw-semibold">{{ 'api_token.list'|trans }}</div>
+                <div class="text-muted small">{{ 'api_token.admin_hint'|trans }}</div>
+            </div>
+            {% include 'profile/_api_token_table.html.twig' with { tokens: apiTokens, revokeRoute: '_admin_users_api_token_revoke', routeParams: {} } %}
+        </div>
     </div>
 {% endblock %}

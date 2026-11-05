@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'api_guide.title'|trans }}{% endblock %}
+
+{% block body %}
+    <div class="tt-page">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">{{ 'api_guide.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'api_guide.subtitle'|trans }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-primary" href="{{ path('app.swagger_ui') }}" data-turbo="false" data-testid="swagger-link">
+                    <i class="fa-solid fa-code me-1"></i>{{ 'api_guide.swagger'|trans }}
+                </a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('app.swagger') }}" data-turbo="false" data-turbo-prefetch="false" download>
+                    <i class="fa-solid fa-file-code me-1"></i>{{ 'api_guide.openapi_json'|trans }}
+                </a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('_api_tokens') }}">
+                    <i class="fa-solid fa-key me-1"></i>{{ 'api_token.title'|trans }}
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">1. {{ 'api_guide.token.title'|trans }}</div>
+                    <div class="card-body">
+                        <p>{{ 'api_guide.token.text'|trans }}</p>
+                        <ul class="mb-0">
+                            <li>{{ 'api_guide.token.scopes'|trans }}</li>
+                            <li>{{ 'api_guide.token.expiry'|trans }}</li>
+                            <li>{{ 'api_guide.token.secret'|trans }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">2. {{ 'api_guide.auth.title'|trans }}</div>
+                    <div class="card-body">
+                        <p>{{ 'api_guide.auth.text'|trans }}</p>
+                        <pre class="bg-light border rounded p-2 small mb-2"><code>curl -H "Authorization: Bearer tt_…" \
+     {{ baseUrl }}/me</code></pre>
+                        <p class="small text-muted mb-0">{{ 'api_guide.auth.base_url'|trans({'%url%': baseUrl}) }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">3. {{ 'api_guide.permissions.title'|trans }}</div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>{{ 'api_guide.permissions.user'|trans }}</li>
+                            <li>{{ 'api_guide.permissions.admin'|trans }}</li>
+                            <li>{{ 'api_guide.permissions.locks'|trans }}</li>
+                            <li>{{ 'api_guide.permissions.not_found'|trans }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">4. {{ 'api_guide.format.title'|trans }}</div>
+                    <div class="card-body">
+                        <ul>
+                            <li>{{ 'api_guide.format.envelope'|trans }}</li>
+                            <li>{{ 'api_guide.format.dates'|trans }}</li>
+                            <li>{{ 'api_guide.format.numbers'|trans }}</li>
+                            <li>{{ 'api_guide.format.pagination'|trans }}</li>
+                            <li>{{ 'api_guide.format.patch'|trans }}</li>
+                            <li>{{ 'api_guide.format.language'|trans }}</li>
+                        </ul>
+                        <pre class="bg-light border rounded p-2 small mb-0"><code>{"data": [ … ], "meta": {"page": 1, "perPage": 50, "total": 123}}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white fw-semibold">5. {{ 'api_guide.endpoints.title'|trans }}</div>
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>{{ 'api_guide.endpoints.area'|trans }}</th>
+                                <th>{{ 'api_guide.endpoints.paths'|trans }}</th>
+                                <th>{{ 'api_guide.endpoints.who'|trans }}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for area in ['me', 'users', 'time_entries', 'timer', 'report', 'work_locations', 'absence_types', 'absence_requests', 'quotas', 'holidays'] %}
+                                <tr>
+                                    <td class="fw-semibold">{{ ('api_guide.endpoints.' ~ area ~ '.name')|trans }}</td>
+                                    <td><code class="small">{{ ('api_guide.endpoints.' ~ area ~ '.paths')|trans }}</code></td>
+                                    <td class="small">{{ ('api_guide.endpoints.' ~ area ~ '.who')|trans }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white small text-muted">{{ 'api_guide.endpoints.details'|trans }}</div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">6. {{ 'api_guide.half_days.title'|trans }}</div>
+                    <div class="card-body">
+                        <p>
+                            <span class="badge {{ halfDaysEnabled ? 'text-bg-success' : 'text-bg-secondary' }}">
+                                {{ (halfDaysEnabled ? 'api_guide.half_days.enabled' : 'api_guide.half_days.disabled')|trans }}
+                            </span>
+                        </p>
+                        <ul class="mb-0">
+                            <li>{{ 'api_guide.half_days.fraction'|trans }}</li>
+                            <li>{{ 'api_guide.half_days.requests'|trans }}</li>
+                            <li>{{ 'api_guide.half_days.holidays'|trans }}</li>
+                            <li>{{ 'api_guide.half_days.existing'|trans }}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white fw-semibold">7. {{ 'api_guide.errors.title'|trans }}</div>
+                    <div class="card-body">
+                        <p>{{ 'api_guide.errors.text'|trans }}</p>
+                        <pre class="bg-light border rounded p-2 small"><code>{
+  "type": "about:blank",
+  "title": "Unprocessable Content",
+  "status": 422,
+  "code": "overlaps_existing",
+  "detail": "…",
+  "violations": [{"propertyPath": "startDate", "message": "…", "code": "overlaps_existing"}]
+}</code></pre>
+                        <dl class="row small mb-0">
+                            {% for status in ['400', '401', '403', '404', '409', '415', '422'] %}
+                                <dt class="col-2">{{ status }}</dt>
+                                <dd class="col-10 mb-1">{{ ('api_guide.errors.status_' ~ status)|trans }}</dd>
+                            {% endfor %}
+                        </dl>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white fw-semibold">8. {{ 'api_guide.examples.title'|trans }}</div>
+                    <div class="card-body">
+                        <p class="small text-muted">{{ 'api_guide.examples.token_hint'|trans }}</p>
+
+                        <div class="fw-semibold small mb-1">{{ 'api_guide.examples.timer'|trans }}</div>
+                        <pre class="bg-light border rounded p-2 small"><code>curl -X POST -H "Authorization: Bearer $TOKEN" {{ baseUrl }}/timer/start
+curl -X POST -H "Authorization: Bearer $TOKEN" {{ baseUrl }}/timer/stop</code></pre>
+
+                        <div class="fw-semibold small mb-1">{{ 'api_guide.examples.entry'|trans }}</div>
+                        <pre class="bg-light border rounded p-2 small"><code>curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+     -d '{"startedAt": "2026-11-05T08:30:00+01:00", "stoppedAt": "2026-11-05T12:00:00+01:00"}' \
+     {{ baseUrl }}/time-entries</code></pre>
+
+                        <div class="fw-semibold small mb-1">{{ 'api_guide.examples.absence'|trans }}</div>
+                        <pre class="bg-light border rounded p-2 small"><code>curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+     -d '{"typeId": 1, "startDate": "2026-12-23", "halfDay": true}' \
+     {{ baseUrl }}/absence-requests</code></pre>
+
+                        <div class="fw-semibold small mb-1">{{ 'api_guide.examples.report'|trans }}</div>
+                        <pre class="bg-light border rounded p-2 small mb-0"><code>curl -H "Authorization: Bearer $TOKEN" "{{ baseUrl }}/users/{{ app.user.id }}/time-report/{{ 'now'|date('Y') }}"</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

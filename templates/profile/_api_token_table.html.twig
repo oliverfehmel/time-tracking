@@ -1,0 +1,48 @@
+{# List of API tokens with revoke buttons; used on the profile page and in the admin user edit page. #}
+{% if tokens is empty %}
+    <div class="card-body text-muted">{{ 'api_token.none'|trans }}</div>
+{% else %}
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+            <tr>
+                <th>{{ 'general.name'|trans }}</th>
+                <th>{{ 'api_token.scope'|trans }}</th>
+                <th>{{ 'api_token.created_at'|trans }}</th>
+                <th>{{ 'api_token.last_used_at'|trans }}</th>
+                <th>{{ 'api_token.expires_at'|trans }}</th>
+                <th class="text-end">{{ 'general.actions'|trans }}</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for token in tokens %}
+                <tr>
+                    <td>
+                        <div>{{ token.name }}</div>
+                        <code class="small text-muted">{{ token.tokenPrefix }}…</code>
+                    </td>
+                    <td>
+                        {% if token.allowsWrite %}
+                            <span class="badge text-bg-warning">{{ 'api_token.scope_read_write'|trans }}</span>
+                        {% else %}
+                            <span class="badge text-bg-secondary">{{ 'api_token.scope_read'|trans }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="small">{{ token.createdAt|date('d.m.Y H:i') }}</td>
+                    <td class="small">{{ token.lastUsedAt ? token.lastUsedAt|date('d.m.Y H:i') : 'api_token.never_used'|trans }}</td>
+                    <td class="small">{{ token.expiresAt ? token.expiresAt|date('d.m.Y') : 'api_token.never_expires'|trans }}</td>
+                    <td class="text-end">
+                        <form method="post" action="{{ path(revokeRoute, routeParams|merge({id: token.id})) }}" class="m-0 d-inline"
+                              onsubmit="return confirm('{{ 'api_token.confirm_revoke'|trans|e('js') }}')">
+                            <input type="hidden" name="_token" value="{{ csrf_token('revoke_api_token_' ~ token.id) }}">
+                            <button class="btn btn-sm btn-outline-danger" type="submit">
+                                <i class="fa-solid fa-ban me-1"></i>{{ 'api_token.revoke'|trans }}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

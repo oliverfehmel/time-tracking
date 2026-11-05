@@ -5,3 +5,5 @@ user.password_min_length: "Das Passwort muss mindestens {{ limit }} Zeichen lang
 "Your password should be at least {{ limit }} characters": "Das Passwort muss mindestens {{ limit }} Zeichen lang sein."
 absence.quota.half_day_steps: Bitte nur ganze oder halbe Tage angeben (z. B. 27,5).
 absence.quota.whole_day_steps: Bitte nur ganze Tage angeben.
+api.stopped_before_started: Das Ende muss nach dem Start liegen.
+api.half_days_disabled: Halbe Tage sind deaktiviert.

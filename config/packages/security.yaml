@@ -12,6 +12,17 @@ security:
         dev:
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+        # REST API: stateless, personal API tokens only (Authorization: Bearer tt_…), see ADR 0001.
+        # The documentation (/api, /api/docs) is not matched and stays behind the normal login.
+        api:
+            pattern: ^/api/v1(/|$)
+            stateless: true
+            provider: app_user_provider
+            access_token:
+                token_handler: App\Security\ApiTokenHandler
+                failure_handler: App\Security\ApiSecurityResponder
+            entry_point: App\Security\ApiSecurityResponder
+            access_denied_handler: App\Security\ApiSecurityResponder
         main:
             lazy: true
             provider: app_user_provider
@@ -41,6 +52,7 @@ security:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/reset-password, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/v1(/|$), roles: ROLE_USER }
         - { path: ^/, roles: ROLE_USER }
 
 when@test:

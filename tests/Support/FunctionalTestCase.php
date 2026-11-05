@@ -6,6 +6,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 
 /**
  * Base class for functional tests against the real test database.
@@ -13,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
  */
 abstract class FunctionalTestCase extends WebTestCase
 {
+    use ClockSensitiveTrait;
     protected KernelBrowser $client;
     protected EntityManagerInterface $em;
     protected TestDataFactory $factory;
