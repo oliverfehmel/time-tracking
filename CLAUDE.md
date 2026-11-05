@@ -112,5 +112,5 @@ PHP versions: CI runs PHP **8.4**, local development and production (`deploy.sh`
 - `skills/pr-review` + `agents/reviewer.md` — review with a fresh-context subagent against the project checklist.
 - `skills/migration` — creating and checking Doctrine migrations.
 - `skills/dependency-update` (`/dependency-update`, manual only) — Composer, Symfony and importmap updates.
-- `skills/release` (`/release`, manual only) — changelog, tag and GitHub release.
+- `skills/release` (`/release`, manual only) — release PR with the finalized changelog, tag after the merge, GitHub release (`main` is protected).
 - `settings.json` — shared permissions; personal overrides go into the git-ignored `settings.local.json`.

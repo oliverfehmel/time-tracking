@@ -9,7 +9,8 @@ Repository: `oliverfehmel/time-tracking`, default branch `main`. Use the `gh` CL
 
 ## Branches
 
-- Work never happens directly on `main` — except the release commit (see the `release` skill).
+- Work never happens directly on `main`. `main` is protected: every change, including the release commit, arrives through a pull request (a direct push fails with `GH013 … Changes must be made through a pull request`; see the `release` skill).
+- Tracking: a branch created from `origin/main` tracks `origin/main` — push it explicitly the first time with `git push -u origin <branch>`, never with a bare `git push`.
 - Naming: `feature/<kebab-name>` for features, `fix/<kebab-name>` for bug fixes, `chore/<kebab-name>` for dependency updates, refactoring, tooling, docs.
   Examples from history: `feature/half-days`, `chore/symfony-8.1-dependency-update`.
 - Branch off an up-to-date `main` (`git fetch origin && git switch -c feature/x origin/main`).
