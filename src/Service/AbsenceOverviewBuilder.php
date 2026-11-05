@@ -51,6 +51,7 @@ final class AbsenceOverviewBuilder
             'users'             => $users,
             'barsByUser'        => $this->buildBarsByUser($users, $absences, $monthStart, $monthEndInclusive),
             'holidayDaysByUser' => $this->buildHolidayDaysByUser($users, $holidays),
+            'halfHolidayDaysByUser' => $this->buildHalfHolidayDaysByUser($users, $holidays),
             'prevMonth'         => $monthStart->sub(new DateInterval('P1M')),
             'nextMonth'         => $monthStart->add(new DateInterval('P1M')),
             'statusPending'     => AbsenceRequest::STATUS_PENDING,
@@ -100,6 +101,9 @@ final class AbsenceOverviewBuilder
             [],
         );
 
+        // Halbe Tage: zwei halbe Abwesenheiten am selben Tag bekommen unterschiedliche Slots (oben/unten)
+        $halfSlots = [];
+
         foreach ($absences as $a) {
             $uid = $a->getRequestedBy()->getId();
             if ($uid === null || !array_key_exists($uid, $bars)) {
@@ -116,11 +120,19 @@ final class AbsenceOverviewBuilder
                 continue;
             }
 
+            $halfSlot = null;
+            if ($a->isHalfDay()) {
+                $halfSlot = $halfSlots[$uid][$startDay] ?? 0;
+                $halfSlots[$uid][$startDay] = $halfSlot + 1;
+            }
+
             $bars[$uid][] = [
                 'id'       => $a->getId(),
                 'startDay' => $startDay,
                 'endDay'   => $endDay,
                 'days'     => $endDay - $startDay + 1,
+                'halfDay'  => $a->isHalfDay(),
+                'halfSlot' => $halfSlot,
                 'typeName' => $a->getType()->getName(),
                 'typeKey'  => $a->getType()->getKeyName(),
                 'status'   => $a->getStatus(),
@@ -151,6 +163,39 @@ final class AbsenceOverviewBuilder
         }
 
         return $map;
+    }
+
+    /**
+     * Tage, an denen für den User nur halbe Feiertage liegen (kein ganzer Feiertag).
+     *
+     * @param User[] $users
+     * @return array<int,array<int,true>> userId → day of month → true
+     */
+    private function buildHalfHolidayDaysByUser(array $users, array $holidays): array
+    {
+        $fractions = array_fill_keys(
+            array_filter(array_map(fn(User $u) => $u->getId(), $users)),
+            [],
+        );
+
+        foreach ($holidays as $h) {
+            $day = (int) $h->getDate()->format('j');
+            foreach ($h->getUsers() as $u) {
+                $uid = $u->getId();
+                if ($uid === null || !array_key_exists($uid, $fractions)) {
+                    continue;
+                }
+                $fractions[$uid][$day] = max($fractions[$uid][$day] ?? 0.0, $h->getDayFraction());
+            }
+        }
+
+        return array_map(
+            static fn(array $byDay) => array_map(
+                static fn() => true,
+                array_filter($byDay, static fn(float $f) => $f < DayPortion::FULL),
+            ),
+            $fractions,
+        );
     }
 
     private function buildTypeClassMap(): array

@@ -159,23 +159,23 @@
                                             {% if not t.requiresQuota %}
                                                 {{ 'general.none'|trans }}
                                             {% else %}
-                                                {{ s.quotaDays is null ? '∞' : s.quotaDays }}
+                                                {{ s.quotaDays is null ? '∞' : s.quotaDays|days }}
                                             {% endif %}
                                         </td>
 
                                         <td class="text-end">
-                                            <span class="badge text-bg-success">{{ s.approvedDays }}</span>
+                                            <span class="badge text-bg-success">{{ s.approvedDays|days }}</span>
                                         </td>
 
                                         <td class="text-end">
-                                            <span class="badge text-bg-warning">{{ s.pendingDays }}</span>
+                                            <span class="badge text-bg-warning">{{ s.pendingDays|days }}</span>
                                         </td>
 
                                         <td class="text-end">
                                             {% if not t.requiresQuota %}
                                                 {{ 'general.none'|trans }}
                                             {% else %}
-                                                {{ s.remainingDays is null ? '∞' : s.remainingDays }}
+                                                {{ s.remainingDays is null ? '∞' : s.remainingDays|days }}
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -202,7 +202,7 @@
                                 {% endif %}
                             </div>
                             <div class="text-muted small">
-                                {{ lastAbsence.startDate|date('d.m.Y') }} - {{ lastAbsence.endDate|date('d.m.Y') }}
+                                {{ lastAbsence.startDate|date('d.m.Y') }} - {{ lastAbsence.endDate|date('d.m.Y') }}{% if lastAbsence.halfDay %} <span class="badge text-bg-light border ms-1">{{ 'general.half_day_short'|trans }}</span>{% endif %}
                             </div>
                         {% else %}
                             <div class="text-muted mt-2">{{ 'general.none'|trans }}</div>
@@ -222,7 +222,7 @@
                                 <span class="badge text-bg-info ms-1">{{ 'general.current'|trans }}</span>
                             </div>
                             <div class="text-muted small">
-                                {{ currentAbsence.startDate|date('d.m.Y') }} - {{ currentAbsence.endDate|date('d.m.Y') }}
+                                {{ currentAbsence.startDate|date('d.m.Y') }} - {{ currentAbsence.endDate|date('d.m.Y') }}{% if currentAbsence.halfDay %} <span class="badge text-bg-light border ms-1">{{ 'general.half_day_short'|trans }}</span>{% endif %}
                             </div>
 
                         {% elseif nextAbsence %}
@@ -235,7 +235,7 @@
                                 {% endif %}
                             </div>
                             <div class="text-muted small">
-                                {{ nextAbsence.startDate|date('d.m.Y') }} - {{ nextAbsence.endDate|date('d.m.Y') }}
+                                {{ nextAbsence.startDate|date('d.m.Y') }} - {{ nextAbsence.endDate|date('d.m.Y') }}{% if nextAbsence.halfDay %} <span class="badge text-bg-light border ms-1">{{ 'general.half_day_short'|trans }}</span>{% endif %}
                             </div>
                         {% else %}
                             <div class="text-muted mt-2">{{ 'general.none'|trans }}</div>

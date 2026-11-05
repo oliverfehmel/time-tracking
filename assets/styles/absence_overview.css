@@ -113,6 +113,16 @@
 
 .absence-bar__label{ pointer-events:none; }
 
+/* Halber Tag: halbe Höhe; zwei halbe Tage am selben Tag liegen übereinander */
+.absence-bar--half{
+    height: 12px;
+    font-size: 9px;
+    padding: 0 4px;
+    border-radius: 4px;
+}
+.absence-bar--half-0{ top: 10px; }
+.absence-bar--half-1{ top: 22px; }
+
 .holiday-dot{
     position:absolute;
     top: 6px;
@@ -122,6 +132,12 @@
     z-index: 3;
     background: #f0c419;
     box-shadow: 0 0 0 2px rgba(255,255,255,.7);
+}
+
+/* Halber Feiertag: halb gefüllter Punkt */
+.holiday-dot--half{
+    background: linear-gradient(90deg, #f0c419 50%, #fff 50%);
+    box-shadow: 0 0 0 1px #f0c419, 0 0 0 3px rgba(255,255,255,.7);
 }
 
 .legend-item{

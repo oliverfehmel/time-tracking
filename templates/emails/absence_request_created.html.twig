@@ -22,7 +22,7 @@
             <td style="padding: 6px 0;"><strong>{{ 'email.period'|trans }}</strong></td>
             <td style="padding: 6px 0;">
                 {{ absence.startDate|date('d.m.Y') }} - {{ absence.endDate|date('d.m.Y') }}
-                {% if days is defined %} ({{ days }} {{ 'general.days'|trans }}){% endif %}
+                {% if days is defined %} ({{ days|days }} {{ 'general.days'|trans }}{% if absence.halfDay %}, {{ 'general.half_day'|trans }}{% endif %}){% endif %}
             </td>
         </tr>
         <tr>

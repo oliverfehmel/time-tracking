@@ -95,12 +95,14 @@
                                 </div>
 
                                 {% set holidayDays = holidayDaysByUser[uid] ?? {} %}
+                                {% set halfHolidayDays = halfHolidayDaysByUser[uid] ?? {} %}
                                 {% for d in days %}
                                     {% if holidayDays[d.day] is defined %}
                                         {% set names = holidayDays[d.day] %}
-                                        <div class="holiday-dot"
+                                        {% set isHalfHoliday = halfHolidayDays[d.day] is defined %}
+                                        <div class="holiday-dot {{ isHalfHoliday ? 'holiday-dot--half' : '' }}"
                                              style="left: calc((({{ d.day - 0.5 }}) * {{ dayPercent }}) * 1%);"
-                                             title="{{ 'absence_overview.holiday_title'|trans({'names': names|join(' / ')}) }}">
+                                             title="{{ 'absence_overview.holiday_title'|trans({'names': names|join(' / ')}) }}{% if isHalfHoliday %} ({{ 'general.half_day_short'|trans }}){% endif %}">
                                         </div>
                                     {% endif %}
                                 {% endfor %}
@@ -109,7 +111,7 @@
                                     {% set cls = typeClassMap[bar.typeKey] ?? 'bg-dark' %}
                                     {% set isPending = bar.status == statusPending %}
 
-                                    <div class="absence-bar {{ cls }} {{ isPending ? 'absence-bar--pending' : '' }}"
+                                    <div class="absence-bar {{ cls }} {{ isPending ? 'absence-bar--pending' : '' }} {{ bar.halfDay ? 'absence-bar--half absence-bar--half-' ~ (bar.halfSlot % 2) : '' }}"
                                          style="
                                              left: calc(({{ bar.startDay - 1 }} * {{ dayPercent }}) * 1%);
                                              width: calc({{ bar.days }} * {{ dayPercent }}%);
@@ -120,11 +122,12 @@
                        {{ monthStart|date('Y') }}-{{ monthStart|date('m') }}-{{ '%02d'|format(bar.startDay) }}
                        {{ 'absence_overview.tooltip_period_separator'|trans }}
                        {{ monthStart|date('Y') }}-{{ monthStart|date('m') }}-{{ '%02d'|format(bar.endDay) }}<br>
+                       {% if bar.halfDay %}{{ 'general.half_day'|trans }}<br>{% endif %}
                        {{ 'absence_overview.tooltip_status'|trans({'status': bar.status}) }}
                        {% if bar.comment %}<br>{{ 'absence_overview.tooltip_comment'|trans({'comment': bar.comment|e('html_attr')}) }}{% endif %}
                      ">
                   <span class="absence-bar__label">
-                    {{ bar.typeName }}{% if isPending %} ({{ 'general.pending'|trans }}){% endif %}
+                    {% if bar.halfDay %}½ {% endif %}{{ bar.typeName }}{% if isPending %} ({{ 'general.pending'|trans }}){% endif %}
                   </span>
                                     </div>
                                 {% endfor %}

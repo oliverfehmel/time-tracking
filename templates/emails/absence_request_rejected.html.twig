@@ -6,7 +6,7 @@
 
 <ul>
     <li><strong>{{ 'email.period'|trans }}:</strong> {{ absence.startDate|date('d.m.Y') }} - {{ absence.endDate|date('d.m.Y') }}</li>
-    <li><strong>{{ 'general.days'|trans }}:</strong> {{ days }}</li>
+    <li><strong>{{ 'general.days'|trans }}:</strong> {{ days|days }}{% if absence.halfDay %} ({{ 'general.half_day'|trans }}){% endif %}</li>
     <li><strong>{{ 'general.type'|trans }}:</strong> {{ absence.type.name }}</li>
 </ul>
 

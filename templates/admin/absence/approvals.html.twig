@@ -45,7 +45,7 @@
                                     <td>{{ a.type.name }}</td>
                                     <td>{{ a.startDate|date('d.m.Y') }}</td>
                                     <td>{{ a.endDate|date('d.m.Y') }}</td>
-                                    <td>{{ row.days }}</td>
+                                    <td>{{ row.days|days }}{% if a.halfDay %}<span class="badge text-bg-light border ms-1">{{ 'general.half_day_short'|trans }}</span>{% endif %}</td>
                                     <td class="text-muted">
                                         {{ a.comment ?: 'general.none'|trans }}
                                     </td>
@@ -129,7 +129,7 @@
                                     <td>{{ a.type.name }}</td>
                                     <td>{{ a.startDate|date('d.m.Y') }}</td>
                                     <td>{{ a.endDate|date('d.m.Y') }}</td>
-                                    <td>{{ row.days }}</td>
+                                    <td>{{ row.days|days }}{% if a.halfDay %}<span class="badge text-bg-light border ms-1">{{ 'general.half_day_short'|trans }}</span>{% endif %}</td>
                                     <td>
                                         {% if a.status == 'approved' %}
                                             <span class="badge text-bg-success">
