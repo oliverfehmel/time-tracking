@@ -6,11 +6,11 @@ use App\Entity\AbsenceRequest;
 use App\Entity\User;
 use App\Form\AbsenceRequestType;
 use App\Repository\AbsenceRequestRepository;
+use App\Service\DayPortion;
 use App\Repository\UserRepository;
 use App\Service\AbsenceDayCalculator;
 use App\Service\AbsenceNotifier;
 use App\Service\AbsenceQuotaService;
-use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,12 +73,12 @@ final class AbsenceController extends AbstractController
             $start = $absence->getStartDate();
             $end   = $absence->getEndDate();
 
-            if ($error = $this->validateAbsenceDates($start, $end, $year, $requestRepo, $user)) {
+            if ($error = $this->validateAbsenceDates($absence, $year, $requestRepo, $user)) {
                 $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
 
-            if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end)) {
+            if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end, halfDay: $absence->isHalfDay())) {
                 $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
@@ -133,12 +133,14 @@ final class AbsenceController extends AbstractController
      * Validiert die Datumslogik beim Erstellen. Gibt die Fehlermeldung zurück oder null wenn alles ok.
      */
     private function validateAbsenceDates(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
+        AbsenceRequest $absence,
         int $year,
         AbsenceRequestRepository $requestRepo,
         User $user,
     ): ?string {
+        $start = $absence->getStartDate();
+        $end   = $absence->getEndDate();
+
         if ($end < $start) {
             return 'absence.request.end_before_start';
         }
@@ -147,7 +149,13 @@ final class AbsenceController extends AbstractController
             return 'absence.request.wrong_year';
         }
 
-        if ($requestRepo->hasOverlappingApprovedOrPending($user, $start, $end)) {
+        if ($absence->isHalfDay() && $start->format('Y-m-d') !== $end->format('Y-m-d')) {
+            return 'absence.request.half_day_single_day';
+        }
+
+        // Zwei halbe Tage am selben Tag sind erlaubt, jede andere Überschneidung nicht.
+        $overlapping = $requestRepo->findOverlappingApprovedOrPending($user, $start, $end);
+        if (!DayPortion::fitsAlongside($absence->getDayFraction(), $overlapping)) {
             return 'absence.request.overlaps_existing';
         }
 
