@@ -139,6 +139,25 @@ final class HalfDayFormFieldsTest extends TypeTestCase
         yield 'disabled, half day'      => [false, '27.5', false];
     }
 
+    public function testAbsenceTypeForm_existingHalfQuotaStaysValidWhenDisabled(): void
+    {
+        $type = new AbsenceType();
+        $type->setName('Urlaub');
+        $type->setKeyName('vacation');
+        $type->setDefaultYearlyQuotaDays(27.5);
+
+        $form = $this->factory->create(AbsenceTypeType::class, $type);
+        $form->submit([
+            'name'                   => 'Erholungsurlaub',
+            'keyName'                => 'vacation',
+            'defaultYearlyQuotaDays' => '27.5',
+        ]);
+
+        $this->assertTrue($form->isValid(), (string) $form->getErrors(true));
+        $this->assertSame('Erholungsurlaub', $type->getName());
+        $this->assertSame(27.5, $type->getDefaultYearlyQuotaDays());
+    }
+
     public function testAbsenceQuotaForm_quotaFieldUsesHalfDaySteps(): void
     {
         $this->settings->setHalfDaysEnabled(true);

@@ -41,6 +41,7 @@ class AbsenceTypeType extends AbstractType
                 $this->settingsRepository->getOrCreate()->isHalfDaysEnabled(),
                 'absence.type.default_yearly_quota_days.title',
                 'absence.type.default_yearly_quota_days.hint',
+                ($options['data'] ?? null) instanceof AbsenceType ? $options['data']->getDefaultYearlyQuotaDays() : null,
             ))
             ->add('allowOverLimit', CheckboxType::class, [
                 'label' => 'absence.type.allow_over_limit',

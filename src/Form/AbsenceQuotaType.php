@@ -22,10 +22,13 @@ class AbsenceQuotaType extends AbstractType
 
     /**
      * Kontingent-Feld: Dezimalzahl, bei aktivem Halbtag-Feature in 0,5er-Schritten, sonst ganze Tage.
+     * Ein bereits gespeicherter halber Wert (z. B. 27,5) bleibt auch bei deaktiviertem Feature speicherbar,
+     * damit Änderungen an anderen Feldern nicht an der Validierung scheitern.
      */
-    public static function quotaDaysOptions(bool $halfDaysEnabled, string $label, string $help): array
+    public static function quotaDaysOptions(bool $halfDaysEnabled, string $label, string $help, ?float $currentValue = null): array
     {
-        $step = $halfDaysEnabled ? 0.5 : 1;
+        $allowHalf = $halfDaysEnabled || ($currentValue !== null && fmod($currentValue, 1.0) !== 0.0);
+        $step      = $allowHalf ? 0.5 : 1;
 
         return [
             'label' => $label,
@@ -36,7 +39,7 @@ class AbsenceQuotaType extends AbstractType
             'attr' => ['min' => 0, 'step' => $step],
             'constraints' => [
                 new PositiveOrZero(),
-                new DivisibleBy(value: $step, message: $halfDaysEnabled ? 'absence.quota.half_day_steps' : 'absence.quota.whole_day_steps'),
+                new DivisibleBy(value: $step, message: $allowHalf ? 'absence.quota.half_day_steps' : 'absence.quota.whole_day_steps'),
             ],
         ];
     }
@@ -61,6 +64,7 @@ class AbsenceQuotaType extends AbstractType
                 $this->settingsRepository->getOrCreate()->isHalfDaysEnabled(),
                 'absence.quota.quota_days',
                 'absence.quota.empty_unlimited',
+                ($options['data'] ?? null) instanceof AbsenceQuota ? $options['data']->getQuotaDays() : null,
             ))
             ->add('allowOverLimit', ChoiceType::class, [
                 'label' => 'absence.quota.allow_over_limit',
