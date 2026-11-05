@@ -137,6 +137,9 @@ final class HalfDayFormFieldsTest extends TypeTestCase
         yield 'enabled, negative'       => [true, '-1', false];
         yield 'disabled, whole day'     => [false, '30', true];
         yield 'disabled, half day'      => [false, '27.5', false];
+        yield 'upper bound'             => [true, '366', true];
+        yield 'above upper bound'       => [true, '366.5', false];
+        yield 'out of column range'     => [false, '10000', false];
     }
 
     public function testAbsenceTypeForm_existingHalfQuotaStaysValidWhenDisabled(): void

@@ -14,10 +14,13 @@ use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\DivisibleBy;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 class AbsenceQuotaType extends AbstractType
 {
+    public const int MAX_QUOTA_DAYS = 366;
+
     public function __construct(private readonly SettingsRepository $settingsRepository) {}
 
     /**
@@ -36,9 +39,11 @@ class AbsenceQuotaType extends AbstractType
             'help' => $help,
             'scale' => 1,
             'html5' => true,
-            'attr' => ['min' => 0, 'step' => $step],
+            'attr' => ['min' => 0, 'max' => self::MAX_QUOTA_DAYS, 'step' => $step],
             'constraints' => [
                 new PositiveOrZero(),
+                // Spalte ist NUMERIC(5,1); ein Jahreskontingent über 366 Tage ist ohnehin nicht sinnvoll
+                new LessThanOrEqual(self::MAX_QUOTA_DAYS),
                 new DivisibleBy(value: $step, message: $allowHalf ? 'absence.quota.half_day_steps' : 'absence.quota.whole_day_steps'),
             ],
         ];
