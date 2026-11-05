@@ -44,7 +44,7 @@
                                 </td>
                                 <td class="text-end">
                                     <div class="d-inline-flex gap-2 justify-content-end">
-                                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('_home', {'_switch_user': u.email}) }}">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('_home', {'_switch_user': u.email}) }}" data-turbo-prefetch="false">
                                             <i class="fa-solid fa-user"></i>
                                             Impersonate
                                         </a>

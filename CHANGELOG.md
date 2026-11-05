@@ -5,6 +5,10 @@
 ### Added
 - **Work location on dashboard**: The work location for today can now be set directly from the dashboard. The top card shows the current location type (with icon) and a dropdown to change it — no need to navigate to the day view.
 
+### Changed
+- **Dependencies updated to Symfony 8.1**: Symfony packages are now pinned centrally via `extra.symfony.require` (`8.1.*`) and use `*` as their own constraint; `bump-after-update` is disabled so Composer no longer rewrites them to open `>=` ranges. All other packages were raised to their latest stable releases, including major updates of PHPUnit (13), Symfony UX Turbo / StimulusBundle (3) and phpdocumentor/reflection-docblock (6).
+- **Turbo 8**: `@hotwired/turbo` was updated from 7.3.0 to 8.0.23 (fixes GHSA-qppm-g56g-fpvp). Logout and user-switch links opt out of Turbo 8's hover prefetching so that hovering them can no longer log the user out or switch the user; the work location CSV link is marked as a download.
+
 ### Fixed
 - **Doctrine migration transactions disabled explicitly**: DDL migrations now opt out of transactions per migration class to avoid Doctrine's implicit-commit deprecation notice on MySQL/MariaDB.
 

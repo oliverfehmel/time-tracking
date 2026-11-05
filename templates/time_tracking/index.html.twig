@@ -19,7 +19,8 @@
                     {% endfor %}
                 </nav>
                 <a class="btn btn-sm btn-outline-success"
-                   href="{{ path('_time_locations_csv', {year: year}) }}">
+                   href="{{ path('_time_locations_csv', {year: year}) }}"
+                   download>
                     <i class="fa-solid fa-file-csv me-1"></i>
                     {{ 'time_tracking.work_locations_csv'|trans }}
                 </a>
