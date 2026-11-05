@@ -614,4 +614,5 @@ api_guide:
     timer: Start and stop the timer
     entry: Add a time entry
     absence: Request a half day of vacation
+    absence_full: Request vacation
     report: Fetch the year report

@@ -69,12 +69,14 @@ the same; new services get `ClockInterface` so tests can control "now".
 
 ### 4. Authorization
 
-Voters decide per object (`TimeEntryVoter`, `AbsenceRequestVoter`, `UserDataVoter`, `HolidayVoter`):
+A single voter, `DataAccessVoter` (attribute `DATA_ACCESS` on User, TimeEntry, AbsenceRequest, Holiday and ApiToken),
+decides per object; admin-only operations use `#[IsGranted('ROLE_ADMIN')]`:
 
 | Data | Regular user | Admin |
 |---|---|---|
 | Users | read self | read, create, update, delete all |
-| Time entries, timer, work locations, time report | own (with edit locks) | all users (edit locks do not apply) |
+| Time entries, work locations, time report | own (with edit locks) | all users (edit locks do not apply) |
+| Timer | own | own (another user's running entry can only be deleted, not stopped) |
 | Absence requests | own: read, create, cancel | all: read, create for anyone, cancel; approve/reject (not their own) |
 | Absence quotas | read own overview | read all, set/remove |
 | Absence types, work location types | read active | read all; create/update absence types |
@@ -96,9 +98,11 @@ Voters decide per object (`TimeEntryVoter`, `AbsenceRequestVoter`, `UserDataVote
   - collection: `{"data": […], "meta": {"page": 1, "perPage": 50, "total": 123}}`
   - writes may add `meta`, e.g. `{"adjusted": true}` (time range was moved to a free slot) or
     `{"notificationSent": false}` (mail could not be sent).
-- Pagination: `?page=1&perPage=50`, `perPage` max 200.
-- Dates: `YYYY-MM-DD`. Points in time: ISO 8601 / RFC 3339 with offset, returned in the server time zone; input with
-  any offset is converted.
+- Pagination: `?page=1&perPage=50`, `perPage` max 200, `page` max 1,000,000.
+- Dates: `YYYY-MM-DD`; `from`/`to` filters are inclusive. Points in time: RFC 3339 with offset, returned in the server
+  time zone; input with any offset (`Z` or `±hh:mm`) is converted, fractional seconds are accepted and dropped.
+- PATCH is a merge patch: only the fields that were sent are validated (plus cross-field rules), so records created
+  through the UI with values the API would not accept (e.g. an absence type key with spaces) stay editable.
 - Durations: integer seconds. Day counts and quotas: decimal numbers (`0.5` steps).
 - Language of error messages: from `Accept-Language` (`de` or `en`), otherwise the app default locale.
 - Errors: RFC 9457 `application/problem+json`:
@@ -131,7 +135,7 @@ Voters decide per object (`TimeEntryVoter`, `AbsenceRequestVoter`, `UserDataVote
 | `GET /me` | own user, token scope/expiry, feature flags (`halfDaysEnabled`, `timeEntryEditingAllowed`) |
 | `GET /users`, `GET /users/{id}` | users (regular users: only themselves) |
 | `POST /users`, `PATCH /users/{id}`, `DELETE /users/{id}` | admin: manage users (`password` write-only; an admin cannot delete or demote themselves) |
-| `GET /time-entries?userId&from&to` | time entries overlapping `[from, to)` |
+| `GET /time-entries?userId&from&to` | time entries touching the days `from`…`to` (all date filters are inclusive) |
 | `GET /time-entries/{id}` | one entry |
 | `POST /time-entries` | create a finished entry (`startedAt`, `stoppedAt`, admin: `userId`) |
 | `PATCH /time-entries/{id}`, `DELETE /time-entries/{id}` | change/delete an entry |

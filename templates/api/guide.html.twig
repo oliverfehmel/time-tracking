@@ -164,9 +164,9 @@ curl -X POST -H "Authorization: Bearer $TOKEN" {{ baseUrl }}/timer/stop</code></
      -d '{"startedAt": "2026-11-05T08:30:00+01:00", "stoppedAt": "2026-11-05T12:00:00+01:00"}' \
      {{ baseUrl }}/time-entries</code></pre>
 
-                        <div class="fw-semibold small mb-1">{{ 'api_guide.examples.absence'|trans }}</div>
+                        <div class="fw-semibold small mb-1">{{ (halfDaysEnabled ? 'api_guide.examples.absence' : 'api_guide.examples.absence_full')|trans }}</div>
                         <pre class="bg-light border rounded p-2 small"><code>curl -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d '{"typeId": 1, "startDate": "2026-12-23", "halfDay": true}' \
+     -d '{"typeId": 1, "startDate": "2026-12-23"{{ halfDaysEnabled ? ', "halfDay": true' : ', "endDate": "2026-12-30"' }}}' \
      {{ baseUrl }}/absence-requests</code></pre>
 
                         <div class="fw-semibold small mb-1">{{ 'api_guide.examples.report'|trans }}</div>

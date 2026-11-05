@@ -5,6 +5,7 @@
 
         <title>{% block title %}{{ 'dashboard.title'|trans }}{% endblock %} | {{ 'app.title'|trans }}</title>
         {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% block head_extra %}{% endblock %}
     </head>
 
     <body>

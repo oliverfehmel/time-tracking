@@ -44,7 +44,7 @@ Two firewalls: `api` (`^/api/v1`, stateless, bearer API tokens via `ApiTokenHand
 ### REST API (`/api/v1`, see `docs/adr/0001-rest-api-v1.md`)
 
 - Controllers in `src/Controller/Api/` extend `AbstractApiController` (envelope `{data, meta}`, pagination, `resolveUser()` for `userId`, `ensureAccess()` → 404 for foreign data, `enforceLocks()` = not admin). They stay thin and call the same services as the UI.
-- Request DTOs in `src/Api/Dto` (`#[MapRequestPayload]`/`#[MapQueryString]`); PATCH is a merge patch via `ApiPayload::merge()` over `XInput::fromEntity()`. Response classes in `src/Api/View` (`X::from()`), dates via `ApiDates` (RFC 3339 in the server time zone, `Y-m-d`).
+- Request DTOs in `src/Api/Dto` (`#[MapRequestPayload]`/`#[MapQueryString]`); PATCH is a merge patch via `ApiPayload::merge()` over `XInput::fromEntity()`; only sent fields (plus `Callback` cross-field rules) are validated, so legacy values created via the UI stay editable. Response classes in `src/Api/View` (`X::from()`), dates via `ApiDates` (RFC 3339 in the server time zone, `Y-m-d`).
 - Errors: throw `DomainRuleViolation` (business rules) or `ApiProblem`; `ApiExceptionListener` renders RFC 9457 problems (`code` + translated `detail` from `api.problem.*`, language from `Accept-Language`). `ApiSecurityResponder` handles 401/403 of the firewall, `ApiRequestListener` sets the locale and rejects writes with read-only tokens.
 - OpenAPI via NelmioApiDocBundle: document every operation with `OA\Get/Post/…` (summary), `#[DataResponse(View::class)]` and `#[ProblemResponse(status)]`; `ApiDocumentationTest` fails for undocumented routes, and `ApiTestCase` validates every response against the generated schema.
 

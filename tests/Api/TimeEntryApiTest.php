@@ -56,7 +56,7 @@ final class TimeEntryApiTest extends ApiTestCase
         $all = $this->api('GET', '/api/v1/time-entries');
         self::assertSame(3, $all['meta']['total']);
 
-        $range = $this->api('GET', '/api/v1/time-entries?from=2026-11-01&to=2026-11-04');
+        $range = $this->api('GET', '/api/v1/time-entries?from=2026-11-01&to=2026-11-03');
         self::assertSame(['2026-10-30T22:00:00+00:00', '2026-11-03T08:00:00+00:00'], array_column($range['data'], 'startedAt'));
         self::assertSame(14400, $range['data'][1]['durationSeconds']);
     }

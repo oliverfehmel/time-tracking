@@ -11,6 +11,8 @@ use App\Entity\WorkLocationType;
 use App\Repository\WorkLocationRepository;
 use App\Repository\WorkLocationTypeRepository;
 use DateTimeImmutable;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\Clock;
 
 final class UserYearReportBuilder
 {
@@ -22,11 +24,12 @@ final class UserYearReportBuilder
         private readonly WorkLocationTypeRepository $workLocationTypeRepo,
         private readonly TimeTrackingCalculator $calc,
         private readonly WorktimeSollCalculator $sollCalc,
+        private readonly ClockInterface $clock = new Clock(),
     ) {}
 
     public function build(User $user, int $year, Settings $settings): array
     {
-        $now       = new DateTimeImmutable('now');
+        $now       = DateTimeImmutable::createFromInterface($this->clock->now());
         $yearStart = new DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $year));
         $yearEnd   = $yearStart->modify('+1 year');
 

@@ -614,4 +614,5 @@ api_guide:
     timer: Timer starten und stoppen
     entry: Zeiteintrag nachtragen
     absence: Halben Urlaubstag beantragen
+    absence_full: Urlaub beantragen
     report: Jahresauswertung abrufen

@@ -38,7 +38,7 @@ final class TimeEntryApiController extends AbstractApiController
     ) {}
 
     #[Route('', name: 'api_v1_time_entries_list', methods: ['GET'])]
-    #[OA\Get(summary: 'List time entries', description: 'Entries overlapping [from, to), oldest first. Regular users only see their own entries.')]
+    #[OA\Get(summary: 'List time entries', description: 'Entries overlapping the days from…to (both inclusive), oldest first. Regular users only see their own entries.')]
     #[DataResponse(TimeEntryView::class, collection: true)]
     #[ProblemResponse(403, 'userId of another user (regular users)')]
     #[ProblemResponse(404)]
@@ -55,7 +55,7 @@ final class TimeEntryApiController extends AbstractApiController
             $qb->andWhere('(t.stoppedAt IS NULL OR t.stoppedAt > :from)')->setParameter('from', ApiDates::parseDate($query->from));
         }
         if ($query->to !== null) {
-            $qb->andWhere('t.startedAt < :to')->setParameter('to', ApiDates::parseDate($query->to));
+            $qb->andWhere('t.startedAt < :to')->setParameter('to', ApiDates::parseDate($query->to)->modify('+1 day'));
         }
 
         return $this->paginate($qb, $query, TimeEntryView::from(...));

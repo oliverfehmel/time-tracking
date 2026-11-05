@@ -130,7 +130,7 @@ final class UserApiTest extends ApiTestCase
         $body = $this->api('PATCH', '/api/v1/users/' . $user->getId(), ['dailyWorkMinutes' => 'eight hours']);
 
         $this->assertProblem(422, 'validation_failed');
-        $this->assertViolation($body, 'dailyWorkMinutes', 'type_error');
+        $this->assertViolation($body, 'dailyWorkMinutes', 'invalid');
     }
 
     public function testAdminCannotDemoteOrDeleteThemselves(): void

@@ -53,7 +53,7 @@ nelmio_api_doc:
             path_patterns:
                 - ^/api/v1(/|$)
     html_config:
-        # Swagger UI assets are served from public/bundles (assets:install), no CDN
+        # Swagger UI assets come from the bundle via AssetMapper (asset-map:compile on deploy), no CDN
         assets_mode: bundle
         swagger_ui_config:
             persistAuthorization: false

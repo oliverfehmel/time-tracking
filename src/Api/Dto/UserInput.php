@@ -11,12 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class UserInput
 {
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Email]
     #[Assert\Length(max: 180)]
     public string $email = '';
 
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 120)]
     public string $name = '';
 

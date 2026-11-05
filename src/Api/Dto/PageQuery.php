@@ -11,9 +11,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class PageQuery
 {
     public const int MAX_PER_PAGE = 200;
+    /** Keeps the offset far away from integer overflow */
+    public const int MAX_PAGE = 1_000_000;
 
-    #[Assert\Positive]
-    #[OA\Property(description: 'Page number, starting at 1', minimum: 1)]
+    #[Assert\Range(min: 1, max: self::MAX_PAGE)]
+    #[OA\Property(description: 'Page number, starting at 1', maximum: self::MAX_PAGE, minimum: 1)]
     public int $page = 1;
 
     #[Assert\Range(min: 1, max: self::MAX_PER_PAGE)]

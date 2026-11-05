@@ -117,8 +117,8 @@ final class OpenApiContract
                     self::validate($spec, $sub, $value, $path, $subErrors);
                     $matches += $subErrors === [] ? 1 : 0;
                 }
-                if ($matches === 0) {
-                    $errors[] = "$path: matches none of $keyword";
+                if ($matches === 0 || ($keyword === 'oneOf' && $matches > 1)) {
+                    $errors[] = "$path: matches $matches variants of $keyword";
                 }
             }
         }

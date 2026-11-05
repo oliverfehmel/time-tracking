@@ -11,10 +11,10 @@ final class TimeEntryQuery extends PageQuery
     public ?int $userId = null;
 
     #[Assert\Date]
-    #[OA\Property(description: 'Entries overlapping [from, to): first day (inclusive)', format: 'date')]
+    #[OA\Property(description: 'Entries touching this day or later: first day (inclusive)', format: 'date')]
     public ?string $from = null;
 
     #[Assert\Date]
-    #[OA\Property(description: 'Last day (exclusive)', format: 'date')]
+    #[OA\Property(description: 'Last day (inclusive)', format: 'date')]
     public ?string $to = null;
 }

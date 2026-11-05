@@ -10,6 +10,7 @@ use App\Service\TimeEditPolicy;
 use App\Service\TimeEntryService;
 use App\Service\WorkLocationService;
 use DateTimeImmutable;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -78,6 +79,7 @@ final class DashboardController extends AbstractController
         WorkLocationService $workLocationService,
         TimeEditPolicy $editPolicy,
         TranslatorInterface $translator,
+        ClockInterface $clock,
     ): Response {
         if (!$editPolicy->isEditingAllowed()) {
             $this->addFlash('error', $translator->trans('settings.users_not_allowed_to_change_time_entries'));
@@ -92,7 +94,7 @@ final class DashboardController extends AbstractController
         try {
             $workLocationService->setForDay(
                 $user,
-                new DateTimeImmutable('today'),
+                DateTimeImmutable::createFromInterface($clock->now())->setTime(0, 0),
                 $typeRepo->find((int) $request->request->get('location_type_id')),
             );
         } catch (DomainRuleViolation $violation) {

@@ -50,11 +50,24 @@ final class TimeReportApiTest extends ApiTestCase
 
     public function testSollIsCappedToToday(): void
     {
-        $me = $this->actAs($this->factory->user());
+        self::mockTime('2026-11-05 10:00:00'); // a Thursday
+        $me = $this->actAs($this->factory->user(dailyWorkMinutes: 480));
 
-        $body = $this->api('GET', '/api/v1/users/' . $me->getId() . '/time-report/2099');
+        $body = $this->api('GET', '/api/v1/users/' . $me->getId() . '/time-report/2026');
 
-        self::assertSame(0, $body['data']['sollSeconds']);
+        $november = $body['data']['months'][10];
+        $days     = array_column($november['days'], null, 'date');
+        self::assertSame(8 * 3600, $days['2026-11-05']['sollSeconds']);
+        self::assertSame(0, $days['2026-11-06']['sollSeconds']);
+        // 2026-11-02 … 11-05 are four workdays up to today
+        self::assertSame(4 * 8 * 3600, $november['sollSeconds']);
+        self::assertSame(0, $body['data']['months'][11]['sollSeconds']);
+        self::assertTrue($november['editable']);
+        self::assertTrue($body['data']['months'][9]['editable']);
+        self::assertFalse($body['data']['months'][8]['editable']);
+
+        $future = $this->api('GET', '/api/v1/users/' . $me->getId() . '/time-report/2099');
+        self::assertSame(0, $future['data']['sollSeconds']);
     }
 
     public function testForeignReportIsNotFoundButAdminCanReadIt(): void

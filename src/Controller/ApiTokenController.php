@@ -10,6 +10,7 @@ use App\Security\ApiTokenManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\EventListener\AbstractSessionListener;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -56,12 +57,20 @@ final class ApiTokenController extends AbstractController
         }
 
         // The plain token is rendered directly in this response (the form opts out of Turbo) and never stored.
+        // That page must not come back from the browser's or Turbo's cache (see the template).
+        $response = new Response(status: $status);
+        if ($plainToken !== null) {
+            $response->headers->set('Cache-Control', 'no-store, private');
+            // Keep the session listener from replacing it with "private, max-age=0, must-revalidate"
+            $response->headers->set(AbstractSessionListener::NO_AUTO_CACHE_CONTROL_HEADER, 'true');
+        }
+
         return $this->render('profile/api_tokens.html.twig', [
             'form'          => $form,
             'tokens'        => $this->tokenRepo->findForUser($user),
             'plainToken'    => $plainToken,
             'impersonating' => $impersonating,
-        ], new Response(status: $status));
+        ], $response);
     }
 
     #[Route('/{id<\d+>}/revoke', name: '_revoke', methods: ['POST'])]

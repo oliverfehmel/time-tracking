@@ -24,6 +24,9 @@ final class ApiTokenControllerTest extends FunctionalTestCase
         $crawler = $this->client->submit($form);
 
         self::assertResponseIsSuccessful();
+        // Neither the browser nor Turbo's snapshot cache may keep the page with the plain token
+        self::assertStringContainsString('no-store', (string) $this->client->getResponse()->headers->get('Cache-Control'));
+        self::assertCount(1, $crawler->filter('meta[name="turbo-cache-control"][content="no-cache"]'));
         $plain = trim($crawler->filter('[data-testid="new-api-token"] code')->text());
         self::assertMatchesRegularExpression('/^tt_[0-9a-f]{64}$/', $plain);
 
@@ -37,6 +40,7 @@ final class ApiTokenControllerTest extends FunctionalTestCase
         // Reloading the page does not show the token again
         $crawler = $this->client->request('GET', '/profile/api-tokens');
         self::assertCount(0, $crawler->filter('[data-testid="new-api-token"]'));
+        self::assertCount(0, $crawler->filter('meta[name="turbo-cache-control"]'));
         self::assertStringNotContainsString($plain, (string) $this->client->getResponse()->getContent());
         self::assertSelectorTextContains('table', 'CLI script');
     }

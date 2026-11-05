@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class AbsenceTypeInput
 {
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 80)]
     public string $name = '';
 

@@ -47,6 +47,7 @@ final class HolidayApiController extends AbstractApiController
     public function list(#[MapQueryString] HolidayQuery $query = new HolidayQuery()): JsonResponse
     {
         $qb = $this->repo->createQueryBuilder('h')
+            ->leftJoin('h.users', 'assigned')->addSelect('assigned') // userIds without one query per holiday
             ->orderBy('h.date', SortDirection::Ascending)
             ->addOrderBy('h.id', SortDirection::Ascending);
 

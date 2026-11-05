@@ -21,7 +21,7 @@
                    href="{{ path('_absences_overview') }}">
                     <i class="fa-regular fa-calendar me-2"></i>{{ 'navbar.absence_overview'|trans }}
                 </a>
-                <a class="nav-link {{ currentRoute starts with '_api_' ? 'active' : '' }}"
+                <a class="nav-link {{ currentRoute == '_api_guide' ? 'active' : '' }}"
                    href="{{ path('_api_guide') }}">
                     <i class="fa-solid fa-plug me-2"></i>{{ 'navbar.api'|trans }}
                 </a>

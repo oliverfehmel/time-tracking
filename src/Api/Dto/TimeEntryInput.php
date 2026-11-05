@@ -14,12 +14,12 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 final class TimeEntryInput
 {
     #[Assert\NotBlank]
-    #[Assert\DateTime(format: ApiDates::DATE_TIME)]
-    #[OA\Property(description: 'RFC 3339 with offset', format: 'date-time', example: '2026-11-05T08:30:00+01:00')]
+    #[Assert\Callback([self::class, 'validatePointInTime'])]
+    #[OA\Property(description: 'RFC 3339 with offset (fractional seconds are ignored)', format: 'date-time', example: '2026-11-05T08:30:00+01:00')]
     public string $startedAt = '';
 
     #[Assert\NotBlank]
-    #[Assert\DateTime(format: ApiDates::DATE_TIME)]
+    #[Assert\Callback([self::class, 'validatePointInTime'])]
     #[OA\Property(description: 'RFC 3339 with offset, after startedAt', format: 'date-time', example: '2026-11-05T12:00:00+01:00')]
     public string $stoppedAt = '';
 
@@ -35,11 +35,21 @@ final class TimeEntryInput
         return $input;
     }
 
+    public static function validatePointInTime(mixed $value, ExecutionContextInterface $context): void
+    {
+        if (is_string($value) && $value !== '' && ApiDates::tryParseDateTime($value) === null) {
+            $constraint = new Assert\DateTime();
+            $context->buildViolation($constraint->message)
+                ->setCode(Assert\DateTime::INVALID_FORMAT_ERROR)
+                ->addViolation();
+        }
+    }
+
     #[Assert\Callback]
     public function validateOrder(ExecutionContextInterface $context): void
     {
-        $start = \DateTimeImmutable::createFromFormat(ApiDates::DATE_TIME, $this->startedAt);
-        $stop  = \DateTimeImmutable::createFromFormat(ApiDates::DATE_TIME, $this->stoppedAt);
+        $start = ApiDates::tryParseDateTime($this->startedAt);
+        $stop  = ApiDates::tryParseDateTime($this->stoppedAt);
 
         if ($start && $stop && $stop <= $start) {
             $context->buildViolation('api.stopped_before_started')

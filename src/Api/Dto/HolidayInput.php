@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 final class HolidayInput
 {
-    #[Assert\NotBlank]
+    #[Assert\NotBlank(normalizer: 'trim')]
     #[Assert\Length(max: 255)]
     public string $name = '';
 

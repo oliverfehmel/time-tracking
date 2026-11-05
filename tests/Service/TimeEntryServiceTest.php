@@ -143,10 +143,17 @@ final class TimeEntryServiceTest extends DatabaseTestCase
     public function testDeleteRespectsLocks(): void
     {
         $old = $this->factory->timeEntry($this->user, '2026-08-03 08:00', '2026-08-03 12:00');
-        $this->catchViolation(fn() => $this->service->delete($old));
+        $id  = $old->getId();
+
+        $violation = $this->catchViolation(fn() => $this->service->delete($old));
+        self::assertSame('month_not_editable', $violation->rule);
+        self::assertSame(403, $violation->status);
+        $this->em->clear();
+        self::assertNotNull($old = $this->em->find(TimeEntry::class, $id));
 
         $this->service->delete($old, enforceLocks: false);
-        self::assertNull($old->getId() ? $this->em->find(TimeEntry::class, $old->getId()) : null);
+        $this->em->clear();
+        self::assertNull($this->em->find(TimeEntry::class, $id));
     }
 
     private function entry(string $start, string $stop): TimeEntry

@@ -2,6 +2,13 @@
 
 {% block title %}{{ 'api_token.title'|trans }}{% endblock %}
 
+{% block head_extra %}
+    {% if plainToken %}
+        {# Turbo must not keep a snapshot with the plain token for back/forward navigation or previews #}
+        <meta name="turbo-cache-control" content="no-cache">
+    {% endif %}
+{% endblock %}
+
 {% block body %}
     <div class="tt-page">
         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">

@@ -38,8 +38,9 @@ final readonly class ApiRequestListener
             return;
         }
 
-        $preferred = $request->headers->has('Accept-Language') ? $request->getPreferredLanguage(self::LOCALES) : null;
-        $request->setLocale($preferred ?? $this->defaultLocale);
+        // getPreferredLanguage() returns the first entry when nothing matches, so the default locale goes first.
+        $locales = array_values(array_unique([$this->defaultLocale, ...self::LOCALES]));
+        $request->setLocale($request->getPreferredLanguage($locales) ?? $this->defaultLocale);
     }
 
     /**
