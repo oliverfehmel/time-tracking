@@ -49,7 +49,7 @@ final readonly class AbsenceNotifier
             ->context([
                 'absence'     => $absence,
                 'user'        => $recipient,
-                'days'        => $this->dayCalc->countChargeableDays($start, $end),
+                'days'        => $this->dayCalc->countForRequest($absence),
                 'overviewUrl' => $this->urlGenerator->generate(
                     '_absence_index',
                     ['year' => (int) $start->format('Y')],
@@ -105,7 +105,7 @@ final readonly class AbsenceNotifier
             ->context([
                 'absence'     => $absence,
                 'user'        => $user,
-                'days'        => $this->dayCalc->countChargeableDays($start, $end),
+                'days'        => $this->dayCalc->countForRequest($absence),
                 'year'        => $year,
                 'overviewUrl' => $this->urlGenerator->generate(
                     '_admin_absence_approvals',

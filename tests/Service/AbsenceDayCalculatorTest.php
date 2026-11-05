@@ -32,7 +32,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $start = new DateTimeImmutable('2024-01-15'); // Monday
         $end   = new DateTimeImmutable('2024-01-19'); // Friday
 
-        $this->assertSame(5, $this->calc->countChargeableDays($start, $end));
+        $this->assertSame(5.0, $this->calc->countChargeableDays($start, $end));
     }
 
     public function testCountChargeableDays_weekendExcluded(): void
@@ -40,7 +40,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $start = new DateTimeImmutable('2024-01-13'); // Saturday
         $end   = new DateTimeImmutable('2024-01-14'); // Sunday
 
-        $this->assertSame(0, $this->calc->countChargeableDays($start, $end));
+        $this->assertSame(0.0, $this->calc->countChargeableDays($start, $end));
     }
 
     public function testCountChargeableDays_weekSpansWeekend_countsFiveWorkdays(): void
@@ -50,7 +50,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $start = new DateTimeImmutable('2024-01-15'); // Monday
         $end   = new DateTimeImmutable('2024-01-21'); // Sunday
 
-        $this->assertSame(5, $this->calc->countChargeableDays($start, $end));
+        $this->assertSame(5.0, $this->calc->countChargeableDays($start, $end));
     }
 
     public function testCountChargeableDays_endBeforeStart_returnsZero(): void
@@ -58,7 +58,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $start = new DateTimeImmutable('2024-01-20');
         $end   = new DateTimeImmutable('2024-01-15');
 
-        $this->assertSame(0, $this->calc->countChargeableDays($start, $end));
+        $this->assertSame(0.0, $this->calc->countChargeableDays($start, $end));
     }
 
     public function testCountChargeableDays_singleWorkday_returnsOne(): void
@@ -67,7 +67,7 @@ final class AbsenceDayCalculatorTest extends TestCase
 
         $day = new DateTimeImmutable('2024-01-15'); // Monday
 
-        $this->assertSame(1, $this->calc->countChargeableDays($day, $day));
+        $this->assertSame(1.0, $this->calc->countChargeableDays($day, $day));
     }
 
     public function testCountChargeableDays_userHolidayExcluded(): void
@@ -81,7 +81,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $end   = new DateTimeImmutable('2024-01-19'); // Friday
 
         // 5 workdays - 1 holiday = 4
-        $this->assertSame(4, $this->calc->countChargeableDays($start, $end, user: $user));
+        $this->assertSame(4.0, $this->calc->countChargeableDays($start, $end, user: $user));
     }
 
     public function testCountChargeableDays_noUserProvided_holidayRepoNotCalled(): void
@@ -94,7 +94,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $start = new DateTimeImmutable('2024-01-15');
         $end   = new DateTimeImmutable('2024-01-19');
 
-        $this->assertSame(5, $calc->countChargeableDays($start, $end));
+        $this->assertSame(5.0, $calc->countChargeableDays($start, $end));
     }
 
     public function testCountChargeableDays_twoWeeks_tenWorkdays(): void
@@ -104,7 +104,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $start = new DateTimeImmutable('2024-01-15'); // Monday
         $end   = new DateTimeImmutable('2024-01-26'); // Friday
 
-        $this->assertSame(10, $this->calc->countChargeableDays($start, $end));
+        $this->assertSame(10.0, $this->calc->countChargeableDays($start, $end));
     }
 
     // --- countWorkdaysForRequest ---
@@ -116,7 +116,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $rangeStart        = new DateTimeImmutable('2024-01-01');
         $rangeEndExclusive = new DateTimeImmutable('2024-02-01');
 
-        $this->assertSame(5, $this->calc->countWorkdaysForRequest($request, $rangeStart, $rangeEndExclusive, []));
+        $this->assertSame(5.0, $this->calc->countWorkdaysForRequest($request, $rangeStart, $rangeEndExclusive, []));
     }
 
     public function testCountWorkdaysForRequest_clampedToRangeStart(): void
@@ -128,7 +128,7 @@ final class AbsenceDayCalculatorTest extends TestCase
         $rangeEndExclusive = new DateTimeImmutable('2024-02-01');
 
         // Only Mon 15.01 – Fri 19.01 = 5 days
-        $this->assertSame(5, $this->calc->countWorkdaysForRequest($request, $rangeStart, $rangeEndExclusive, []));
+        $this->assertSame(5.0, $this->calc->countWorkdaysForRequest($request, $rangeStart, $rangeEndExclusive, []));
     }
 
     public function testCountWorkdaysForRequest_holidayExcluded(): void
@@ -140,16 +140,102 @@ final class AbsenceDayCalculatorTest extends TestCase
 
         $holidayDates = ['2024-01-17' => true]; // Wednesday is a holiday
 
-        $this->assertSame(4, $this->calc->countWorkdaysForRequest($request, $rangeStart, $rangeEndExclusive, $holidayDates));
+        $this->assertSame(4.0, $this->calc->countWorkdaysForRequest($request, $rangeStart, $rangeEndExclusive, $holidayDates));
+    }
+
+    // --- half days ---
+
+    public function testCountChargeableDays_halfDayAbsence_countsHalf(): void
+    {
+        $this->holidayRepo->method('findForUserBetween')->willReturn([]);
+
+        $day = new DateTimeImmutable('2024-01-15'); // Monday
+
+        $this->assertSame(0.5, $this->calc->countChargeableDays($day, $day, user: new User(), dayFraction: 0.5));
+    }
+
+    public function testCountChargeableDays_fullAbsenceOnHalfHoliday_countsHalf(): void
+    {
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-24', halfDay: true)]);
+
+        $start = new DateTimeImmutable('2024-12-23'); // Monday
+        $end   = new DateTimeImmutable('2024-12-24'); // Tuesday (half holiday)
+
+        // 1 + 0.5
+        $this->assertSame(1.5, $this->calc->countChargeableDays($start, $end, user: new User()));
+    }
+
+    public function testCountChargeableDays_halfAbsenceOnHalfHoliday_countsHalf(): void
+    {
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-24', halfDay: true)]);
+
+        $day = new DateTimeImmutable('2024-12-24');
+
+        $this->assertSame(0.5, $this->calc->countChargeableDays($day, $day, user: new User(), dayFraction: 0.5));
+    }
+
+    public function testCountChargeableDays_halfAbsenceOnFullHoliday_countsZero(): void
+    {
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-25')]);
+
+        $day = new DateTimeImmutable('2024-12-25');
+
+        $this->assertSame(0.0, $this->calc->countChargeableDays($day, $day, user: new User(), dayFraction: 0.5));
+    }
+
+    public function testCountChargeableDays_halfDayOnWeekend_countsZero(): void
+    {
+        $day = new DateTimeImmutable('2024-01-13'); // Saturday
+
+        $this->assertSame(0.0, $this->calc->countChargeableDays($day, $day, dayFraction: 0.5));
+    }
+
+    public function testCountForRequest_usesRequesterHolidaysAndHalfDay(): void
+    {
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-24', halfDay: true)]);
+
+        $full = $this->makeRequest('2024-12-23', '2024-12-27'); // Mon–Fri, only the half holiday on 24. is stubbed
+        $half = $this->makeRequest('2024-12-23', '2024-12-23')->setHalfDay(true);
+
+        $this->assertSame(4.5, $this->calc->countForRequest($full));
+        $this->assertSame(0.5, $this->calc->countForRequest($half));
+    }
+
+    public function testCountWorkdaysForRequest_halfHolidayFraction(): void
+    {
+        $request = $this->makeRequest('2024-12-23', '2024-12-27'); // Mon–Fri
+
+        $holidayFractions = ['2024-12-24' => 0.5, '2024-12-25' => 1.0, '2024-12-26' => 1.0];
+
+        // 23.: 1, 24.: 0.5, 25./26.: 0, 27.: 1
+        $this->assertSame(2.5, $this->calc->countWorkdaysForRequest(
+            $request,
+            new DateTimeImmutable('2024-01-01'),
+            new DateTimeImmutable('2025-01-01'),
+            $holidayFractions,
+        ));
+    }
+
+    public function testCountWorkdaysForRequest_halfDayRequest(): void
+    {
+        $request = $this->makeRequest('2024-01-15', '2024-01-15')->setHalfDay(true);
+
+        $this->assertSame(0.5, $this->calc->countWorkdaysForRequest(
+            $request,
+            new DateTimeImmutable('2024-01-01'),
+            new DateTimeImmutable('2024-02-01'),
+            [],
+        ));
     }
 
     // --- Helpers ---
 
-    private function makeHoliday(string $date): Holiday&Stub
+    private function makeHoliday(string $date, bool $halfDay = false): Holiday
     {
-        $holiday = $this->createStub(Holiday::class);
-        $holiday->method('getDate')->willReturn(new DateTimeImmutable($date));
-        return $holiday;
+        return (new Holiday())
+            ->setName('Feiertag')
+            ->setDate(new DateTimeImmutable($date))
+            ->setHalfDay($halfDay);
     }
 
     private function makeRequest(string $start, string $end): AbsenceRequest

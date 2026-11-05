@@ -40,11 +40,7 @@ final class AbsenceController extends AbstractController
         $rows = array_map(
             fn(AbsenceRequest $r) => [
                 'entity' => $r,
-                'days'   => $dayCalc->countChargeableDays(
-                    $r->getStartDate(),
-                    $r->getEndDate(),
-                    user: $user,
-                ),
+                'days'   => $dayCalc->countForRequest($r),
             ],
             $requestRepo->findForUserInYear($user, $year),
         );
@@ -93,8 +89,6 @@ final class AbsenceController extends AbstractController
 
             $this->em->persist($absence);
             $this->em->flush();
-
-            $days = $dayCalc->countChargeableDays($start, $end, user: $user);
 
             if (!$this->notifier->sendCreatedNotification($absence, $userRepo->findAdminEmails(), $year)) {
                 $this->addFlash('warning', 'absence.request.created_warning');

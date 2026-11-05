@@ -137,13 +137,95 @@ final class WorktimeSollCalculatorTest extends TestCase
         $this->assertSame(0, $this->calc->sollSecondsForRange($user, $from, $to));
     }
 
+    // --- half days ---
+
+    public function testSoll_halfHoliday_halfDaySoll(): void
+    {
+        $from = new DateTimeImmutable('2024-12-23 00:00:00'); // Monday
+        $to   = new DateTimeImmutable('2024-12-25 00:00:00'); // exclusive → Mon + Tue
+        $user = $this->makeUser(480);
+
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-24', halfDay: true)]);
+        $this->absenceRepo->method('findApprovedForUserBetween')->willReturn([]);
+
+        $this->assertSame(12 * 3600, $this->calc->sollSecondsForRange($user, $from, $to));
+    }
+
+    public function testSoll_halfDayAbsence_halfDaySoll(): void
+    {
+        $from    = new DateTimeImmutable('2024-01-15 00:00:00'); // Monday
+        $to      = new DateTimeImmutable('2024-01-16 00:00:00');
+        $user    = $this->makeUser(480);
+        $absence = $this->makeApprovedAbsence('2024-01-15', '2024-01-15')->setHalfDay(true);
+
+        $this->holidayRepo->method('findForUserBetween')->willReturn([]);
+        $this->absenceRepo->method('findApprovedForUserBetween')->willReturn([$absence]);
+
+        $this->assertSame(4 * 3600, $this->calc->sollSecondsForRange($user, $from, $to));
+    }
+
+    public function testSoll_halfAbsenceOnHalfHoliday_zeroSoll(): void
+    {
+        $from    = new DateTimeImmutable('2024-12-24 00:00:00');
+        $to      = new DateTimeImmutable('2024-12-25 00:00:00');
+        $user    = $this->makeUser(480);
+        $absence = $this->makeApprovedAbsence('2024-12-24', '2024-12-24')->setHalfDay(true);
+
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-24', halfDay: true)]);
+        $this->absenceRepo->method('findApprovedForUserBetween')->willReturn([$absence]);
+
+        $this->assertSame(0, $this->calc->sollSecondsForRange($user, $from, $to));
+    }
+
+    public function testSoll_fullAbsenceOnHalfHoliday_zeroSoll(): void
+    {
+        $from    = new DateTimeImmutable('2024-12-24 00:00:00');
+        $to      = new DateTimeImmutable('2024-12-25 00:00:00');
+        $user    = $this->makeUser(480);
+        $absence = $this->makeApprovedAbsence('2024-12-24', '2024-12-24');
+
+        $this->holidayRepo->method('findForUserBetween')->willReturn([$this->makeHoliday('2024-12-24', halfDay: true)]);
+        $this->absenceRepo->method('findApprovedForUserBetween')->willReturn([$absence]);
+
+        $this->assertSame(0, $this->calc->sollSecondsForRange($user, $from, $to));
+    }
+
+    public function testSoll_twoHalfAbsencesSameDay_zeroSoll(): void
+    {
+        $from = new DateTimeImmutable('2024-01-15 00:00:00');
+        $to   = new DateTimeImmutable('2024-01-16 00:00:00');
+        $user = $this->makeUser(480);
+
+        $this->holidayRepo->method('findForUserBetween')->willReturn([]);
+        $this->absenceRepo->method('findApprovedForUserBetween')->willReturn([
+            $this->makeApprovedAbsence('2024-01-15', '2024-01-15')->setHalfDay(true),
+            $this->makeApprovedAbsence('2024-01-15', '2024-01-15')->setHalfDay(true),
+        ]);
+
+        $this->assertSame(0, $this->calc->sollSecondsForRange($user, $from, $to));
+    }
+
+    public function testSoll_halfDayWithOddDailyMinutes_isRounded(): void
+    {
+        $from    = new DateTimeImmutable('2024-01-15 00:00:00');
+        $to      = new DateTimeImmutable('2024-01-16 00:00:00');
+        $user    = $this->makeUser(451); // 7:31 → half = 3:45:30
+        $absence = $this->makeApprovedAbsence('2024-01-15', '2024-01-15')->setHalfDay(true);
+
+        $this->holidayRepo->method('findForUserBetween')->willReturn([]);
+        $this->absenceRepo->method('findApprovedForUserBetween')->willReturn([$absence]);
+
+        $this->assertSame(13530, $this->calc->sollSecondsForRange($user, $from, $to));
+    }
+
     // --- Helpers ---
 
-    private function makeHoliday(string $date): Holiday&Stub
+    private function makeHoliday(string $date, bool $halfDay = false): Holiday
     {
-        $holiday = $this->createStub(Holiday::class);
-        $holiday->method('getDate')->willReturn(new DateTimeImmutable($date));
-        return $holiday;
+        return (new Holiday())
+            ->setName('Feiertag')
+            ->setDate(new DateTimeImmutable($date))
+            ->setHalfDay($halfDay);
     }
 
     private function makeApprovedAbsence(string $start, string $end): AbsenceRequest

@@ -14,63 +14,82 @@ final readonly class AbsenceDayCalculator
         private ?HolidayProviderInterface $holidayProvider = null,
     ) {}
 
-    public function countChargeableDays(DateTimeImmutable $start, DateTimeImmutable $end, ?string $holidayRegion = null,
-        ?User $user = null): int
-    {
+    /**
+     * Zählt die anrechenbaren Abwesenheitstage in [start, end] (inklusive).
+     * Wochenenden zählen nicht, Feiertage reduzieren den Tag um ihren Anteil (halber Feiertag → max. 0,5).
+     *
+     * @param float $dayFraction Anteil pro Tag, den die Abwesenheit abdeckt (1.0 = ganzer Tag, 0.5 = halber Tag)
+     */
+    public function countChargeableDays(
+        DateTimeImmutable $start,
+        DateTimeImmutable $end,
+        ?string $holidayRegion = null,
+        ?User $user = null,
+        float $dayFraction = DayPortion::FULL,
+    ): float {
         if ($end < $start) {
-            return 0;
+            return 0.0;
         }
 
-        $userHolidayDates = [];
+        $userHolidays = [];
         if ($user !== null) {
-            $holidays = $this->holidayRepository->findForUserBetween($user, $start, $end);
-
-            foreach ($holidays as $holiday) {
-                $userHolidayDates[$holiday->getDate()->format('Y-m-d')] = true;
-            }
+            $userHolidays = DayPortion::holidayMap($this->holidayRepository->findForUserBetween($user, $start, $end));
         }
 
-        $days = 0;
-        $cur = $start;
-
-        while ($cur <= $end) {
-            $weekday = (int) $cur->format('N'); // 1=Mon ... 7=Sun
-            $isWeekend = $weekday >= 6;
-
-            $isGlobalHoliday = false;
-            if ($this->holidayProvider) {
-                $isGlobalHoliday = $this->holidayProvider->isHoliday($cur, $holidayRegion);
+        $days = 0.0;
+        for ($cur = $start; $cur <= $end; $cur = $cur->modify('+1 day')) {
+            if ((int) $cur->format('N') >= 6) { // 6=Sat, 7=Sun
+                continue;
             }
 
-            $isUserHoliday = isset($userHolidayDates[$cur->format('Y-m-d')]);
-
-            if (!$isWeekend && !$isGlobalHoliday && !$isUserHoliday) {
-                $days++;
+            $holiday = $userHolidays[$cur->format('Y-m-d')] ?? 0.0;
+            if ($this->holidayProvider?->isHoliday($cur, $holidayRegion)) {
+                $holiday = DayPortion::FULL;
             }
 
-            $cur = $cur->modify('+1 day');
+            $days += DayPortion::chargeableFraction($holiday, $dayFraction);
         }
 
         return $days;
     }
 
+    /**
+     * Anrechenbare Tage eines Antrags unter Berücksichtigung der Feiertage des Antragstellers und eines halben Tages.
+     */
+    public function countForRequest(AbsenceRequest $request, ?string $holidayRegion = null): float
+    {
+        return $this->countChargeableDays(
+            $request->getStartDate(),
+            $request->getEndDate(),
+            $holidayRegion,
+            $request->getRequestedBy(),
+            $request->getDayFraction(),
+        );
+    }
+
+    /**
+     * Anrechenbare Tage eines Antrags innerhalb von [rangeStart, rangeEndExclusive).
+     *
+     * @param array<string,float|bool> $holidayFractions keyed by 'Y-m-d'; Wert = Feiertagsanteil (true = ganzer Tag)
+     */
     public function countWorkdaysForRequest(
         AbsenceRequest $request,
         DateTimeImmutable $rangeStart,
         DateTimeImmutable $rangeEndExclusive,
-        array $holidayDates,
-    ): int {
-        $start       = max($request->getStartDate(), $rangeStart);
+        array $holidayFractions,
+    ): float {
+        $start        = max($request->getStartDate(), $rangeStart);
         $endExclusive = min($request->getEndDate()->modify('+1 day'), $rangeEndExclusive);
 
-        $sum = 0;
+        $sum = 0.0;
         for ($d = $start; $d < $endExclusive; $d = $d->modify('+1 day')) {
-            $dow = (int) $d->format('N');
-            if ($dow >= 6 || isset($holidayDates[$d->format('Y-m-d')])) {
+            if ((int) $d->format('N') >= 6) {
                 continue;
             }
-            $sum++;
+            $holiday = (float) ($holidayFractions[$d->format('Y-m-d')] ?? 0.0);
+            $sum    += DayPortion::chargeableFraction($holiday, $request->getDayFraction());
         }
+
         return $sum;
     }
 }

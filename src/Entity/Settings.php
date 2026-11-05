@@ -22,6 +22,9 @@ class Settings
     #[ORM\Column(type: 'boolean')]
     private bool $usersAreAllowedToChangeTimeEntries = true;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $halfDaysEnabled = false;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $logoFilename = null;
 
@@ -61,6 +64,16 @@ class Settings
     public function setUsersAreAllowedToChangeTimeEntries(bool $usersAreAllowedToChangeTimeEntries): void
     {
         $this->usersAreAllowedToChangeTimeEntries = $usersAreAllowedToChangeTimeEntries;
+    }
+
+    public function isHalfDaysEnabled(): bool
+    {
+        return $this->halfDaysEnabled;
+    }
+
+    public function setHalfDaysEnabled(bool $halfDaysEnabled): void
+    {
+        $this->halfDaysEnabled = $halfDaysEnabled;
     }
 
     public function getLogoFilename(): ?string

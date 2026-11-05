@@ -56,11 +56,11 @@ final class AbsenceQuotaServiceTest extends TestCase
         $row = $result[0];
 
         $this->assertSame($type, $row['type']);
-        $this->assertSame(30, $row['quotaDays']);
+        $this->assertSame(30.0, $row['quotaDays']);
         $this->assertFalse($row['allowOverLimit']);
-        $this->assertSame(0, $row['usedApprovedDays']);
-        $this->assertSame(0, $row['usedPendingDays']);
-        $this->assertSame(30, $row['remainingDays']);
+        $this->assertSame(0.0, $row['usedApprovedDays']);
+        $this->assertSame(0.0, $row['usedPendingDays']);
+        $this->assertSame(30.0, $row['remainingDays']);
     }
 
     public function testGetQuotaOverview_approvedDaysReduceRemaining(): void
@@ -77,9 +77,9 @@ final class AbsenceQuotaServiceTest extends TestCase
 
         $row = $result[0];
         // Mon 01.07 – Fri 05.07 = 5 workdays
-        $this->assertSame(5, $row['usedApprovedDays']);
-        $this->assertSame(0, $row['usedPendingDays']);
-        $this->assertSame(25, $row['remainingDays']); // 30 - 5
+        $this->assertSame(5.0, $row['usedApprovedDays']);
+        $this->assertSame(0.0, $row['usedPendingDays']);
+        $this->assertSame(25.0, $row['remainingDays']); // 30 - 5
     }
 
     public function testGetQuotaOverview_pendingDaysTrackedSeparately(): void
@@ -95,9 +95,9 @@ final class AbsenceQuotaServiceTest extends TestCase
         $result = $this->service->getQuotaOverview($user, 2024);
 
         $row = $result[0];
-        $this->assertSame(0, $row['usedApprovedDays']);
-        $this->assertSame(5, $row['usedPendingDays']);
-        $this->assertSame(30, $row['remainingDays']); // pending doesn't reduce remaining
+        $this->assertSame(0.0, $row['usedApprovedDays']);
+        $this->assertSame(5.0, $row['usedPendingDays']);
+        $this->assertSame(30.0, $row['remainingDays']); // pending doesn't reduce remaining
     }
 
     public function testGetQuotaOverview_customQuotaOverridesDefault(): void
@@ -112,8 +112,8 @@ final class AbsenceQuotaServiceTest extends TestCase
 
         $result = $this->service->getQuotaOverview($user, 2024);
 
-        $this->assertSame(20, $result[0]['quotaDays']);
-        $this->assertSame(20, $result[0]['remainingDays']);
+        $this->assertSame(20.0, $result[0]['quotaDays']);
+        $this->assertSame(20.0, $result[0]['remainingDays']);
     }
 
     public function testGetQuotaOverview_typeWithoutQuota_remainingIsNull(): void
@@ -145,7 +145,7 @@ final class AbsenceQuotaServiceTest extends TestCase
 
         $result = $this->service->getQuotaOverview($user, 2024);
 
-        $this->assertSame(0, $result[0]['remainingDays']); // clamped, not negative
+        $this->assertSame(0.0, $result[0]['remainingDays']); // clamped, not negative
     }
 
     public function testGetQuotaOverview_multipleTypes(): void
@@ -161,7 +161,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         $result = $this->service->getQuotaOverview($user, 2024);
 
         $this->assertCount(2, $result);
-        $this->assertSame(30, $result[0]['quotaDays']);
+        $this->assertSame(30.0, $result[0]['quotaDays']);
         $this->assertNull($result[1]['quotaDays']);
     }
 
@@ -288,6 +288,81 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertNull($result[0]['allowOverLimitOverride']);
     }
 
+    // --- half days ---
+
+    public function testGetQuotaOverview_halfDayRequestCountsHalf(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 30);
+
+        $this->typeRepo->method('findActive')->willReturn([$type]);
+        $this->quotaRepo->method('findOneFor')->willReturn(null);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),       // 3
+            $this->makeRequest($type, '2024-07-04', '2024-07-04', AbsenceRequest::STATUS_APPROVED, true), // 0.5
+            $this->makeRequest($type, '2024-07-05', '2024-07-05', AbsenceRequest::STATUS_PENDING, true),  // 0.5
+        ]);
+
+        $row = $this->service->getQuotaOverview($user, 2024)[0];
+
+        $this->assertSame(3.5, $row['usedApprovedDays']);
+        $this->assertSame(0.5, $row['usedPendingDays']);
+        $this->assertSame(26.5, $row['remainingDays']);
+    }
+
+    public function testGetQuotaOverview_halfDayQuota(): void
+    {
+        $user  = new User();
+        $type  = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 30);
+        $quota = $this->makeQuota($type, 27.5);
+
+        $this->typeRepo->method('findActive')->willReturn([$type]);
+        $this->quotaRepo->method('findOneFor')->willReturn($quota);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-01', AbsenceRequest::STATUS_APPROVED, true),
+        ]);
+
+        $row = $this->service->getQuotaOverview($user, 2024)[0];
+
+        $this->assertSame(27.5, $row['quotaDays']);
+        $this->assertSame(27.0, $row['remainingDays']);
+    }
+
+    public function testValidateRequestWithinQuota_halfDayFitsExactlyIntoRemainingHalf(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 3.5);
+
+        $this->quotaRepo->method('findOneFor')->willReturn(null);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+        ]);
+
+        $day = new DateTimeImmutable('2024-07-04');
+
+        $this->assertNull($this->service->validateRequestWithinQuota($user, $type, 2024, $day, $day, halfDay: true));
+        $this->assertIsString($this->service->validateRequestWithinQuota($user, $type, 2024, $day, $day));
+    }
+
+    public function testValidateRequestWithinQuota_errorMessageFormatsHalfDays(): void
+    {
+        $user = new User();
+        $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 3.5);
+
+        $this->quotaRepo->method('findOneFor')->willReturn(null);
+        $this->requestRepo->method('findForUserInYear')->willReturn([
+            $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
+            $this->makeRequest($type, '2024-07-04', '2024-07-04', AbsenceRequest::STATUS_PENDING, true),
+        ]);
+
+        $day    = new DateTimeImmutable('2024-07-05');
+        $result = $this->service->validateRequestWithinQuota($user, $type, 2024, $day, $day);
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('3,5 von 3,5 Tagen', $result);
+        $this->assertStringContainsString('umfasst 1 Tage', $result);
+    }
+
     // --- Helpers ---
 
     private function makeType(
@@ -295,7 +370,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         string $name,
         string $key,
         bool $quota,
-        ?int $defaultDays,
+        int|float|null $defaultDays,
         bool $allowOverLimit = false,
     ): AbsenceType
     {
@@ -312,9 +387,10 @@ final class AbsenceQuotaServiceTest extends TestCase
         return $type;
     }
 
-    private function makeRequest(AbsenceType $type, string $start, string $end, string $status): AbsenceRequest
+    private function makeRequest(AbsenceType $type, string $start, string $end, string $status, bool $halfDay = false): AbsenceRequest
     {
         $request = new AbsenceRequest();
+        $request->setHalfDay($halfDay);
         $request->setRequestedBy(new User());
         $request->setType($type);
         $request->setStartDate(new DateTimeImmutable($start));
@@ -324,7 +400,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         return $request;
     }
 
-    private function makeQuota(AbsenceType $type, int $days, ?bool $allowOverLimit = false): AbsenceQuota
+    private function makeQuota(AbsenceType $type, int|float $days, ?bool $allowOverLimit = false): AbsenceQuota
     {
         $quota = new AbsenceQuota();
         $quota->setUser(new User());
