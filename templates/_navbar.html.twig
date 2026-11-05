@@ -24,7 +24,7 @@
                 {% if is_granted('IS_IMPERSONATOR') %}
                     <div class="alert alert-warning">
                         {{ 'navbar.impersonating'|trans({'user': app.user.name}) }}
-                        <a href="{{ path('_admin_users_index', {'_switch_user': '_exit'}) }}">
+                        <a href="{{ path('_admin_users_index', {'_switch_user': '_exit'}) }}" data-turbo-prefetch="false">
                             {{ 'navbar.back_to_admin'|trans }}
                         </a>
                     </div>
@@ -74,7 +74,7 @@
                 <a href="{{ path('_profile') }}" class="btn btn-sm btn-outline-secondary w-100 mb-2">
                     <i class="fa-regular fa-user me-1"></i>{{ app.user.name }}
                 </a>
-                <a class="btn btn-sm btn-outline-secondary w-100" href="{{ path('_logout') }}">
+                <a class="btn btn-sm btn-outline-secondary w-100" href="{{ path('_logout') }}" data-turbo-prefetch="false">
                     <i class="fa-solid fa-right-from-bracket me-1"></i>{{ 'app.logout'|trans }}
                 </a>
             </div>

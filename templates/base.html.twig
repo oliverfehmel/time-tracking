@@ -36,7 +36,7 @@
                             <i class="fa-regular fa-user me-1"></i>{{ app.user.name }}
                         </a>
 
-                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('_logout') }}">
+                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('_logout') }}" data-turbo-prefetch="false">
                             <i class="fa-solid fa-right-from-bracket me-1"></i>
                             {{ 'app.logout'|trans }}
                         </a>
