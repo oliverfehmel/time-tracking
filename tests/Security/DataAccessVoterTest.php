@@ -3,12 +3,10 @@
 namespace App\Tests\Security;
 
 use App\Entity\AbsenceRequest;
-use App\Entity\ApiToken;
 use App\Entity\Holiday;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Security\Voter\DataAccessVoter;
-use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -70,9 +68,7 @@ final class DataAccessVoterTest extends TestCase
         $holiday = new Holiday();
         $holiday->addUser($owner);
 
-        $apiToken = new ApiToken($owner, 'x', str_repeat('a', 64), 'tt_x', ApiToken::SCOPE_READ, new DateTimeImmutable());
-
-        return [$owner, $entry, $request, $holiday, $apiToken];
+        return [$owner, $entry, $request, $holiday];
     }
 
     private function vote(DataAccessVoter $voter, object $subject): int

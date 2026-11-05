@@ -39,7 +39,8 @@ final readonly class ApiPayload
      */
     public function merge(Request $request, object $current): array
     {
-        if ($request->getContentTypeFormat() !== 'json') {
+        $mimeType = strtolower(trim(explode(';', (string) $request->headers->get('Content-Type'))[0]));
+        if ($request->getContentTypeFormat() !== 'json' && $mimeType !== 'application/merge-patch+json') {
             throw new ApiProblem(415, 'unsupported_media_type');
         }
 

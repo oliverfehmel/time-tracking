@@ -63,6 +63,37 @@ final class TimeEntryServiceTest extends DatabaseTestCase
         self::assertNotNull($entry->getId());
     }
 
+    public function testOnlyOneRunningEntryPerUser(): void
+    {
+        // The entry form allows an empty end time: without a running timer that starts one ...
+        $open = new TimeEntry();
+        $open->setUser($this->user);
+        $open->setStartedAt(new DateTimeImmutable('2026-11-05 08:00'));
+        $this->service->create($open);
+        self::assertTrue($open->isRunning());
+
+        // ... but not a second one next to it
+        $second = new TimeEntry();
+        $second->setUser($this->user);
+        $second->setStartedAt(new DateTimeImmutable('2026-11-05 07:00'));
+        $violation = $this->catchViolation(fn() => $this->service->create($second));
+        self::assertSame('timer_already_running', $violation->rule);
+        self::assertSame(409, $violation->status);
+
+        // Re-opening a finished entry while the timer runs is rejected as well (and reverted)
+        $finished = $this->factory->timeEntry($this->user, '2026-11-04 08:00', '2026-11-04 12:00');
+        $original = $finished->getStartedAt();
+        $reflection = new \ReflectionProperty(TimeEntry::class, 'stoppedAt');
+        $reflection->setValue($finished, null);
+        $violation = $this->catchViolation(fn() => $this->service->update($finished, $original));
+        self::assertSame('timer_already_running', $violation->rule);
+        self::assertSame('12:00', $finished->getStoppedAt()?->format('H:i'));
+
+        // Editing the running entry itself stays possible
+        $open->setStartedAt(new DateTimeImmutable('2026-11-05 07:30'));
+        self::assertFalse($this->service->update($open, new DateTimeImmutable('2026-11-05 08:00')));
+    }
+
     public function testCreateCutsAwayPartialOverlap(): void
     {
         $this->factory->timeEntry($this->user, '2026-11-04 08:00', '2026-11-04 10:00');

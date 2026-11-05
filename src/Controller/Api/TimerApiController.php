@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/timer')]
 #[OA\Tag(name: 'Timer')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class TimerApiController extends AbstractApiController
 {

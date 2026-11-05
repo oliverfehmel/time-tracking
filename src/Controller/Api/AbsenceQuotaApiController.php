@@ -28,6 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/v1/users/{id<\d+>}/absence-quotas')]
 #[OA\Tag(name: 'Absence quotas')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class AbsenceQuotaApiController extends AbstractApiController
 {
@@ -50,7 +51,7 @@ final class AbsenceQuotaApiController extends AbstractApiController
         return $this->item(QuotaOverviewView::from((int) $user->getId(), $year, $quotaService->getQuotaOverview($user, $year)));
     }
 
-    #[Route('/{year<\d{4}>}/{typeId<\d+>}', name: 'api_v1_absence_quotas_set', methods: ['PUT'])]
+    #[Route('/{year<19[7-9]\d|2\d{3}>}/{typeId<\d+>}', name: 'api_v1_absence_quotas_set', methods: ['PUT'])]
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Put(summary: 'Set the individual quota of a user (admin)', description: 'Overrides the type default for this user and year.')]
     #[DataResponse(AbsenceQuotaView::class)]
@@ -58,7 +59,7 @@ final class AbsenceQuotaApiController extends AbstractApiController
     #[ProblemResponse(404)]
     #[ProblemResponse(415)]
     #[ProblemResponse(422)]
-    public function set(int $id, int $year, int $typeId, #[MapRequestPayload] QuotaInput $input, QuotaDaysValidator $validator): JsonResponse
+    public function set(int $id, int $year, int $typeId, #[MapRequestPayload(acceptFormat: 'json')] QuotaInput $input, QuotaDaysValidator $validator): JsonResponse
     {
         $user  = $this->findUser($id);
         $type  = $this->findType($typeId);
@@ -81,7 +82,7 @@ final class AbsenceQuotaApiController extends AbstractApiController
         return $this->item(AbsenceQuotaView::from($quota));
     }
 
-    #[Route('/{year<\d{4}>}/{typeId<\d+>}', name: 'api_v1_absence_quotas_delete', methods: ['DELETE'])]
+    #[Route('/{year<19[7-9]\d|2\d{3}>}/{typeId<\d+>}', name: 'api_v1_absence_quotas_delete', methods: ['DELETE'])]
     #[IsGranted('ROLE_ADMIN')]
     #[OA\Delete(summary: 'Remove the individual quota of a user (admin)', description: 'The type default applies again.')]
     #[OA\Response(response: 204, description: 'Removed')]

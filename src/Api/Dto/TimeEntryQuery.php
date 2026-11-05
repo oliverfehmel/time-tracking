@@ -10,10 +10,12 @@ final class TimeEntryQuery extends PageQuery
     #[OA\Property(description: 'Admins only: entries of this user (default: you)')]
     public ?int $userId = null;
 
+    #[Assert\NotBlank(allowNull: true)]
     #[Assert\Date]
     #[OA\Property(description: 'Entries touching this day or later: first day (inclusive)', format: 'date')]
     public ?string $from = null;
 
+    #[Assert\NotBlank(allowNull: true)]
     #[Assert\Date]
     #[OA\Property(description: 'Last day (inclusive)', format: 'date')]
     public ?string $to = null;

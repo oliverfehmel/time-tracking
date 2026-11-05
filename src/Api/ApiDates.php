@@ -28,11 +28,22 @@ final class ApiDates
     }
 
     /**
-     * Parses a validated `YYYY-MM-DD` string to midnight in the server time zone.
+     * Parses a real calendar date `YYYY-MM-DD` to midnight in the server time zone; null for anything else
+     * (including '' — which `new DateTimeImmutable()` would silently turn into today).
+     */
+    public static function tryParseDate(string $value): ?DateTimeImmutable
+    {
+        $parsed = DateTimeImmutable::createFromFormat('!' . self::DATE, $value, self::serverTimeZone());
+
+        return $parsed !== false && $parsed->format(self::DATE) === $value ? $parsed : null;
+    }
+
+    /**
+     * Like {@see self::tryParseDate()} for values that were already validated.
      */
     public static function parseDate(string $value): DateTimeImmutable
     {
-        return new DateTimeImmutable($value . ' 00:00:00', self::serverTimeZone());
+        return self::tryParseDate($value) ?? throw new \InvalidArgumentException(sprintf('"%s" is not a YYYY-MM-DD date.', $value));
     }
 
     /**

@@ -12,7 +12,7 @@ use OpenApi\Attributes as OA;
 final class ProblemResponse extends OA\Response
 {
     private const array DEFAULT_DESCRIPTIONS = [
-        400 => 'Malformed request',
+        400 => 'Malformed JSON body or query',
         401 => 'Missing, unknown or expired API token',
         403 => 'Not allowed (admin only, read-only token, edit lock, …)',
         404 => 'Unknown resource or one of another user',

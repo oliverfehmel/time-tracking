@@ -78,7 +78,10 @@ A token has the rights of its owner: regular users only reach their own data, ad
 ### Run Tests
 
 The test suite needs a database (MariaDB/MySQL). Point `DATABASE_URL` in `.env.test.local` (git-ignored) to a server
-where the user may create databases — Doctrine appends `_test` to the database name — then create the schema once:
+where the user may create databases — Doctrine appends `_test` to the database name. Include `serverVersion`, otherwise
+`doctrine:database:create` tries to connect to the not yet existing database, e.g.
+`DATABASE_URL="mysql://root:secret@127.0.0.1:3306/time_tracking?serverVersion=11.8.2-MariaDB&charset=utf8mb4"`.
+Then create the schema once:
 
 ```bash
 php bin/console doctrine:database:create --env=test --if-not-exists

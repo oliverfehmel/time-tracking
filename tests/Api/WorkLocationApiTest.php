@@ -65,7 +65,7 @@ final class WorkLocationApiTest extends ApiTestCase
         $this->assertProblem(403, 'month_not_editable');
 
         $this->api('PUT', "$url/2026-02-30", ['locationTypeId' => $type->getId()]);
-        $this->assertProblem(404, 'not_found');
+        $this->assertProblem(422, 'validation_failed');
 
         $this->api('PUT', '/api/v1/users/' . $this->factory->user()->getId() . '/work-locations/2026-11-04', ['locationTypeId' => $type->getId()]);
         $this->assertProblem(404, 'not_found');

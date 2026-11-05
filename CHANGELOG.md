@@ -11,6 +11,7 @@
 - **Tests now need a database**: functional tests run against the test database from `DATABASE_URL` (CI creates it and runs the migrations). See the README for the local setup.
 
 ### Fixed
+- **Only one running timer**: Adding an entry without an end time on the day page while the timer was running created a second running entry that kept counting. This is now rejected with "A timer is already running".
 - **Absence request form errors**: Rule violations (e.g. "end before start", overlapping requests) were shown as raw translation keys; they are now translated. The "quota not sufficient" message was always German and is now translated as well.
 
 ### Deployment notes

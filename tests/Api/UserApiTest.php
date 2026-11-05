@@ -96,16 +96,39 @@ final class UserApiTest extends ApiTestCase
 
     public function testMalformedJsonAndWrongContentType(): void
     {
-        $auth = 'Bearer ' . $this->tokenFor($this->factory->admin());
+        $this->actAs($this->factory->admin());
         $user = $this->factory->user();
 
         foreach (['POST' => '/api/v1/users', 'PATCH' => '/api/v1/users/' . $user->getId()] as $method => $uri) {
-            $this->client->request($method, $uri, server: ['HTTP_AUTHORIZATION' => $auth, 'CONTENT_TYPE' => 'application/json'], content: '{broken');
+            $this->apiRaw($method, $uri, '{broken', 'application/json');
             $this->assertProblem(400, 'bad_request');
 
-            $this->client->request($method, $uri, server: ['HTTP_AUTHORIZATION' => $auth, 'CONTENT_TYPE' => 'text/plain'], content: 'name=x');
-            $this->assertProblem(415, 'unsupported_media_type');
+            foreach (['text/plain', 'application/x-www-form-urlencoded'] as $contentType) {
+                $this->apiRaw($method, $uri, 'name=x', $contentType);
+                $this->assertProblem(415, 'unsupported_media_type');
+            }
         }
+    }
+
+    public function testPatchAcceptsMergePatchContentType(): void
+    {
+        $this->actAs($this->factory->admin());
+        $user = $this->factory->user(name: 'Old');
+
+        $body = $this->apiRaw('PATCH', '/api/v1/users/' . $user->getId(), '{"name": "New"}', 'application/merge-patch+json');
+
+        $this->assertStatus(200);
+        self::assertSame('New', $body['data']['name']);
+    }
+
+    public function testPasswordOfSpacesIsRejected(): void
+    {
+        $this->actAs($this->factory->admin());
+
+        $body = $this->api('POST', '/api/v1/users', ['email' => 'spaces@example.test', 'name' => 'Spaces', 'password' => '        ']);
+
+        $this->assertProblem(422, 'validation_failed');
+        $this->assertViolation($body, 'password');
     }
 
     public function testAdminPatchesUser(): void

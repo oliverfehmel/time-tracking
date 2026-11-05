@@ -198,6 +198,8 @@ final class UserYearReportBuilder
             'isWorkday'         => $isWorkday,
             'holidayFraction'   => $holidayFraction,
             'absenceFraction'   => $absenceFraction,
+            // Chargeable absence of this day (what the quota counts): 0 on weekends, reduced by holidays
+            'absenceDays'       => $isWorkday ? DayPortion::chargeableFraction($holidayFraction, $absenceFraction) : 0.0,
             'rowClass'          => $this->buildRowClass($isWorkday, $isHoliday, $isAbsence, empty($daysWithEntries[$dayKey] ?? [])),
             'editable'          => $this->calc->isEditableMonth($dayStart, $now),
             'holiday'           => $isHoliday,

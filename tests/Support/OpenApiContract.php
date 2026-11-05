@@ -38,8 +38,8 @@ final class OpenApiContract
         $context   = sprintf('%s %s → %s', $request->getMethod(), $request->getPathInfo(), $status);
 
         if ($operation === null) {
-            // Unknown routes (404 from the router) are not part of the document.
-            Assert::assertSame(404, $response->getStatusCode(), "Undocumented operation: $context");
+            // Unknown routes (404) and unsupported methods (405) from the router are not part of the document.
+            Assert::assertContains($response->getStatusCode(), [404, 405], "Undocumented operation: $context");
 
             return;
         }

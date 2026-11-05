@@ -28,6 +28,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/v1/holidays')]
 #[OA\Tag(name: 'Holidays')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class HolidayApiController extends AbstractApiController
 {
@@ -81,7 +82,7 @@ final class HolidayApiController extends AbstractApiController
     #[ProblemResponse(409, 'A holiday with this name already exists on this date')]
     #[ProblemResponse(415)]
     #[ProblemResponse(422)]
-    public function create(#[MapRequestPayload] HolidayInput $input): JsonResponse
+    public function create(#[MapRequestPayload(acceptFormat: 'json')] HolidayInput $input): JsonResponse
     {
         $holiday = new Holiday();
         $this->apply($holiday, $input);

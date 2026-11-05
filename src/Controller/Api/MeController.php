@@ -15,6 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1')]
 #[OA\Tag(name: 'Me')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class MeController extends AbstractApiController
 {

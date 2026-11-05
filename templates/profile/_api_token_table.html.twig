@@ -30,7 +30,12 @@
                     </td>
                     <td class="small">{{ token.createdAt|date('d.m.Y H:i') }}</td>
                     <td class="small">{{ token.lastUsedAt ? token.lastUsedAt|date('d.m.Y H:i') : 'api_token.never_used'|trans }}</td>
-                    <td class="small">{{ token.expiresAt ? token.expiresAt|date('d.m.Y') : 'api_token.never_expires'|trans }}</td>
+                    <td class="small">
+                        {{ token.expiresAt ? token.expiresAt|date('d.m.Y') : 'api_token.never_expires'|trans }}
+                        {% if token.expiresAt and token.expiresAt < date() %}
+                            <span class="badge text-bg-danger" data-testid="token-expired">{{ 'api_token.expired'|trans }}</span>
+                        {% endif %}
+                    </td>
                     <td class="text-end">
                         <form method="post" action="{{ path(revokeRoute, routeParams|merge({id: token.id})) }}" class="m-0 d-inline"
                               onsubmit="return confirm('{{ 'api_token.confirm_revoke'|trans|e('js') }}')">

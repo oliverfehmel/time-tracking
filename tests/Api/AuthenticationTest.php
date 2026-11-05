@@ -96,9 +96,9 @@ final class AuthenticationTest extends ApiTestCase
 
     public function testTokenDoesNotAuthenticateUi(): void
     {
-        $this->withToken($this->tokenFor($this->factory->user()));
+        $token = $this->tokenFor($this->factory->user());
 
-        $this->client->request('GET', '/', server: ['HTTP_AUTHORIZATION' => 'Bearer ' . $this->tokenFor($this->factory->user())]);
+        $this->client->request('GET', '/', server: ['HTTP_AUTHORIZATION' => 'Bearer ' . $token]);
 
         self::assertResponseRedirects('/login');
     }
@@ -143,8 +143,22 @@ final class AuthenticationTest extends ApiTestCase
     {
         $this->actAs($this->factory->user());
 
-        $this->api('GET', '/api/v1/does-not-exist');
+        $this->api('GET', '/api/v1/does-not-exist', headers: ['Accept-Language' => 'en']);
+        $body = $this->assertProblem(404, 'not_found');
+        self::assertSame('The resource does not exist.', $body['detail']);
 
-        $this->assertProblem(404, 'not_found');
+        $this->api('GET', '/api/v1/does-not-exist', headers: ['Accept-Language' => 'de']);
+        $body = $this->assertProblem(404, 'not_found');
+        self::assertSame('Die Ressource existiert nicht.', $body['detail']);
+    }
+
+    public function testWrongMethodIsTranslatedProblem(): void
+    {
+        $this->actAs($this->factory->user());
+
+        $body = $this->apiRaw('DELETE', '/api/v1/me', '', 'application/json');
+
+        self::assertSame(405, $this->lastResponse()->getStatusCode());
+        self::assertSame('method_not_allowed', $body['code']);
     }
 }

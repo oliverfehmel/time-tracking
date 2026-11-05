@@ -13,6 +13,8 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
  */
 final class TimeEntryInput
 {
+    public const int MAX_DURATION_SECONDS = 24 * 3600;
+
     #[Assert\NotBlank]
     #[Assert\Callback([self::class, 'validatePointInTime'])]
     #[OA\Property(description: 'RFC 3339 with offset (fractional seconds are ignored)', format: 'date-time', example: '2026-11-05T08:30:00+01:00')]
@@ -20,7 +22,7 @@ final class TimeEntryInput
 
     #[Assert\NotBlank]
     #[Assert\Callback([self::class, 'validatePointInTime'])]
-    #[OA\Property(description: 'RFC 3339 with offset, after startedAt', format: 'date-time', example: '2026-11-05T12:00:00+01:00')]
+    #[OA\Property(description: 'RFC 3339 with offset, after startedAt and at most 24 hours later', format: 'date-time', example: '2026-11-05T12:00:00+01:00')]
     public string $stoppedAt = '';
 
     #[OA\Property(description: 'Admins only, on create: owner of the entry (default: you). Ignored on update.')]
@@ -55,6 +57,12 @@ final class TimeEntryInput
             $context->buildViolation('api.stopped_before_started')
                 ->atPath('stoppedAt')
                 ->setCode('stopped_before_started')
+                ->addViolation();
+        } elseif ($start && $stop && $stop->getTimestamp() - $start->getTimestamp() > self::MAX_DURATION_SECONDS) {
+            // Same limit as the entry form in the app, which can only end on the same or the next day
+            $context->buildViolation('api.entry_too_long')
+                ->atPath('stoppedAt')
+                ->setCode('entry_too_long')
                 ->addViolation();
         }
     }

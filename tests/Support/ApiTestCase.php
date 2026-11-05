@@ -76,6 +76,27 @@ abstract class ApiTestCase extends FunctionalTestCase
     }
 
     /**
+     * Sends a raw body with any content type (malformed JSON, form data, …); the response is contract-checked as well.
+     *
+     * @return array<string,mixed>|null decoded JSON body
+     */
+    protected function apiRaw(string $method, string $uri, string $content, string $contentType): ?array
+    {
+        $server = ['HTTP_ACCEPT' => 'application/json', 'CONTENT_TYPE' => $contentType];
+        if ($this->bearer !== null) {
+            $server['HTTP_AUTHORIZATION'] = 'Bearer ' . $this->bearer;
+        }
+
+        $this->client->request($method, $uri, [], [], $server, $content);
+        $response = $this->client->getResponse();
+        OpenApiContract::assertResponseMatches(static::getContainer(), $this->client->getRequest(), $response);
+
+        $body = (string) $response->getContent();
+
+        return $body === '' ? null : json_decode($body, true, flags: JSON_THROW_ON_ERROR);
+    }
+
+    /**
      * @return array<string,mixed> decoded problem body
      */
     protected function assertProblem(int $status, string $code): array

@@ -17,7 +17,7 @@ final readonly class UserView
         public string $name,
         #[OA\Property(description: 'Has administrator rights')]
         public bool $admin,
-        #[OA\Property(description: 'Effective roles, always contains ROLE_USER')]
+        #[OA\Property(description: 'Stored roles plus ROLE_USER (the role hierarchy, e.g. ROLE_ALLOWED_TO_SWITCH, is not expanded)')]
         public array $roles,
         #[OA\Property(description: 'Daily target working time in minutes')]
         public int $dailyWorkMinutes,

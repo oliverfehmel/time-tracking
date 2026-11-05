@@ -7,3 +7,4 @@ absence.quota.half_day_steps: Bitte nur ganze oder halbe Tage angeben (z. B. 27,
 absence.quota.whole_day_steps: Bitte nur ganze Tage angeben.
 api.stopped_before_started: Das Ende muss nach dem Start liegen.
 api.half_days_disabled: Halbe Tage sind deaktiviert.
+api.entry_too_long: Ein Eintrag darf höchstens 24 Stunden dauern.

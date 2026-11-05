@@ -3,7 +3,6 @@
 namespace App\Security\Voter;
 
 use App\Entity\AbsenceRequest;
-use App\Entity\ApiToken;
 use App\Entity\Holiday;
 use App\Entity\TimeEntry;
 use App\Entity\User;
@@ -16,7 +15,7 @@ use Symfony\Component\Security\Core\Authorization\Voter\Voter;
  * Who may see (and, within the domain rules, change) a piece of data: admins everything, users their own data.
  * Holidays belong to the users they are assigned to.
  *
- * @extends Voter<string, User|TimeEntry|AbsenceRequest|Holiday|ApiToken>
+ * @extends Voter<string, User|TimeEntry|AbsenceRequest|Holiday>
  */
 final class DataAccessVoter extends Voter
 {
@@ -30,8 +29,7 @@ final class DataAccessVoter extends Voter
             && ($subject instanceof User
                 || $subject instanceof TimeEntry
                 || $subject instanceof AbsenceRequest
-                || $subject instanceof Holiday
-                || $subject instanceof ApiToken);
+                || $subject instanceof Holiday);
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token, ?Vote $vote = null): bool
@@ -49,7 +47,6 @@ final class DataAccessVoter extends Voter
             $subject instanceof User           => $subject->getId() === $user->getId(),
             $subject instanceof TimeEntry      => $subject->getUser()?->getId() === $user->getId(),
             $subject instanceof AbsenceRequest => $subject->getRequestedBy()->getId() === $user->getId(),
-            $subject instanceof ApiToken       => $subject->getUser()->getId() === $user->getId(),
             $subject instanceof Holiday        => $subject->getUsers()->exists(static fn($k, User $u) => $u->getId() === $user->getId()),
         };
     }

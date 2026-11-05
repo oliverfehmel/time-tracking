@@ -48,6 +48,25 @@ final class TimeReportApiTest extends ApiTestCase
         self::assertSame(array_sum(array_column($data['months'], 'sollSeconds')), $data['sollSeconds']);
     }
 
+    public function testAbsenceDaysCountLikeTheQuota(): void
+    {
+        $me       = $this->actAs($this->factory->user());
+        $vacation = $this->factory->absenceType();
+        // Friday 2025-10-03 is a (full) holiday, the absence runs Friday to Monday
+        $this->factory->holiday('2025-10-03', [$me]);
+        $this->factory->absenceRequest($me, $vacation, '2025-10-03', '2025-10-06', AbsenceRequest::STATUS_APPROVED);
+
+        $body = $this->api('GET', '/api/v1/users/' . $me->getId() . '/time-report/2025');
+
+        $days = array_column($body['data']['months'][9]['days'], null, 'date');
+        foreach (['2025-10-03', '2025-10-04', '2025-10-05', '2025-10-06'] as $date) {
+            self::assertSame(1.0, (float) $days[$date]['absenceFraction'], $date);
+        }
+        $total = array_sum(array_map(static fn(array $d) => (float) $d['absenceDays'], $days));
+        self::assertSame(1.0, $total);
+        self::assertSame(1.0, (float) $days['2025-10-06']['absenceDays']);
+    }
+
     public function testSollIsCappedToToday(): void
     {
         self::mockTime('2026-11-05 10:00:00'); // a Thursday

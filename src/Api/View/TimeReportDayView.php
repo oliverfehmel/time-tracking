@@ -22,8 +22,10 @@ final readonly class TimeReportDayView
         public int $deltaSeconds,
         #[OA\Property(description: 'Share of the day covered by holidays: 0, 0.5 or 1')]
         public float $holidayFraction,
-        #[OA\Property(description: 'Share of the day covered by approved absences: 0, 0.5 or 1')]
+        #[OA\Property(description: 'Share of the calendar day covered by approved absences (0, 0.5 or 1), also on weekends and holidays — use absenceDays to count days')]
         public float $absenceFraction,
+        #[OA\Property(description: 'Chargeable absence days of this day as counted against quotas: 0 on weekends, reduced by holidays (sum it up to count days)')]
+        public float $absenceDays,
         #[OA\Property(description: 'Remaining share of a workday that counts towards Soll')]
         public float $workFraction,
         #[OA\Property(description: 'Approved absence on this day (two half days of different types are joined with " / ")')]
@@ -47,6 +49,7 @@ final readonly class TimeReportDayView
             deltaSeconds: $day['deltaSeconds'],
             holidayFraction: (float) $day['holidayFraction'],
             absenceFraction: (float) $day['absenceFraction'],
+            absenceDays: (float) $day['absenceDays'],
             workFraction: (float) $day['workFraction'],
             absence: $day['absenceTypeKey'] !== null ? new ReportAbsenceView($day['absenceTypeKey'], $day['absenceTypeName']) : null,
             workLocation: $day['workLocationName'] !== null ? new ReportWorkLocationView($day['workLocationName'], $day['workLocationIcon']) : null,

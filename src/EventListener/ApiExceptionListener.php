@@ -78,7 +78,7 @@ final readonly class ApiExceptionListener
         if ($e instanceof HttpExceptionInterface) {
             $status   = $e->getStatusCode();
             $code     = self::HTTP_CODES[$status] ?? 'http_error';
-            $response = $this->problems->create($status, $code, $code === 'http_error' ? $e->getMessage() : null);
+            $response = $this->problems->create($status, $code);
             $response->headers->add($e->getHeaders());
 
             return $response;

@@ -22,8 +22,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[OA\Tag(name: 'Work locations')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class WorkLocationApiController extends AbstractApiController
 {
@@ -34,6 +37,7 @@ final class WorkLocationApiController extends AbstractApiController
         private readonly WorkLocationTypeRepository $typeRepo,
         private readonly WorkLocationService $service,
         private readonly TimeEditPolicy $editPolicy,
+        private readonly TranslatorInterface $translator,
     ) {}
 
     #[Route('/api/v1/work-location-types', name: 'api_v1_work_location_types_list', methods: ['GET'])]
@@ -82,7 +86,7 @@ final class WorkLocationApiController extends AbstractApiController
     #[ProblemResponse(404)]
     #[ProblemResponse(415)]
     #[ProblemResponse(422)]
-    public function set(int $id, string $date, #[MapRequestPayload] WorkLocationInput $input): JsonResponse
+    public function set(int $id, string $date, #[MapRequestPayload(acceptFormat: 'json')] WorkLocationInput $input): JsonResponse
     {
         $user = $this->findUser($id);
         $this->editPolicy->isEditingAllowed();
@@ -102,6 +106,7 @@ final class WorkLocationApiController extends AbstractApiController
     #[OA\Response(response: 204, description: 'Removed')]
     #[ProblemResponse(403)]
     #[ProblemResponse(404, 'Unknown user or no work location recorded for this day')]
+    #[ProblemResponse(422, 'Invalid date')]
     public function clear(int $id, string $date): Response
     {
         if (!$this->service->clearForDay($this->findUser($id), $this->parseDay($date), $this->enforceLocks())) {
@@ -113,11 +118,10 @@ final class WorkLocationApiController extends AbstractApiController
 
     private function parseDay(string $date): \DateTimeImmutable
     {
-        $parsed = \DateTimeImmutable::createFromFormat('!Y-m-d', $date);
-        if ($parsed === false || $parsed->format('Y-m-d') !== $date) {
-            throw ApiProblem::notFound();
-        }
+        // The route only checks the shape; impossible dates like 2026-02-30 are invalid input, not an unknown resource.
+        $template = (new Assert\Date())->message;
 
-        return ApiDates::parseDate($date);
+        return ApiDates::tryParseDate($date)
+            ?? throw ApiProblem::validation('date', $this->translator->trans($template, [], 'validators'), Assert\Date::INVALID_DATE_ERROR);
     }
 }

@@ -26,6 +26,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/api/v1/absence-types')]
 #[OA\Tag(name: 'Absence types')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class AbsenceTypeApiController extends AbstractApiController
 {
@@ -66,7 +67,7 @@ final class AbsenceTypeApiController extends AbstractApiController
     #[ProblemResponse(409, 'Name or key already in use')]
     #[ProblemResponse(415)]
     #[ProblemResponse(422)]
-    public function create(#[MapRequestPayload] AbsenceTypeInput $input): JsonResponse
+    public function create(#[MapRequestPayload(acceptFormat: 'json')] AbsenceTypeInput $input): JsonResponse
     {
         $this->quotaValidator->validate($input->defaultYearlyQuotaDays, null, 'defaultYearlyQuotaDays');
 

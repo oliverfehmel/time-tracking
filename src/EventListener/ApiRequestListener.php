@@ -30,7 +30,8 @@ final readonly class ApiRequestListener
         return preg_match('#^/api/v1(/|$)#', $request->getPathInfo()) === 1;
     }
 
-    #[AsEventListener(event: KernelEvents::REQUEST, priority: 20)]
+    // Before the router (32), which already throws 404/405 problems that must be translated, too.
+    #[AsEventListener(event: KernelEvents::REQUEST, priority: 40)]
     public function setLocale(RequestEvent $event): void
     {
         $request = $event->getRequest();

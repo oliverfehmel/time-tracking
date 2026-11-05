@@ -507,6 +507,7 @@ api_token:
   expires_at: Läuft ab
   never_used: nie
   never_expires: nie
+  expired: abgelaufen
   revoke: Widerrufen
   confirm_revoke: Token wirklich widerrufen? Programme, die es nutzen, verlieren sofort den Zugriff.
   revoked: Token widerrufen.
@@ -525,7 +526,7 @@ api_guide:
     text: Unter Profil → API-Tokens erstellst du ein persönliches Token. Es wird genau einmal angezeigt; gespeichert wird nur ein Hash.
     scopes: '„Nur lesen“ erlaubt ausschließlich GET-Anfragen, „Lesen und schreiben“ alle Anfragen, die du auch in der App ausführen darfst.'
     expiry: Tokens laufen nach 30 Tagen, 90 Tagen, einem Jahr oder nie ab und lassen sich jederzeit widerrufen.
-    secret: Behandle ein Token wie ein Passwort. Während du als anderer Benutzer angemeldet bist, kannst du keine Tokens erstellen.
+    secret: Behandle ein Token wie ein Passwort. Ein Passwortwechsel widerruft Tokens nicht – widerrufe sie bei Verdacht selbst. Während du als anderer Benutzer angemeldet bist, kannst du keine Tokens erstellen.
   auth:
     title: Authentifizierung
     text: 'Sende das Token bei jeder Anfrage im Header „Authorization: Bearer …“. Die API nutzt keine Sitzung – das Anmelde-Cookie der App gilt dort nicht.'

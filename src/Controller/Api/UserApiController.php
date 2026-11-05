@@ -28,6 +28,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route('/api/v1/users')]
 #[OA\Tag(name: 'Users')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class UserApiController extends AbstractApiController
 {
@@ -67,9 +68,9 @@ final class UserApiController extends AbstractApiController
     #[ProblemResponse(409, 'Email address already in use')]
     #[ProblemResponse(415)]
     #[ProblemResponse(422, 'Validation failed, e.g. password missing')]
-    public function create(#[MapRequestPayload] UserInput $input, ValidatorInterface $validator): JsonResponse
+    public function create(#[MapRequestPayload(acceptFormat: 'json')] UserInput $input, ValidatorInterface $validator): JsonResponse
     {
-        $missing = $validator->validate($input->password, new NotBlank());
+        $missing = $validator->validate($input->password, new NotBlank(normalizer: 'trim'));
         if (count($missing) > 0) {
             throw ApiProblem::validation('password', (string) $missing[0]->getMessage(), (string) $missing[0]->getCode());
         }

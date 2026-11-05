@@ -17,6 +17,7 @@ final class AbsenceRequestInput
     #[OA\Property(format: 'date', example: '2026-12-24')]
     public string $startDate = '';
 
+    #[Assert\NotBlank(allowNull: true)]
     #[Assert\Date]
     #[OA\Property(description: 'Default: startDate', format: 'date', example: '2026-12-24')]
     public ?string $endDate = null;

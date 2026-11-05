@@ -64,12 +64,14 @@ the same; new services get `ClockInterface` so tests can control "now".
   authenticate API requests, and a token does not authenticate UI requests.
 - `lastUsedAt` is written at most once per minute per token.
 - Expired tokens are rejected (401). Revoked tokens are deleted.
+- Tokens are independent of the password: changing or resetting it does not revoke them. After a suspected compromise
+  the user (or an admin) revokes the tokens explicitly. Expired tokens stay listed (marked "expired") until revoked.
 - A `read` token gets 403 (`read_only_token`) on every non-GET request.
 - Roles are reloaded on every request: demoting an admin immediately removes admin rights from their tokens.
 
 ### 4. Authorization
 
-A single voter, `DataAccessVoter` (attribute `DATA_ACCESS` on User, TimeEntry, AbsenceRequest, Holiday and ApiToken),
+A single voter, `DataAccessVoter` (attribute `DATA_ACCESS` on User, TimeEntry, AbsenceRequest and Holiday),
 decides per object; admin-only operations use `#[IsGranted('ROLE_ADMIN')]`:
 
 | Data | Regular user | Admin |

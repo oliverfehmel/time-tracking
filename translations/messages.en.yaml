@@ -507,6 +507,7 @@ api_token:
   expires_at: Expires
   never_used: never
   never_expires: never
+  expired: expired
   revoke: Revoke
   confirm_revoke: Really revoke this token? Programs using it lose access immediately.
   revoked: Token revoked.
@@ -525,7 +526,7 @@ api_guide:
     text: Create a personal token under Profile → API tokens. It is shown exactly once; only a hash is stored.
     scopes: '"Read only" allows GET requests only, "Read and write" everything you may also do in the app.'
     expiry: Tokens expire after 30 days, 90 days, one year or never, and can be revoked at any time.
-    secret: Treat a token like a password. You cannot create tokens while signed in as another user.
+    secret: Treat a token like a password. Changing your password does not revoke tokens – revoke them yourself if in doubt. You cannot create tokens while signed in as another user.
   auth:
     title: Authentication
     text: 'Send the token with every request in the header "Authorization: Bearer …". The API has no session – the app''s login cookie does not apply there.'

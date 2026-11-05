@@ -39,7 +39,7 @@ Standard Symfony 8 MVC: `src/Controller`, `src/Entity`, `src/Repository`, `src/S
 
 Two roles: `ROLE_USER` (all authenticated users) and `ROLE_ADMIN` (which implicitly includes `ROLE_USER` and `ROLE_ALLOWED_TO_SWITCH`). All `/admin/*` routes require `ROLE_ADMIN`. Admins can impersonate users via the `?_switch_user=email` query parameter.
 
-Two firewalls: `api` (`^/api/v1`, stateless, bearer API tokens via `ApiTokenHandler`) and `main` (form login, session, remember-me, user switching). `/api` (guide) and `/api/docs` (Swagger UI) belong to `main`. Object-level access ("own data, admins everything") is decided by `DataAccessVoter` (`DATA_ACCESS` on User, TimeEntry, AbsenceRequest, Holiday, ApiToken).
+Two firewalls: `api` (`^/api/v1`, stateless, bearer API tokens via `ApiTokenHandler`) and `main` (form login, session, remember-me, user switching). `/api` (guide) and `/api/docs` (Swagger UI) belong to `main`. Object-level access ("own data, admins everything") is decided by `DataAccessVoter` (`DATA_ACCESS` on User, TimeEntry, AbsenceRequest, Holiday).
 
 ### REST API (`/api/v1`, see `docs/adr/0001-rest-api-v1.md`)
 

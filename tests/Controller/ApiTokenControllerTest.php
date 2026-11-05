@@ -45,6 +45,20 @@ final class ApiTokenControllerTest extends FunctionalTestCase
         self::assertSelectorTextContains('table', 'CLI script');
     }
 
+    public function testExpiredTokensAreMarked(): void
+    {
+        $user = $this->factory->user();
+        self::mockTime('2026-01-01 10:00:00');
+        static::getContainer()->get(ApiTokenManager::class)->create($user, 'old', ApiToken::SCOPE_READ, 30);
+        static::getContainer()->get(ApiTokenManager::class)->create($user, 'forever', ApiToken::SCOPE_READ, null);
+        $this->loginAs($user);
+
+        $crawler = $this->client->request('GET', '/profile/api-tokens');
+
+        self::assertCount(1, $crawler->filter('[data-testid="token-expired"]'));
+        self::assertStringContainsString('old', $crawler->filter('[data-testid="token-expired"]')->closest('tr')->text());
+    }
+
     public function testNameIsRequired(): void
     {
         $user = $this->factory->user();

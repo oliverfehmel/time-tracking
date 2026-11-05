@@ -26,6 +26,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/time-entries')]
 #[OA\Tag(name: 'Time entries')]
+#[ProblemResponse(400)]
 #[ProblemResponse(401)]
 final class TimeEntryApiController extends AbstractApiController
 {
@@ -81,7 +82,7 @@ final class TimeEntryApiController extends AbstractApiController
     #[ProblemResponse(404)]
     #[ProblemResponse(415)]
     #[ProblemResponse(422)]
-    public function create(#[MapRequestPayload] TimeEntryInput $input): JsonResponse
+    public function create(#[MapRequestPayload(acceptFormat: 'json')] TimeEntryInput $input): JsonResponse
     {
         $user = $this->resolveUser($input->userId);
         $this->editPolicy->isEditingAllowed(); // loads the settings row before the entity is touched

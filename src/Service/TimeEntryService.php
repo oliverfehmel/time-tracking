@@ -72,6 +72,7 @@ final readonly class TimeEntryService
             $this->policy->assertCanEdit($entry->getStartedAt()->setTime(0, 0));
         }
 
+        $this->assertSingleRunning($entry);
         $adjusted = $this->resolveOverlaps($entry);
 
         $this->em->persist($entry);
@@ -94,6 +95,7 @@ final readonly class TimeEntryService
                 $this->policy->assertCanEdit($originalStart->setTime(0, 0), $entry->getStartedAt()->setTime(0, 0));
             }
 
+            $this->assertSingleRunning($entry);
             $adjusted = $this->resolveOverlaps($entry);
         } catch (DomainRuleViolation $violation) {
             // Do not leave the rejected change in the unit of work, a later flush would persist it.
@@ -117,6 +119,21 @@ final readonly class TimeEntryService
 
         $this->em->remove($entry);
         $this->em->flush();
+    }
+
+    /**
+     * An entry without end is a running timer — a user may only have one (the entry form allows an empty end time).
+     */
+    private function assertSingleRunning(TimeEntry $entry): void
+    {
+        if ($entry->getStoppedAt() !== null) {
+            return;
+        }
+
+        $running = $this->repo->findRunningForUser($entry->getUser());
+        if ($running !== null && $running !== $entry) {
+            throw new DomainRuleViolation('timer_already_running', 'flash.timer_already_running', status: DomainRuleViolation::CONFLICT);
+        }
     }
 
     private function resolveOverlaps(TimeEntry $entry): bool
