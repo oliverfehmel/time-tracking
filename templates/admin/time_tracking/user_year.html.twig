@@ -83,7 +83,7 @@
                                         </thead>
                                         <tbody>
                                         {% for d in m.days %}
-                                            {% set isOffDay = (d.soll == '0:00') or d.holiday or d.absence %}
+                                            {% set isOffDay = (d.soll == '0:00') or (d.holiday and not d.holidayHalf) or (d.absence and not d.absenceHalf) %}
                                             <tr class="tt-day
                                                 {{ isOffDay ? 'tt-day--offday' : 'tt-day--workday' }}
                                                 {{ d.holiday ? 'tt-day--holiday' : '' }}
@@ -96,11 +96,11 @@
                                                         {{ d.date|date('D') }}
 
                                                         {% if d.holiday %}
-                                                            <span class="badge text-bg-info ms-2">{{ 'time_tracking.holiday'|trans }}</span>
+                                                            <span class="badge text-bg-info ms-2">{{ 'time_tracking.holiday'|trans }}{% if d.holidayHalf %} ({{ 'general.half_day_short'|trans }}){% endif %}</span>
                                                         {% endif %}
                                                         {% if d.absence %}
                                                             <span class="badge text-bg-warning ms-2">
-                                                                {{ 'time_tracking.absence'|trans }}{% if d.absenceTypeName %}: {{ d.absenceTypeName }}{% endif %}
+                                                                {{ 'time_tracking.absence'|trans }}{% if d.absenceTypeName %}: {{ d.absenceTypeName }}{% endif %}{% if d.absenceHalf %} ({{ 'general.half_day_short'|trans }}){% endif %}
                                                             </span>
                                                         {% endif %}
                                                         {% if d.workLocationName %}

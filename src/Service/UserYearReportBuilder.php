@@ -47,37 +47,33 @@ final class UserYearReportBuilder
 
     // --- Lookup-Set-Builder ---
 
+    /** @return array<string,float> keyed by 'Y-m-d' → Feiertagsanteil */
     private function buildHolidaySet(User $user, DateTimeImmutable $yearStart, DateTimeImmutable $yearEnd): array
     {
-        $set = [];
-        foreach ($this->holidayRepo->findForUserBetween($user, $yearStart, $yearEnd) as $h) {
-            $set[$h->getDate()->format('Y-m-d')] = true;
-        }
-        return $set;
+        return DayPortion::holidayMap($this->holidayRepo->findForUserBetween($user, $yearStart, $yearEnd));
     }
 
+    /**
+     * @return array{absenceSet: array<string,float>, absenceInfoSet: array<string,array{typeName:string,typeKey:string}>}
+     */
     private function buildAbsenceSets(User $user, DateTimeImmutable $yearStart, DateTimeImmutable $yearEnd): array
     {
         $absenceSet     = [];
         $absenceInfoSet = [];
 
         foreach ($this->absenceRepo->findApprovedForUserBetween($user, $yearStart, $yearEnd) as $a) {
-            $start = $a->getStartDate()->setTime(0, 0);
-            $end   = $a->getEndDate()->setTime(0, 0);
+            $before = $absenceSet;
+            DayPortion::addAbsence($absenceSet, $a, $yearStart, $yearEnd);
 
-            // Clamp to year range
-            if ($end < $yearStart || $start >= $yearEnd) {
-                continue;
-            }
-            $start = max($start, $yearStart);
-            $end   = min($end, $yearEnd->modify('-1 day')->setTime(0, 0));
-
-            for ($day = $start; $day <= $end; $day = $day->modify('+1 day')) {
-                $key = $day->format('Y-m-d');
-                $absenceSet[$key]     = true;
+            foreach (array_keys(array_diff_assoc($absenceSet, $before)) as $key) {
+                $typeName = $a->getType()->getName();
+                if (isset($absenceInfoSet[$key]) && $absenceInfoSet[$key]['typeName'] !== $typeName) {
+                    // zwei halbe Abwesenheiten unterschiedlichen Typs am selben Tag
+                    $typeName = $absenceInfoSet[$key]['typeName'] . ' / ' . $typeName;
+                }
                 $absenceInfoSet[$key] = [
-                    'typeName' => $a->getType()->getName(),
-                    'typeKey'  => $a->getType()->getKeyName(),
+                    'typeName' => $typeName,
+                    'typeKey'  => $absenceInfoSet[$key]['typeKey'] ?? $a->getType()->getKeyName(),
                 ];
             }
         }
@@ -161,13 +157,16 @@ final class UserYearReportBuilder
         $dayKey    = $dayStart->format('Y-m-d');
         $dow       = (int) $dayStart->format('N');
 
-        $isWorkday = $dow <= 5;
-        $isHoliday = isset($holidaySet[$dayKey]);
-        $isAbsence = isset($absenceSets['absenceSet'][$dayKey]);
+        $isWorkday       = $dow <= 5;
+        $holidayFraction = $holidaySet[$dayKey] ?? 0.0;
+        $absenceFraction = $absenceSets['absenceSet'][$dayKey] ?? 0.0;
+        $isHoliday       = $holidayFraction > 0;
+        $isAbsence       = $absenceFraction > 0;
+        $workFraction    = $isWorkday ? DayPortion::workFraction($holidayFraction, $absenceFraction) : 0.0;
 
         $isFuture       = $dayStart > $now->setTime(0, 0);
-        $daySollSeconds = (!$isFuture && $isWorkday && !$isHoliday && !$isAbsence)
-            ? ($user->getDailyWorkMinutes() * 60)
+        $daySollSeconds = !$isFuture
+            ? (int) round($workFraction * $user->getDailyWorkMinutes() * 60)
             : 0;
 
         $raw = $this->calc->workedSecondsInRange($allEntries, $dayStart, $dayEnd, $now);
@@ -177,7 +176,7 @@ final class UserYearReportBuilder
 
         $absenceInfo  = $absenceSets['absenceInfoSet'][$dayKey] ?? null;
         $dayDelta     = $net - $daySollSeconds;
-        $isRealWorkday = $isWorkday && !$isHoliday && !$isAbsence;
+        $isRealWorkday = $workFraction > 0;
         $hasEntries    = !empty($daysWithEntries[$dayKey] ?? []);
         $workLocation  = $workLocationMap[$dayKey] ?? ($isRealWorkday && $hasEntries ? $defaultLocationType : null);
 
@@ -193,7 +192,10 @@ final class UserYearReportBuilder
             'rowClass'          => $this->buildRowClass($isWorkday, $isHoliday, $isAbsence, empty($daysWithEntries[$dayKey] ?? [])),
             'editable'          => $this->calc->isEditableMonth($dayStart, $now),
             'holiday'           => $isHoliday,
+            'holidayHalf'       => $isHoliday && $holidayFraction < DayPortion::FULL,
             'absence'           => $isAbsence,
+            'absenceHalf'       => $isAbsence && $absenceFraction < DayPortion::FULL,
+            'workFraction'      => $workFraction,
             'absenceTypeName'   => $absenceInfo['typeName'] ?? null,
             'absenceTypeKey'    => $absenceInfo['typeKey'] ?? null,
             'workLocationName'  => $workLocation?->getName(),

@@ -26,8 +26,8 @@ class AbsenceQuota
     #[ORM\Column]
     private int $year;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $quotaDays = null; // null = unlimited
+    #[ORM\Column(type: 'decimal', precision: 5, scale: 1, nullable: true)]
+    private ?string $quotaDays = null; // null = unlimited
 
     #[ORM\Column(nullable: true)]
     private ?bool $allowOverLimit = null;
@@ -70,14 +70,14 @@ class AbsenceQuota
         return $this;
     }
 
-    public function getQuotaDays(): ?int
+    public function getQuotaDays(): ?float
     {
-        return $this->quotaDays;
+        return $this->quotaDays === null ? null : (float) $this->quotaDays;
     }
 
-    public function setQuotaDays(?int $quotaDays): self
+    public function setQuotaDays(int|float|null $quotaDays): self
     {
-        $this->quotaDays = $quotaDays;
+        $this->quotaDays = $quotaDays === null ? null : number_format((float) $quotaDays, 1, '.', '');
         return $this;
     }
 

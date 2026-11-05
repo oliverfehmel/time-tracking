@@ -36,6 +36,9 @@ class AbsenceRequest
     #[ORM\Column(type: 'date_immutable')]
     private DateTimeImmutable $endDate;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $halfDay = false;
+
     #[ORM\Column(length: 20)]
     private string $status = self::STATUS_PENDING;
 
@@ -107,6 +110,25 @@ class AbsenceRequest
     {
         $this->endDate = $d;
         return $this;
+    }
+
+    public function isHalfDay(): bool
+    {
+        return $this->halfDay;
+    }
+
+    public function setHalfDay(bool $halfDay): self
+    {
+        $this->halfDay = $halfDay;
+        return $this;
+    }
+
+    /**
+     * Anteil eines Arbeitstags, den dieser Antrag pro Kalendertag abdeckt (1.0 = ganzer Tag, 0.5 = halber Tag).
+     */
+    public function getDayFraction(): float
+    {
+        return $this->halfDay ? 0.5 : 1.0;
     }
 
     public function getStatus(): string

@@ -17,8 +17,8 @@ final class WorktimeSollCalculator
     /**
      * Soll-Sekunden für Zeitraum [from, to) (to exklusiv) berechnen:
      * - nur Mo–Fr
-     * - persönliche Feiertage raus
-     * - genehmigte Abwesenheiten raus
+     * - persönliche Feiertage raus (halbe Feiertage zur Hälfte)
+     * - genehmigte Abwesenheiten raus (halbe Abwesenheiten zur Hälfte)
      */
     public function sollSecondsForRange(User $user, DateTimeImmutable $from, DateTimeImmutable $to): int
     {
@@ -30,87 +30,46 @@ final class WorktimeSollCalculator
             return 0;
         }
 
-        $holidaySet = $this->buildHolidaySet($user, $from, $to);
-        $absenceSet = $this->buildAbsenceSet($user, $from, $to);
+        $holidays = DayPortion::holidayMap($this->holidayRepo->findForUserBetween($user, $from, $to));
+        $absences = $this->buildAbsenceMap($user, $from, $to);
 
-        $workdays = $this->countWorkdaysExcluding($from, $to, $holidaySet, $absenceSet);
+        $workdays = $this->countWorkdays($from, $to, $holidays, $absences);
 
-        return $workdays * $dailySollSeconds;
+        return (int) round($workdays * $dailySollSeconds);
+    }
+
+    /** @return array<string,float> keyed by 'Y-m-d' */
+    private function buildAbsenceMap(User $user, DateTimeImmutable $from, DateTimeImmutable $to): array
+    {
+        $map = [];
+        foreach ($this->absenceRepo->findApprovedForUserBetween($user, $from, $to) as $a) {
+            DayPortion::addAbsence($map, $a, $from, $to);
+        }
+
+        return $map;
     }
 
     /**
-     * @return array<string,true> keyed by 'Y-m-d'
-     */
-    private function buildHolidaySet(User $user, DateTimeImmutable $from, DateTimeImmutable $to): array
-    {
-        $holidays = $this->holidayRepo->findForUserBetween($user, $from, $to);
-
-        $set = [];
-        foreach ($holidays as $h) {
-            $set[$h->getDate()->format('Y-m-d')] = true;
-        }
-
-        return $set;
-    }
-
-    /** @return array<string,true> keyed by 'Y-m-d' */
-    private function buildAbsenceSet(User $user, DateTimeImmutable $from, DateTimeImmutable $to): array
-    {
-        $approvedAbsences = $this->absenceRepo->findApprovedForUserBetween($user, $from, $to);
-
-        $set = [];
-        foreach ($approvedAbsences as $a) {
-            $start = $a->getStartDate()->setTime(0, 0, 0);
-            $end   = $a->getEndDate()->setTime(0, 0, 0);
-
-            // Clamp auf [from, to)
-            if ($end < $from || $start >= $to) {
-                continue;
-            }
-            if ($start < $from) {
-                $start = $from;
-            }
-            if ($end >= $to) {
-                $end = $to->modify('-1 day')->setTime(0, 0, 0);
-            }
-
-            for ($day = $start; $day <= $end; $day = $day->modify('+1 day')) {
-                $set[$day->format('Y-m-d')] = true;
-            }
-        }
-
-        return $set;
-    }
-
-    /**
-     * Zählt Mo–Fr in [from, to), wenn NICHT im holidaySet und NICHT im absenceSet.
+     * Summiert die Arbeitsanteile der Tage Mo–Fr in [from, to).
      *
-     * @param array<string,true> $holidaySet
-     * @param array<string,true> $absenceSet
+     * @param array<string,float> $holidays
+     * @param array<string,float> $absences
      */
-    private function countWorkdaysExcluding(
+    private function countWorkdays(
         DateTimeImmutable $from,
         DateTimeImmutable $to,
-        array $holidaySet,
-        array $absenceSet
-    ): int {
-        $count = 0;
+        array $holidays,
+        array $absences,
+    ): float {
+        $count = 0.0;
 
         for ($day = $from; $day < $to; $day = $day->modify('+1 day')) {
-            $dow = (int) $day->format('N'); // 1=Mon .. 7=Sun
-            if ($dow > 5) {
+            if ((int) $day->format('N') > 5) { // 1=Mon .. 7=Sun
                 continue;
             }
 
-            $key = $day->format('Y-m-d');
-            if (isset($holidaySet[$key])) {
-                continue;
-            }
-            if (isset($absenceSet[$key])) {
-                continue;
-            }
-
-            $count++;
+            $key    = $day->format('Y-m-d');
+            $count += DayPortion::workFraction($holidays[$key] ?? 0.0, $absences[$key] ?? 0.0);
         }
 
         return $count;

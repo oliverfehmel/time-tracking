@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\AbsenceRequest;
 use App\Entity\User;
 use DateTimeImmutable;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use SortDirection;
@@ -41,17 +42,19 @@ class AbsenceRequestRepository extends ServiceEntityRepository
             ->getQuery()->getResult();
     }
 
-    public function hasOverlappingApprovedOrPending(User $user, $start, $end): bool
+    /**
+     * Offene oder genehmigte Anträge des Users, die [start, end] überlappen.
+     *
+     * @return AbsenceRequest[]
+     */
+    public function findOverlappingApprovedOrPending(User $user, DateTimeInterface $start, DateTimeInterface $end): array
     {
-        $count = (int) $this->createQueryBuilder('a')
-            ->select('COUNT(a.id)')
+        return $this->createQueryBuilder('a')
             ->andWhere('a.requestedBy = :u')->setParameter('u', $user)
             ->andWhere('a.status IN (:st)')->setParameter('st', [AbsenceRequest::STATUS_PENDING, AbsenceRequest::STATUS_APPROVED])
             ->andWhere('a.startDate <= :end')->setParameter('end', $end)
             ->andWhere('a.endDate >= :start')->setParameter('start', $start)
-            ->getQuery()->getSingleScalarResult();
-
-        return $count > 0;
+            ->getQuery()->getResult();
     }
 
     public function findApprovedForUserBetween(User $user, DateTimeImmutable $from, DateTimeImmutable $to): array

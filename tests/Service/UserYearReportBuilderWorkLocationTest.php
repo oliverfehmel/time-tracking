@@ -66,14 +66,15 @@ final class UserYearReportBuilderWorkLocationTest extends TestCase
         return $e;
     }
 
-    private function makeHoliday(string $date): Holiday&Stub
+    private function makeHoliday(string $date, bool $halfDay = false): Holiday
     {
-        $h = $this->createStub(Holiday::class);
-        $h->method('getDate')->willReturn(new DateTimeImmutable($date));
-        return $h;
+        return (new Holiday())
+            ->setName('Feiertag')
+            ->setDate(new DateTimeImmutable($date))
+            ->setHalfDay($halfDay);
     }
 
-    private function makeApprovedAbsence(string $date): AbsenceRequest
+    private function makeApprovedAbsence(string $date, bool $halfDay = false): AbsenceRequest
     {
         $type = new AbsenceType();
         $type->setName('Urlaub');
@@ -85,6 +86,7 @@ final class UserYearReportBuilderWorkLocationTest extends TestCase
         $a->setStartDate(new DateTimeImmutable($date));
         $a->setEndDate(new DateTimeImmutable($date));
         $a->setStatus(AbsenceRequest::STATUS_APPROVED);
+        $a->setHalfDay($halfDay);
         return $a;
     }
 
@@ -266,5 +268,70 @@ final class UserYearReportBuilderWorkLocationTest extends TestCase
         $day = $this->findDay($builder->build($this->makeUser(), self::TEST_YEAR, $this->makeSettings()), self::WORKDAY);
 
         $this->assertNull($day['workLocationIcon']);
+    }
+
+    // --- half days ---
+
+    public function testHalfHoliday_halfDaySollAndDefaultLocationWithEntries(): void
+    {
+        $default = $this->makeLocationType('Büro');
+        $builder = $this->makeBuilder(
+            entries: [$this->makeEntry(self::WORKDAY)],
+            holidays: [$this->makeHoliday(self::WORKDAY, halfDay: true)],
+            defaultLocation: $default,
+        );
+
+        $day = $this->findDay($builder->build($this->makeUser(), self::TEST_YEAR, $this->makeSettings()), self::WORKDAY);
+
+        $this->assertTrue($day['holiday']);
+        $this->assertTrue($day['holidayHalf']);
+        $this->assertSame(0.5, $day['workFraction']);
+        $this->assertSame('4:00', $day['soll']);
+        $this->assertSame('Büro', $day['workLocationName']);
+    }
+
+    public function testHalfAbsence_halfDaySoll(): void
+    {
+        $builder = $this->makeBuilder(absences: [$this->makeApprovedAbsence(self::WORKDAY, halfDay: true)]);
+
+        $day = $this->findDay($builder->build($this->makeUser(), self::TEST_YEAR, $this->makeSettings()), self::WORKDAY);
+
+        $this->assertTrue($day['absence']);
+        $this->assertTrue($day['absenceHalf']);
+        $this->assertSame('4:00', $day['soll']);
+        $this->assertSame('Urlaub', $day['absenceTypeName']);
+    }
+
+    public function testHalfAbsenceOnHalfHoliday_zeroSollAndNoDefaultLocation(): void
+    {
+        $builder = $this->makeBuilder(
+            entries: [$this->makeEntry(self::WORKDAY)],
+            holidays: [$this->makeHoliday(self::WORKDAY, halfDay: true)],
+            absences: [$this->makeApprovedAbsence(self::WORKDAY, halfDay: true)],
+            defaultLocation: $this->makeLocationType('Büro'),
+        );
+
+        $day = $this->findDay($builder->build($this->makeUser(), self::TEST_YEAR, $this->makeSettings()), self::WORKDAY);
+
+        $this->assertSame('0:00', $day['soll']);
+        $this->assertNull($day['workLocationName']);
+    }
+
+    public function testTwoHalfAbsencesOfDifferentTypes_namesCombined(): void
+    {
+        $sick = $this->makeApprovedAbsence(self::WORKDAY, halfDay: true);
+        $sickType = new AbsenceType();
+        $sickType->setName('Krankheit');
+        $sickType->setKeyName('sick');
+        $sick->setType($sickType);
+
+        $builder = $this->makeBuilder(absences: [$this->makeApprovedAbsence(self::WORKDAY, halfDay: true), $sick]);
+
+        $day = $this->findDay($builder->build($this->makeUser(), self::TEST_YEAR, $this->makeSettings()), self::WORKDAY);
+
+        $this->assertFalse($day['absenceHalf']);
+        $this->assertSame('0:00', $day['soll']);
+        $this->assertSame('Urlaub / Krankheit', $day['absenceTypeName']);
+        $this->assertSame('vacation', $day['absenceTypeKey']);
     }
 }

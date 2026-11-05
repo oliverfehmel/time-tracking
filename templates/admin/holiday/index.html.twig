@@ -32,7 +32,12 @@
                         {% for h in holidays %}
                             <tr>
                                 <td class="fw-semibold">{{ h.name }}</td>
-                                <td>{{ h.date|date('d.m.Y') }}</td>
+                                <td>
+                                    {{ h.date|date('d.m.Y') }}
+                                    {% if h.halfDay %}
+                                        <span class="badge text-bg-light border ms-1" title="{{ 'holiday.half_day'|trans }}">{{ 'general.half_day_short'|trans }}</span>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if h.users|length > 0 %}
                                         <div class="d-flex flex-wrap gap-1">

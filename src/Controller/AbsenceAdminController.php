@@ -30,11 +30,7 @@ final class AbsenceAdminController extends AbstractController
         $toRows = fn(array $requests) => array_map(
             fn(AbsenceRequest $r) => [
                 'entity' => $r,
-                'days'   => $dayCalc->countChargeableDays(
-                    $r->getStartDate(),
-                    $r->getEndDate(),
-                    user: $r->getRequestedBy(),  // war im Original inkonsistent (null)
-                ),
+                'days'   => $dayCalc->countForRequest($r),
             ],
             $requests
         );

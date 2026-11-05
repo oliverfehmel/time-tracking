@@ -29,8 +29,8 @@ class AbsenceType
     #[ORM\Column(options: ['default' => true])]
     private bool $requiresQuota = true; // Krankheit z.B. false
 
-    #[ORM\Column(nullable: true)]
-    private ?int $defaultYearlyQuotaDays = null; // null = unlimited
+    #[ORM\Column(type: 'decimal', precision: 5, scale: 1, nullable: true)]
+    private ?string $defaultYearlyQuotaDays = null; // null = unlimited
 
     #[ORM\Column(options: ['default' => false])]
     private bool $allowOverLimit = false;
@@ -95,14 +95,14 @@ class AbsenceType
         return $this;
     }
 
-    public function getDefaultYearlyQuotaDays(): ?int
+    public function getDefaultYearlyQuotaDays(): ?float
     {
-        return $this->defaultYearlyQuotaDays;
+        return $this->defaultYearlyQuotaDays === null ? null : (float) $this->defaultYearlyQuotaDays;
     }
 
-    public function setDefaultYearlyQuotaDays(?int $days): self
+    public function setDefaultYearlyQuotaDays(int|float|null $days): self
     {
-        $this->defaultYearlyQuotaDays = $days;
+        $this->defaultYearlyQuotaDays = $days === null ? null : number_format((float) $days, 1, '.', '');
         return $this;
     }
 

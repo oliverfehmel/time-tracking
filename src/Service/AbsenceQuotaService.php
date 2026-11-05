@@ -21,7 +21,8 @@ final class AbsenceQuotaService
     ) {}
 
     /**
-     * Liefert pro Typ: quota (int|null), usedApproved, usedPending, remaining (int|null)
+     * Liefert pro Typ: quota (float|null), usedApproved, usedPending, remaining (float|null) – jeweils in Tagen,
+     * halbe Tage als 0.5.
      */
     public function getQuotaOverview(User $user, int $year, ?string $holidayRegion = null): array
     {
@@ -37,6 +38,7 @@ final class AbsenceQuotaService
                 $r->getEndDate(),
                 $holidayRegion,
                 $user,
+                $r->getDayFraction(),
             );
 
             $typeId = $r->getType()->getId();
@@ -62,12 +64,12 @@ final class AbsenceQuotaService
             }
 
             $typeId = $type->getId();
-            $approved = $typeId ? ($usedApproved[$typeId] ?? 0) : 0;
-            $pending = $typeId ? ($usedPending[$typeId] ?? 0) : 0;
+            $approved = $typeId ? ($usedApproved[$typeId] ?? 0.0) : 0.0;
+            $pending = $typeId ? ($usedPending[$typeId] ?? 0.0) : 0.0;
 
             $remaining = null;
             if ($quotaDays !== null) {
-                $remaining = max(0, $quotaDays - $approved);
+                $remaining = max(0.0, $quotaDays - $approved);
             }
 
             $result[] = [
@@ -91,6 +93,7 @@ final class AbsenceQuotaService
         DateTimeImmutable $start,
         DateTimeImmutable $end,
         ?string $holidayRegion = null,
+        bool $halfDay = false,
     ): ?string {
         if (!$type->requiresQuota()) {
             return null;
@@ -106,7 +109,7 @@ final class AbsenceQuotaService
             return null;
         }
 
-        $alreadyRequested = 0;
+        $alreadyRequested = 0.0;
         foreach ($this->requestRepo->findForUserInYear($user, $year) as $request) {
             if ($request->getType()->getId() !== $type->getId()) {
                 continue;
@@ -121,19 +124,26 @@ final class AbsenceQuotaService
                 $request->getEndDate(),
                 $holidayRegion,
                 $user,
+                $request->getDayFraction(),
             );
         }
 
-        $requestedDays = $this->dayCalc->countChargeableDays($start, $end, $holidayRegion, $user);
-        if ($alreadyRequested + $requestedDays <= $quotaDays) {
+        $requestedDays = $this->dayCalc->countChargeableDays(
+            $start,
+            $end,
+            $holidayRegion,
+            $user,
+            $halfDay ? DayPortion::HALF : DayPortion::FULL,
+        );
+        if ($alreadyRequested + $requestedDays <= $quotaDays + 1e-9) {
             return null;
         }
 
         return sprintf(
-            'Das Kontingent reicht nicht aus: %d von %d Tagen sind bereits genehmigt oder offen, der neue Antrag umfasst %d Tage.',
-            $alreadyRequested,
-            $quotaDays,
-            $requestedDays,
+            'Das Kontingent reicht nicht aus: %s von %s Tagen sind bereits genehmigt oder offen, der neue Antrag umfasst %s Tage.',
+            DayFormatter::format($alreadyRequested, 'de'),
+            DayFormatter::format($quotaDays, 'de'),
+            DayFormatter::format($requestedDays, 'de'),
         );
     }
 

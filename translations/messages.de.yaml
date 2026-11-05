@@ -73,6 +73,8 @@ general:
   from: Von
   to: Bis
   days: Tage
+  half_day: Halber Tag
+  half_day_short: ½ Tag
   year: Jahr
   month: Monat
   key: Schlüssel
@@ -193,6 +195,9 @@ absence:
     end_before_start: Enddatum darf nicht vor dem Startdatum liegen.
     wrong_year: Abwesenheit muss in das ausgewählte Jahr fallen.
     overlaps_existing: Es gibt bereits eine (ausstehende oder genehmigte) Abwesenheit, die sich mit dem Zeitraum überschneidet.
+    half_day: Halber Tag
+    half_day_help: Nur für eintägige Anträge – Start- und Enddatum müssen gleich sein.
+    half_day_single_day: Ein halber Tag ist nur möglich, wenn Start- und Enddatum gleich sind.
   quota:
     user: Benutzer
     type: Typ
@@ -305,6 +310,8 @@ holiday:
   users: Gilt für Benutzer
   no_holidays: Keine Feiertage vorhanden.
   confirm_delete: Feiertag wirklich löschen?
+  half_day: Halber Feiertag
+  half_day_help: An diesem Tag entfällt nur die Hälfte der Soll-Arbeitszeit (z. B. Heiligabend oder Silvester).
 
 admin_time:
   title: Mitarbeiter-Arbeitszeiten
@@ -418,6 +425,9 @@ settings:
     help: 0 deaktiviert die Funktion.
   users_are_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nachträglich ändern
   users_not_allowed_to_change_time_entries: Benutzer dürfen Zeiteinträge nicht nachträglich ändern
+  half_days_enabled:
+    title: Halbe Tage erlauben
+    help: Ermöglicht halbe Feiertage, halbe Abwesenheitstage und Kontingente in halben Tagen. Beim Abschalten bleiben bereits erfasste halbe Tage erhalten und werden weiterhin als halbe Tage berechnet.
   logo:
     section_title: Logo & Favicon
     title: Logo hochladen

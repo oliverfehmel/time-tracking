@@ -3,15 +3,18 @@
 namespace App\Form;
 
 use App\Entity\AbsenceType;
+use App\Repository\SettingsRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AbsenceTypeType extends AbstractType
 {
+    public function __construct(private readonly SettingsRepository $settingsRepository) {}
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -34,11 +37,12 @@ class AbsenceTypeType extends AbstractType
                 'label' => 'absence.type.requires_quota',
                 'required' => false
             ])
-            ->add('defaultYearlyQuotaDays', IntegerType::class, [
-                'label' => 'absence.type.default_yearly_quota_days.title',
-                'required' => false,
-                'help' => 'absence.type.default_yearly_quota_days.hint',
-            ])
+            ->add('defaultYearlyQuotaDays', NumberType::class, AbsenceQuotaType::quotaDaysOptions(
+                $this->settingsRepository->getOrCreate()->isHalfDaysEnabled(),
+                'absence.type.default_yearly_quota_days.title',
+                'absence.type.default_yearly_quota_days.hint',
+                ($options['data'] ?? null) instanceof AbsenceType ? $options['data']->getDefaultYearlyQuotaDays() : null,
+            ))
             ->add('allowOverLimit', CheckboxType::class, [
                 'label' => 'absence.type.allow_over_limit',
                 'required' => false,

@@ -5,15 +5,50 @@ namespace App\Form;
 use App\Entity\AbsenceQuota;
 use App\Entity\AbsenceType;
 use App\Entity\User;
+use App\Repository\SettingsRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\DivisibleBy;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
+use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 class AbsenceQuotaType extends AbstractType
 {
+    public const int MAX_QUOTA_DAYS = 366;
+
+    public function __construct(private readonly SettingsRepository $settingsRepository) {}
+
+    /**
+     * Kontingent-Feld: Dezimalzahl, bei aktivem Halbtag-Feature in 0,5er-Schritten, sonst ganze Tage.
+     * Ein bereits gespeicherter halber Wert (z. B. 27,5) bleibt auch bei deaktiviertem Feature speicherbar,
+     * damit Änderungen an anderen Feldern nicht an der Validierung scheitern.
+     */
+    public static function quotaDaysOptions(bool $halfDaysEnabled, string $label, string $help, ?float $currentValue = null): array
+    {
+        $allowHalf = $halfDaysEnabled || ($currentValue !== null && fmod($currentValue, 1.0) !== 0.0);
+        $step      = $allowHalf ? 0.5 : 1;
+
+        return [
+            'label' => $label,
+            'required' => false,
+            'help' => $help,
+            'scale' => 1,
+            'html5' => true,
+            'attr' => ['min' => 0, 'max' => self::MAX_QUOTA_DAYS, 'step' => $step],
+            'constraints' => [
+                new PositiveOrZero(),
+                // Spalte ist NUMERIC(5,1); ein Jahreskontingent über 366 Tage ist ohnehin nicht sinnvoll
+                new LessThanOrEqual(self::MAX_QUOTA_DAYS),
+                new DivisibleBy(value: $step, message: $allowHalf ? 'absence.quota.half_day_steps' : 'absence.quota.whole_day_steps'),
+            ],
+        ];
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -30,11 +65,12 @@ class AbsenceQuotaType extends AbstractType
             ->add('year', IntegerType::class, [
                 'label' => 'absence.quota.year',
             ])
-            ->add('quotaDays', IntegerType::class, [
-                'label' => 'absence.quota.quota_days',
-                'required' => false,
-                'help' => 'absence.quota.empty_unlimited',
-            ])
+            ->add('quotaDays', NumberType::class, self::quotaDaysOptions(
+                $this->settingsRepository->getOrCreate()->isHalfDaysEnabled(),
+                'absence.quota.quota_days',
+                'absence.quota.empty_unlimited',
+                ($options['data'] ?? null) instanceof AbsenceQuota ? $options['data']->getQuotaDays() : null,
+            ))
             ->add('allowOverLimit', ChoiceType::class, [
                 'label' => 'absence.quota.allow_over_limit',
                 'required' => false,

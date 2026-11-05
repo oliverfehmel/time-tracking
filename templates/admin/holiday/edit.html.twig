@@ -32,6 +32,12 @@
                     {{ form_row(form.users) }}
                 </div>
 
+                {% if form.halfDay is defined %}
+                    <div class="col-12">
+                        {{ form_row(form.halfDay) }}
+                    </div>
+                {% endif %}
+
                 <div class="col-12 d-flex justify-content-end gap-2 mt-2">
                     <a class="btn btn-outline-secondary" href="{{ path('_admin_holiday_index') }}">
                         {{ 'general.cancel'|trans }}

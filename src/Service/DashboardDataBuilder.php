@@ -97,13 +97,12 @@ final class DashboardDataBuilder
         );
     }
 
+    /** @return array<string,float> keyed by 'Y-m-d' → Feiertagsanteil */
     private function buildHolidayDates(User $user, DateTimeImmutable $yearStart, DateTimeImmutable $nextYearStart): array
     {
-        $dates = [];
-        foreach ($this->holidayRepo->findForUsersInMonth([$user->getId()], $yearStart, $nextYearStart) as $h) {
-            $dates[$h->getDate()->format('Y-m-d')] = true;
-        }
-        return $dates;
+        return DayPortion::holidayMap(
+            $this->holidayRepo->findForUsersInMonth([$user->getId()], $yearStart, $nextYearStart),
+        );
     }
 
     private function buildAbsenceSummaries(
@@ -134,8 +133,8 @@ final class DashboardDataBuilder
             $summaries[$typeId] = [
                 'type'          => $t,
                 'quotaDays'     => $quotaDays,
-                'approvedDays'  => 0,
-                'pendingDays'   => 0,
+                'approvedDays'  => 0.0,
+                'pendingDays'   => 0.0,
                 'remainingDays' => null,
             ];
         }
@@ -161,7 +160,7 @@ final class DashboardDataBuilder
 
         foreach ($summaries as &$s) {
             if ($s['quotaDays'] !== null) {
-                $s['remainingDays'] = max(0, $s['quotaDays'] - $s['approvedDays']);
+                $s['remainingDays'] = max(0.0, $s['quotaDays'] - $s['approvedDays']);
             }
         }
         unset($s);

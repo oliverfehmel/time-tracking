@@ -10,7 +10,7 @@ use App\Repository\UserRepository;
 use App\Service\AbsenceDayCalculator;
 use App\Service\AbsenceNotifier;
 use App\Service\AbsenceQuotaService;
-use DateTimeInterface;
+use App\Service\AbsenceRequestValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,11 +40,7 @@ final class AbsenceController extends AbstractController
         $rows = array_map(
             fn(AbsenceRequest $r) => [
                 'entity' => $r,
-                'days'   => $dayCalc->countChargeableDays(
-                    $r->getStartDate(),
-                    $r->getEndDate(),
-                    user: $user,
-                ),
+                'days'   => $dayCalc->countForRequest($r),
             ],
             $requestRepo->findForUserInYear($user, $year),
         );
@@ -61,7 +57,7 @@ final class AbsenceController extends AbstractController
         int $year,
         #[CurrentUser] User $user,
         Request $request,
-        AbsenceRequestRepository $requestRepo,
+        AbsenceRequestValidator $validator,
         AbsenceDayCalculator $dayCalc,
         UserRepository $userRepo,
         AbsenceQuotaService $quotaService,
@@ -77,12 +73,12 @@ final class AbsenceController extends AbstractController
             $start = $absence->getStartDate();
             $end   = $absence->getEndDate();
 
-            if ($error = $this->validateAbsenceDates($start, $end, $year, $requestRepo, $user)) {
+            if ($error = $validator->validateDates($absence, $year)) {
                 $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
 
-            if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end)) {
+            if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end, halfDay: $absence->isHalfDay())) {
                 $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
@@ -93,8 +89,6 @@ final class AbsenceController extends AbstractController
 
             $this->em->persist($absence);
             $this->em->flush();
-
-            $days = $dayCalc->countChargeableDays($start, $end, user: $user);
 
             if (!$this->notifier->sendCreatedNotification($absence, $userRepo->findAdminEmails(), $year)) {
                 $this->addFlash('warning', 'absence.request.created_warning');
@@ -133,30 +127,5 @@ final class AbsenceController extends AbstractController
 
         $this->addFlash('success', 'absence.request.cancelled');
         return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
-    }
-
-    /**
-     * Validiert die Datumslogik beim Erstellen. Gibt die Fehlermeldung zurück oder null wenn alles ok.
-     */
-    private function validateAbsenceDates(
-        DateTimeInterface $start,
-        DateTimeInterface $end,
-        int $year,
-        AbsenceRequestRepository $requestRepo,
-        User $user,
-    ): ?string {
-        if ($end < $start) {
-            return 'absence.request.end_before_start';
-        }
-
-        if ((int) $start->format('Y') !== $year && (int) $end->format('Y') !== $year) {
-            return 'absence.request.wrong_year';
-        }
-
-        if ($requestRepo->hasOverlappingApprovedOrPending($user, $start, $end)) {
-            return 'absence.request.overlaps_existing';
-        }
-
-        return null;
     }
 }

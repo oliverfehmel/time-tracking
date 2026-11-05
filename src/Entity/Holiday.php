@@ -24,6 +24,9 @@ class Holiday
     #[ORM\Column(type: 'date_immutable')]
     private DateTimeImmutable $date;
 
+    #[ORM\Column(options: ['default' => false])]
+    private bool $halfDay = false;
+
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'holidays')]
     #[ORM\JoinTable(name: 'holiday_user')]
     private Collection $users;
@@ -58,6 +61,25 @@ class Holiday
     {
         $this->date = $date;
         return $this;
+    }
+
+    public function isHalfDay(): bool
+    {
+        return $this->halfDay;
+    }
+
+    public function setHalfDay(bool $halfDay): self
+    {
+        $this->halfDay = $halfDay;
+        return $this;
+    }
+
+    /**
+     * Anteil des Arbeitstags, den dieser Feiertag abdeckt (1.0 = ganzer Tag, 0.5 = halber Tag).
+     */
+    public function getDayFraction(): float
+    {
+        return $this->halfDay ? 0.5 : 1.0;
     }
 
     public function getUsers(): Collection
