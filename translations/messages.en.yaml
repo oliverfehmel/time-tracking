@@ -73,6 +73,8 @@ general:
   from: From
   to: To
   days: Days
+  half_day: Half day
+  half_day_short: ½ day
   year: Year
   month: Month
   key: Key
@@ -193,6 +195,9 @@ absence:
     end_before_start: The end date must not be before the start date.
     wrong_year: The absence must fall into the selected year.
     overlaps_existing: There is already a pending or approved absence overlapping this period.
+    half_day: Half day
+    half_day_help: Only for single-day requests – start and end date must be the same.
+    half_day_single_day: A half day is only possible when start and end date are the same.
   quota:
     user: User
     type: Type
@@ -305,6 +310,8 @@ holiday:
   users: Applies to users
   no_holidays: No holidays available.
   confirm_delete: Really delete this holiday?
+  half_day: Half-day holiday
+  half_day_help: Only half of the target working time is waived on this day (e.g. Christmas Eve or New Year's Eve).
 
 admin_time:
   title: Employee work times
@@ -418,6 +425,9 @@ settings:
     help: 0 disables this function.
   users_are_allowed_to_change_time_entries: Users may change time entries afterwards
   users_not_allowed_to_change_time_entries: Users may not change time entries afterwards
+  half_days_enabled:
+    title: Allow half days
+    help: Enables half-day holidays, half-day absences and quotas in half days. When switched off, existing half days are kept and still count as half days.
   logo:
     section_title: Logo & favicon
     title: Upload logo

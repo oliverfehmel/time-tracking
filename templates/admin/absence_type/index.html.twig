@@ -75,7 +75,7 @@
                                             {% if t.defaultYearlyQuotaDays is null %}
                                                 <span class="text-muted">{{ 'general.unlimited'|trans }}</span>
                                             {% else %}
-                                                {{ t.defaultYearlyQuotaDays }}
+                                                {{ t.defaultYearlyQuotaDays|days }}
                                             {% endif %}
                                         {% endif %}
                                     </td>

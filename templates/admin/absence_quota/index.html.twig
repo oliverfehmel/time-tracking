@@ -47,7 +47,7 @@
                                         {% if q.quotaDays is null %}
                                             <span class="text-muted">{{ 'general.unlimited'|trans }}</span>
                                         {% else %}
-                                            {{ q.quotaDays }}
+                                            {{ q.quotaDays|days }}
                                         {% endif %}
                                     </td>
                                     <td>

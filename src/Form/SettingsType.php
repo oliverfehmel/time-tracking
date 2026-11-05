@@ -48,6 +48,11 @@ class SettingsType extends AbstractType
                 'label' => 'settings.users_are_allowed_to_change_time_entries',
                 'required' => false,
             ])
+            ->add('halfDaysEnabled', CheckboxType::class, [
+                'label' => 'settings.half_days_enabled.title',
+                'help' => 'settings.half_days_enabled.help',
+                'required' => false,
+            ])
             ->add('logoFile', FileType::class, [
                 'label' => 'settings.logo.title',
                 'required' => false,
