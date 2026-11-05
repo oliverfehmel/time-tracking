@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -49,7 +50,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     public function findAllOrderedByName(): array
     {
         return $this->createQueryBuilder('u')
-            ->orderBy('u.name', 'ASC')
+            ->orderBy('u.name', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }

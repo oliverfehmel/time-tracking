@@ -7,6 +7,7 @@ use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 class HolidayRepository extends ServiceEntityRepository
 {
@@ -27,7 +28,7 @@ class HolidayRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
-            ->orderBy('h.date', 'ASC')
+            ->orderBy('h.date', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -47,7 +48,7 @@ class HolidayRepository extends ServiceEntityRepository
             ->andWhere('u.id IN (:uids)')->setParameter('uids', $userIds)
             ->andWhere('h.date >= :monthStart')->setParameter('monthStart', $monthStart)
             ->andWhere('h.date < :monthEndExcl')->setParameter('monthEndExcl', $monthEndExclusive)
-            ->orderBy('h.date', 'ASC')
+            ->orderBy('h.date', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
