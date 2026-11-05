@@ -1,0 +1,28 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Time Tracking API
+            description: |
+                REST API for time entries, absences, holidays and users.
+                Authenticate with a personal API token (Profile → API tokens): `Authorization: Bearer tt_…`.
+                Regular users only see their own data, admins see all data.
+            version: 1.0.0
+        components:
+            securitySchemes:
+                bearerAuth:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: 'tt_<64 hex characters>'
+        security:
+            - bearerAuth: []
+    areas:
+        default:
+            path_patterns:
+                - ^/api/v1(/|$)
+    html_config:
+        # Swagger UI assets are served from public/bundles (assets:install), no CDN
+        assets_mode: bundle
+        swagger_ui_config:
+            persistAuthorization: false
+            displayRequestDuration: true
+            tryItOutEnabled: false
