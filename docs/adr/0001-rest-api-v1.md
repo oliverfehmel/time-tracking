@@ -165,7 +165,8 @@ entry point.
 - Holidays expose `halfDay`. With the feature off, `halfDay: true` is rejected for new holidays and for switching an
   existing one to half day; an existing half-day holiday keeps its flag when it is updated, and `PATCH` without
   `halfDay` leaves it unchanged (same as the form).
-- Quotas (`quotaDays`, `defaultYearlyQuotaDays`) are numbers, `null` = unlimited, max 366, `0.5` steps while the feature
+- Quotas (`quotaDays`, `defaultYearlyQuotaDays`) are numbers (`defaultYearlyQuotaDays: null` = unlimited, an
+  individual `quotaDays: null` = use the type default), max 366, `0.5` steps while the feature
   is on, whole days otherwise; a stored half value stays valid (same rule as the forms).
 - Existing half-day records are always reported and calculated as half days, regardless of the toggle — the toggle
   only controls input. Clients read the toggle from `GET /me`.
