@@ -10,6 +10,7 @@
 - **Turbo 8**: `@hotwired/turbo` was updated from 7.3.0 to 8.0.23 (fixes GHSA-qppm-g56g-fpvp). Logout and user-switch links opt out of Turbo 8's hover prefetching so that hovering them can no longer log the user out or switch the user; the work location CSV link is marked as a download.
 
 ### Fixed
+- **Symfony 8.1 and Doctrine ORM 3.7 deprecations removed**: The deprecated `framework.profiler.collect_serializer_data` option was dropped (the dev profiler is now enabled explicitly), and all `QueryBuilder::orderBy()`/`addOrderBy()` calls pass a `SortDirection` enum instead of `'ASC'`/`'DESC'` strings. `symfony/polyfill-php86`, which provides `SortDirection` on PHP < 8.6, is now a direct dependency.
 - **Doctrine migration transactions disabled explicitly**: DDL migrations now opt out of transactions per migration class to avoid Doctrine's implicit-commit deprecation notice on MySQL/MariaDB.
 
 ## [1.1.3] - 2026-04-28
