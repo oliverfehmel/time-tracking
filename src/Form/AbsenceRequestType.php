@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\AbsenceRequest;
 use App\Entity\AbsenceType;
 use App\Repository\AbsenceTypeRepository;
+use SortDirection;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -25,7 +26,7 @@ class AbsenceRequestType extends AbstractType
                 'choice_label' => 'name',
                 'query_builder' => fn() => $this->typeRepo->createQueryBuilder('t')
                     ->andWhere('t.isActive = 1')
-                    ->orderBy('t.name', 'ASC'),
+                    ->orderBy('t.name', SortDirection::Ascending),
                 'placeholder' => 'general.please_choose',
             ])
             ->add('startDate', DateType::class, [

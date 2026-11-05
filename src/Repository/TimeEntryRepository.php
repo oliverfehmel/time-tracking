@@ -6,6 +6,7 @@ use App\Entity\TimeEntry;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 class TimeEntryRepository extends ServiceEntityRepository
 {
@@ -19,7 +20,7 @@ class TimeEntryRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('t')
             ->andWhere('t.user = :u')->setParameter('u', $user)
             ->andWhere('t.stoppedAt IS NULL')
-            ->orderBy('t.startedAt', 'DESC')
+            ->orderBy('t.startedAt', SortDirection::Descending)
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult();
@@ -31,7 +32,7 @@ class TimeEntryRepository extends ServiceEntityRepository
             ->andWhere('t.user = :u')->setParameter('u', $user)
             ->andWhere('t.startedAt < :to')->setParameter('to', $to)
             ->andWhere('(t.stoppedAt IS NULL OR t.stoppedAt > :from)')->setParameter('from', $from)
-            ->orderBy('t.startedAt', 'ASC')
+            ->orderBy('t.startedAt', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -45,7 +46,7 @@ class TimeEntryRepository extends ServiceEntityRepository
             ->andWhere('t.user = :u')->setParameter('u', $user)
             ->andWhere('t.startedAt < :to')->setParameter('to', $to)
             ->andWhere('(t.stoppedAt IS NULL OR t.stoppedAt > :from)')->setParameter('from', $from)
-            ->orderBy('t.startedAt', 'ASC');
+            ->orderBy('t.startedAt', SortDirection::Ascending);
 
         if ($exclude?->getId() !== null) {
             $qb->andWhere('t.id != :excludeId')->setParameter('excludeId', $exclude->getId());

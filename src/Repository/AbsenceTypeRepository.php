@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\AbsenceType;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 class AbsenceTypeRepository extends ServiceEntityRepository
 {
@@ -17,7 +18,7 @@ class AbsenceTypeRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.isActive = 1')
-            ->orderBy('t.name', 'ASC')
+            ->orderBy('t.name', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -26,7 +27,7 @@ class AbsenceTypeRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.isActive = true')
-            ->orderBy('t.name', 'ASC')
+            ->orderBy('t.name', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }

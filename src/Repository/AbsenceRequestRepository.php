@@ -7,6 +7,7 @@ use App\Entity\User;
 use DateTimeImmutable;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use SortDirection;
 
 class AbsenceRequestRepository extends ServiceEntityRepository
 {
@@ -25,7 +26,7 @@ class AbsenceRequestRepository extends ServiceEntityRepository
             ->andWhere('a.requestedBy = :u')->setParameter('u', $user)
             ->andWhere('a.startDate <= :to')->setParameter('to', $to)
             ->andWhere('a.endDate >= :from')->setParameter('from', $from)
-            ->orderBy('a.startDate', 'ASC')
+            ->orderBy('a.startDate', SortDirection::Ascending)
             ->getQuery()->getResult();
     }
 
@@ -36,7 +37,7 @@ class AbsenceRequestRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->andWhere('a.status = :s')->setParameter('s', AbsenceRequest::STATUS_PENDING)
-            ->orderBy('a.createdAt', 'ASC')
+            ->orderBy('a.createdAt', SortDirection::Ascending)
             ->getQuery()->getResult();
     }
 
@@ -60,7 +61,7 @@ class AbsenceRequestRepository extends ServiceEntityRepository
             ->andWhere('a.status = :s')->setParameter('s', AbsenceRequest::STATUS_APPROVED)
             ->andWhere('a.startDate < :to')->setParameter('to', $to)     // overlap check
             ->andWhere('a.endDate >= :from')->setParameter('from', $from)
-            ->orderBy('a.startDate', 'ASC')
+            ->orderBy('a.startDate', SortDirection::Ascending)
             ->getQuery()->getResult();
     }
 
@@ -82,8 +83,8 @@ class AbsenceRequestRepository extends ServiceEntityRepository
             ->andWhere('a.startDate <= :monthEnd')->setParameter('monthEnd', $monthEndInclusive)
             ->andWhere('a.endDate >= :monthStart')->setParameter('monthStart', $monthStart)
             ->andWhere('a.status IN (:statuses)')->setParameter('statuses', $statuses)
-            ->orderBy('u.id', 'ASC')
-            ->addOrderBy('a.startDate', 'ASC')
+            ->orderBy('u.id', SortDirection::Ascending)
+            ->addOrderBy('a.startDate', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -98,8 +99,8 @@ class AbsenceRequestRepository extends ServiceEntityRepository
             ->andWhere('r.status IN (:st)')->setParameter('st', $statuses)
             ->andWhere('r.startDate <= :toInc')->setParameter('toInc', $toInclusive)
             ->andWhere('r.endDate >= :from')->setParameter('from', $from)
-            ->orderBy('t.name', 'ASC')
-            ->addOrderBy('r.startDate', 'ASC')
+            ->orderBy('t.name', SortDirection::Ascending)
+            ->addOrderBy('r.startDate', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -114,7 +115,7 @@ class AbsenceRequestRepository extends ServiceEntityRepository
             ->andWhere('r.status IN (:st)')->setParameter('st', $statuses)
             ->andWhere('r.startDate <= :toInc')->setParameter('toInc', $toInclusive)
             ->andWhere('r.endDate >= :from')->setParameter('from', $from)
-            ->orderBy('r.startDate', 'ASC')
+            ->orderBy('r.startDate', SortDirection::Ascending)
             ->getQuery()
             ->getResult();
     }
@@ -133,8 +134,8 @@ class AbsenceRequestRepository extends ServiceEntityRepository
                 AbsenceRequest::STATUS_APPROVED,
                 AbsenceRequest::STATUS_REJECTED,
             ])
-            ->orderBy('ar.approvedAt', 'DESC')
-            ->addOrderBy('ar.createdAt', 'DESC')
+            ->orderBy('ar.approvedAt', SortDirection::Descending)
+            ->addOrderBy('ar.createdAt', SortDirection::Descending)
             ->getQuery()
             ->getResult();
     }
