@@ -198,6 +198,9 @@ absence:
     half_day: Half day
     half_day_help: Only for single-day requests – start and end date must be the same.
     half_day_single_day: A half day is only possible when start and end date are the same.
+    quota_exceeded: 'The quota is not sufficient: %already% of %quota% days are already approved or pending, the new request covers %requested% days.'
+    half_days_disabled: Half days are disabled.
+    type_inactive: This absence type is not active.
   quota:
     user: User
     type: Type

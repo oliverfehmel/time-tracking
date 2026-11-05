@@ -198,6 +198,9 @@ absence:
     half_day: Halber Tag
     half_day_help: Nur für eintägige Anträge – Start- und Enddatum müssen gleich sein.
     half_day_single_day: Ein halber Tag ist nur möglich, wenn Start- und Enddatum gleich sind.
+    quota_exceeded: 'Das Kontingent reicht nicht aus: %already% von %quota% Tagen sind bereits genehmigt oder offen, der neue Antrag umfasst %requested% Tage.'
+    half_days_disabled: Halbe Tage sind deaktiviert.
+    type_inactive: Diese Abwesenheitsart ist nicht aktiv.
   quota:
     user: Benutzer
     type: Typ

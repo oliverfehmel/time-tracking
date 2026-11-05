@@ -49,6 +49,8 @@ final class AbsenceControllerTest extends FunctionalTestCase
         $this->submitRequest($type, '2030-03-08', '2030-03-04');
 
         self::assertResponseStatusCodeSame(422);
+        // The rule message is shown translated (it used to show the raw translation key).
+        self::assertSelectorTextContains('form[name="absence_request"]', 'Enddatum darf nicht vor dem Startdatum liegen.');
         self::assertNull($this->findRequest($user));
     }
 
@@ -74,6 +76,10 @@ final class AbsenceControllerTest extends FunctionalTestCase
         $this->submitRequest($type, '2030-03-04', '2030-03-08');
 
         self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains(
+            'form[name="absence_request"]',
+            'Das Kontingent reicht nicht aus: 0 von 2 Tagen sind bereits genehmigt oder offen, der neue Antrag umfasst 5 Tage.',
+        );
         self::assertNull($this->findRequest($user));
     }
 
