@@ -75,18 +75,22 @@ final class DayPortion
 
     /**
      * Prüft, ob ein neuer Antrag neben bereits bestehenden (überlappenden) Anträgen Platz hat:
-     * Die Summe aller Anteile darf einen ganzen Tag nicht überschreiten. Zwei halbe Tage am selben Tag
-     * sind also erlaubt, jede andere Überlappung nicht.
+     * Feiertagsanteil plus alle Abwesenheitsanteile dürfen einen ganzen Tag nicht überschreiten.
+     * Zwei halbe Tage am selben Tag sind also erlaubt – außer an einem halben Feiertag, dort deckt
+     * bereits ein halber Antrag den Rest des Tages ab. Jede andere Überlappung ist nicht erlaubt.
      *
-     * @param AbsenceRequest[] $overlapping bereits offene/genehmigte Anträge, die den Zeitraum überlappen
+     * Ohne Überlappung passt ein Antrag immer (auch ein ganzer Tag über einen halben Feiertag).
+     *
+     * @param AbsenceRequest[] $overlapping     bereits offene/genehmigte Anträge, die den Zeitraum überlappen
+     * @param float            $holidayFraction Feiertagsanteil des betroffenen Tages (0.0, 0.5 oder 1.0)
      */
-    public static function fitsAlongside(float $newFraction, array $overlapping): bool
+    public static function fitsAlongside(float $newFraction, array $overlapping, float $holidayFraction = 0.0): bool
     {
         if ($overlapping === []) {
             return true;
         }
 
-        $sum = $newFraction;
+        $sum = $holidayFraction + $newFraction;
         foreach ($overlapping as $existing) {
             if (!$existing->isHalfDay()) {
                 return false;

@@ -139,6 +139,19 @@ final class DayPortionTest extends TestCase
         $this->assertFalse(DayPortion::fitsAlongside(DayPortion::HALF, $existing));
     }
 
+    public function testFitsAlongside_halfNextToHalf_onHalfHoliday_doesNotFit(): void
+    {
+        $existing = [$this->makeAbsence('2024-12-24', '2024-12-24', halfDay: true)];
+
+        $this->assertFalse(DayPortion::fitsAlongside(DayPortion::HALF, $existing, DayPortion::HALF));
+    }
+
+    public function testFitsAlongside_noOverlap_ignoresHoliday(): void
+    {
+        // ganzer Urlaub über einen halben Feiertag ist ohne Überlappung erlaubt
+        $this->assertTrue(DayPortion::fitsAlongside(DayPortion::FULL, [], DayPortion::HALF));
+    }
+
     // --- Helpers ---
 
     private function makeHoliday(string $date, bool $halfDay = false): Holiday

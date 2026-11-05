@@ -10,7 +10,7 @@ use App\Repository\UserRepository;
 use App\Service\AbsenceDayCalculator;
 use App\Service\AbsenceNotifier;
 use App\Service\AbsenceQuotaService;
-use App\Service\DayPortion;
+use App\Service\AbsenceRequestValidator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -57,7 +57,7 @@ final class AbsenceController extends AbstractController
         int $year,
         #[CurrentUser] User $user,
         Request $request,
-        AbsenceRequestRepository $requestRepo,
+        AbsenceRequestValidator $validator,
         AbsenceDayCalculator $dayCalc,
         UserRepository $userRepo,
         AbsenceQuotaService $quotaService,
@@ -73,7 +73,7 @@ final class AbsenceController extends AbstractController
             $start = $absence->getStartDate();
             $end   = $absence->getEndDate();
 
-            if ($error = $this->validateAbsenceDates($absence, $year, $requestRepo, $user)) {
+            if ($error = $validator->validateDates($absence, $year)) {
                 $form->addError(new FormError($error));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
@@ -127,38 +127,5 @@ final class AbsenceController extends AbstractController
 
         $this->addFlash('success', 'absence.request.cancelled');
         return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
-    }
-
-    /**
-     * Validiert die Datumslogik beim Erstellen. Gibt die Fehlermeldung zurück oder null wenn alles ok.
-     */
-    private function validateAbsenceDates(
-        AbsenceRequest $absence,
-        int $year,
-        AbsenceRequestRepository $requestRepo,
-        User $user,
-    ): ?string {
-        $start = $absence->getStartDate();
-        $end   = $absence->getEndDate();
-
-        if ($end < $start) {
-            return 'absence.request.end_before_start';
-        }
-
-        if ((int) $start->format('Y') !== $year && (int) $end->format('Y') !== $year) {
-            return 'absence.request.wrong_year';
-        }
-
-        if ($absence->isHalfDay() && $start->format('Y-m-d') !== $end->format('Y-m-d')) {
-            return 'absence.request.half_day_single_day';
-        }
-
-        // Zwei halbe Tage am selben Tag sind erlaubt, jede andere Überschneidung nicht.
-        $overlapping = $requestRepo->findOverlappingApprovedOrPending($user, $start, $end);
-        if (!DayPortion::fitsAlongside($absence->getDayFraction(), $overlapping)) {
-            return 'absence.request.overlaps_existing';
-        }
-
-        return null;
     }
 }
