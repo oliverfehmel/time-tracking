@@ -12,6 +12,7 @@ use App\Repository\AbsenceTypeRepository;
 use App\Repository\HolidayRepository;
 use App\Service\AbsenceDayCalculator;
 use App\Service\AbsenceQuotaService;
+use App\Service\QuotaShortfall;
 use DateTimeImmutable;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
@@ -165,7 +166,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertNull($result[1]['quotaDays']);
     }
 
-    public function testValidateRequestWithinQuota_allowsWhenQuotaIsNotExceeded(): void
+    public function testCheckRequestWithinQuota_allowsWhenQuotaIsNotExceeded(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 5);
@@ -175,7 +176,7 @@ final class AbsenceQuotaServiceTest extends TestCase
             $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
         ]);
 
-        $result = $this->service->validateRequestWithinQuota(
+        $result = $this->service->checkRequestWithinQuota(
             $user,
             $type,
             2024,
@@ -186,7 +187,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testValidateRequestWithinQuota_blocksWhenQuotaWouldBeExceeded(): void
+    public function testCheckRequestWithinQuota_blocksWhenQuotaWouldBeExceeded(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4);
@@ -196,7 +197,7 @@ final class AbsenceQuotaServiceTest extends TestCase
             $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
         ]);
 
-        $result = $this->service->validateRequestWithinQuota(
+        $result = $this->service->checkRequestWithinQuota(
             $user,
             $type,
             2024,
@@ -204,10 +205,10 @@ final class AbsenceQuotaServiceTest extends TestCase
             new DateTimeImmutable('2024-07-05'),
         );
 
-        $this->assertIsString($result);
+        $this->assertEquals(new QuotaShortfall(3.0, 4.0, 2.0), $result);
     }
 
-    public function testValidateRequestWithinQuota_allowsOverLimitWhenConfigured(): void
+    public function testCheckRequestWithinQuota_allowsOverLimitWhenConfigured(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4);
@@ -218,7 +219,7 @@ final class AbsenceQuotaServiceTest extends TestCase
             $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
         ]);
 
-        $result = $this->service->validateRequestWithinQuota(
+        $result = $this->service->checkRequestWithinQuota(
             $user,
             $type,
             2024,
@@ -229,7 +230,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testValidateRequestWithinQuota_allowsOverLimitFromAbsenceType(): void
+    public function testCheckRequestWithinQuota_allowsOverLimitFromAbsenceType(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4, allowOverLimit: true);
@@ -239,7 +240,7 @@ final class AbsenceQuotaServiceTest extends TestCase
             $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
         ]);
 
-        $result = $this->service->validateRequestWithinQuota(
+        $result = $this->service->checkRequestWithinQuota(
             $user,
             $type,
             2024,
@@ -250,7 +251,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testValidateRequestWithinQuota_quotaCanBlockOverLimitAllowedByAbsenceType(): void
+    public function testCheckRequestWithinQuota_quotaCanBlockOverLimitAllowedByAbsenceType(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 4, allowOverLimit: true);
@@ -261,7 +262,7 @@ final class AbsenceQuotaServiceTest extends TestCase
             $this->makeRequest($type, '2024-07-01', '2024-07-03', AbsenceRequest::STATUS_APPROVED),
         ]);
 
-        $result = $this->service->validateRequestWithinQuota(
+        $result = $this->service->checkRequestWithinQuota(
             $user,
             $type,
             2024,
@@ -269,7 +270,7 @@ final class AbsenceQuotaServiceTest extends TestCase
             new DateTimeImmutable('2024-07-05'),
         );
 
-        $this->assertIsString($result);
+        $this->assertInstanceOf(QuotaShortfall::class, $result);
     }
 
     public function testGetQuotaOverview_resolvesOverLimitFromQuotaOrType(): void
@@ -328,7 +329,7 @@ final class AbsenceQuotaServiceTest extends TestCase
         $this->assertSame(27.0, $row['remainingDays']);
     }
 
-    public function testValidateRequestWithinQuota_halfDayFitsExactlyIntoRemainingHalf(): void
+    public function testCheckRequestWithinQuota_halfDayFitsExactlyIntoRemainingHalf(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 3.5);
@@ -340,11 +341,11 @@ final class AbsenceQuotaServiceTest extends TestCase
 
         $day = new DateTimeImmutable('2024-07-04');
 
-        $this->assertNull($this->service->validateRequestWithinQuota($user, $type, 2024, $day, $day, halfDay: true));
-        $this->assertIsString($this->service->validateRequestWithinQuota($user, $type, 2024, $day, $day));
+        $this->assertNull($this->service->checkRequestWithinQuota($user, $type, 2024, $day, $day, halfDay: true));
+        $this->assertEquals(new QuotaShortfall(3.0, 3.5, 1.0), $this->service->checkRequestWithinQuota($user, $type, 2024, $day, $day));
     }
 
-    public function testValidateRequestWithinQuota_errorMessageFormatsHalfDays(): void
+    public function testCheckRequestWithinQuota_shortfallCountsHalfDays(): void
     {
         $user = new User();
         $type = $this->makeType(1, 'Urlaub', 'vacation', quota: true, defaultDays: 3.5);
@@ -356,11 +357,9 @@ final class AbsenceQuotaServiceTest extends TestCase
         ]);
 
         $day    = new DateTimeImmutable('2024-07-05');
-        $result = $this->service->validateRequestWithinQuota($user, $type, 2024, $day, $day);
+        $result = $this->service->checkRequestWithinQuota($user, $type, 2024, $day, $day);
 
-        $this->assertIsString($result);
-        $this->assertStringContainsString('3,5 von 3,5 Tagen', $result);
-        $this->assertStringContainsString('umfasst 1 Tage', $result);
+        $this->assertEquals(new QuotaShortfall(3.5, 3.5, 1.0), $result);
     }
 
     // --- Helpers ---

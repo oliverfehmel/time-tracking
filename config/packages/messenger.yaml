@@ -27,3 +27,10 @@ framework:
 
             # Route your messages to the transports
             # 'App\Message\YourMessage': async
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                # Queued mails stay in memory in tests (assertQueuedEmailCount)
+                async: 'in-memory://'

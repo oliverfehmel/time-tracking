@@ -6,12 +6,10 @@ use App\Entity\AbsenceRequest;
 use App\Entity\User;
 use App\Form\AbsenceRequestType;
 use App\Repository\AbsenceRequestRepository;
-use App\Repository\UserRepository;
 use App\Service\AbsenceDayCalculator;
-use App\Service\AbsenceNotifier;
 use App\Service\AbsenceQuotaService;
-use App\Service\AbsenceRequestValidator;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\AbsenceRequestService;
+use App\Service\DomainRuleViolation;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,13 +17,14 @@ use Symfony\Component\Form\FormError;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[IsGranted('ROLE_USER')]
 final class AbsenceController extends AbstractController
 {
     public function __construct(
-        private readonly EntityManagerInterface $em,
-        private readonly AbsenceNotifier $notifier,
+        private readonly AbsenceRequestService $absenceService,
+        private readonly TranslatorInterface $translator,
     ) {}
 
     #[Route('/absence/{year<\d{4}>}', name: '_absence_index', methods: ['GET'])]
@@ -57,10 +56,6 @@ final class AbsenceController extends AbstractController
         int $year,
         #[CurrentUser] User $user,
         Request $request,
-        AbsenceRequestValidator $validator,
-        AbsenceDayCalculator $dayCalc,
-        UserRepository $userRepo,
-        AbsenceQuotaService $quotaService,
     ): Response {
 
         $absence = new AbsenceRequest();
@@ -70,27 +65,14 @@ final class AbsenceController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $start = $absence->getStartDate();
-            $end   = $absence->getEndDate();
-
-            if ($error = $validator->validateDates($absence, $year)) {
-                $form->addError(new FormError($error));
+            try {
+                $notificationSent = $this->absenceService->create($absence, $year);
+            } catch (DomainRuleViolation $violation) {
+                $form->addError(new FormError($violation->trans($this->translator)));
                 return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
             }
 
-            if ($error = $quotaService->validateRequestWithinQuota($user, $absence->getType(), $year, $start, $end, halfDay: $absence->isHalfDay())) {
-                $form->addError(new FormError($error));
-                return $this->render('absence/request_new.html.twig', ['year' => $year, 'form' => $form]);
-            }
-
-            if (!$absence->getType()->requiresApproval()) {
-                $absence->setStatus(AbsenceRequest::STATUS_APPROVED);
-            }
-
-            $this->em->persist($absence);
-            $this->em->flush();
-
-            if (!$this->notifier->sendCreatedNotification($absence, $userRepo->findAdminEmails(), $year)) {
+            if (!$notificationSent) {
                 $this->addFlash('warning', 'absence.request.created_warning');
             }
 
@@ -107,25 +89,25 @@ final class AbsenceController extends AbstractController
     #[Route('/absence/{id<\d+>}/cancel', name: '_absence_cancel', methods: ['POST'])]
     public function cancel(AbsenceRequest $absence, #[CurrentUser] User $user, Request $request): Response
     {
+        $redirect = $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
 
         if ($absence->getRequestedBy()->getId() !== $user->getId()) {
             throw $this->createAccessDeniedException();
         }
 
-        if (!in_array($absence->getStatus(), [AbsenceRequest::STATUS_PENDING, AbsenceRequest::STATUS_APPROVED], true)) {
-            $this->addFlash('error', 'absence.request.cannot_cancel');
-            return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
-        }
-
         if (!$this->isCsrfTokenValid('cancel_absence_'.$absence->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'flash.invalid_csrf');
-            return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
+            return $redirect;
         }
 
-        $absence->cancel();
-        $this->em->flush();
+        try {
+            $this->absenceService->cancel($absence);
+        } catch (DomainRuleViolation $violation) {
+            $this->addFlash('error', $violation->messageKey);
+            return $redirect;
+        }
 
         $this->addFlash('success', 'absence.request.cancelled');
-        return $this->redirectToRoute('_absence_index', ['year' => (int) $absence->getStartDate()->format('Y')]);
+        return $redirect;
     }
 }

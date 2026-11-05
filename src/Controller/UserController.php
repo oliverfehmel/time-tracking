@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\ApiToken;
 use App\Entity\User;
 use App\Form\UserCreateType;
 use App\Form\UserEditType;
+use App\Repository\ApiTokenRepository;
 use App\Repository\UserRepository;
+use App\Security\ApiTokenManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -63,7 +66,8 @@ final class UserController extends AbstractController
         User $user,
         Request $request,
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $hasher
+        UserPasswordHasherInterface $hasher,
+        ApiTokenRepository $tokenRepo,
     ): Response {
         $form = $this->createForm(UserEditType::class, $user);
         $form->handleRequest($request);
@@ -83,9 +87,29 @@ final class UserController extends AbstractController
         }
 
         return $this->render('admin/user/edit.html.twig', [
-            'user' => $user,
-            'form' => $form,
+            'user'      => $user,
+            'form'      => $form,
+            'apiTokens' => $tokenRepo->findForUser($user),
         ]);
+    }
+
+    /**
+     * Admins can revoke any user's API token (but not create tokens for others).
+     */
+    #[Route('/api-tokens/{id<\d+>}/revoke', name: 'api_token_revoke', methods: ['POST'])]
+    public function revokeApiToken(ApiToken $token, Request $request, ApiTokenManager $tokenManager): Response
+    {
+        $userId = $token->getUser()->getId();
+
+        if (!$this->isCsrfTokenValid('revoke_api_token_' . $token->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'flash.invalid_csrf');
+            return $this->redirectToRoute('_admin_users_edit', ['id' => $userId]);
+        }
+
+        $tokenManager->revoke($token);
+        $this->addFlash('success', 'api_token.revoked');
+
+        return $this->redirectToRoute('_admin_users_edit', ['id' => $userId]);
     }
 
     #[Route('/{id<\d+>}/delete', name: 'delete', methods: ['POST'])]

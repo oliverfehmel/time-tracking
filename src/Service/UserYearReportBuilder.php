@@ -11,6 +11,8 @@ use App\Entity\WorkLocationType;
 use App\Repository\WorkLocationRepository;
 use App\Repository\WorkLocationTypeRepository;
 use DateTimeImmutable;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\Clock\Clock;
 
 final class UserYearReportBuilder
 {
@@ -22,11 +24,12 @@ final class UserYearReportBuilder
         private readonly WorkLocationTypeRepository $workLocationTypeRepo,
         private readonly TimeTrackingCalculator $calc,
         private readonly WorktimeSollCalculator $sollCalc,
+        private readonly ClockInterface $clock = new Clock(),
     ) {}
 
     public function build(User $user, int $year, Settings $settings): array
     {
-        $now       = new DateTimeImmutable('now');
+        $now       = DateTimeImmutable::createFromInterface($this->clock->now());
         $yearStart = new DateTimeImmutable(sprintf('%04d-01-01 00:00:00', $year));
         $yearEnd   = $yearStart->modify('+1 year');
 
@@ -134,6 +137,8 @@ final class UserYearReportBuilder
             'soll'         => $this->calc->formatSeconds($monthSollSeconds),
             'delta'        => $this->calc->formatSignedSeconds($monthDelta),
             'deltaSeconds' => $monthDelta,
+            'istSeconds'   => $monthIstSeconds,
+            'sollSeconds'  => $monthSollSeconds,
             'days'         => $dayRows,
             'hasWork'      => $monthIstSeconds > 0,
             'editable'     => $this->calc->isEditableMonth($monthStart, $now),
@@ -189,6 +194,12 @@ final class UserYearReportBuilder
             'delta'             => $this->calc->formatSignedSeconds($dayDelta),
             'deltaSeconds'      => $dayDelta,
             'netSeconds'        => $net,
+            'sollSeconds'       => $daySollSeconds,
+            'isWorkday'         => $isWorkday,
+            'holidayFraction'   => $holidayFraction,
+            'absenceFraction'   => $absenceFraction,
+            // Chargeable absence of this day (what the quota counts): 0 on weekends, reduced by holidays
+            'absenceDays'       => $isWorkday ? DayPortion::chargeableFraction($holidayFraction, $absenceFraction) : 0.0,
             'rowClass'          => $this->buildRowClass($isWorkday, $isHoliday, $isAbsence, empty($daysWithEntries[$dayKey] ?? [])),
             'editable'          => $this->calc->isEditableMonth($dayStart, $now),
             'holiday'           => $isHoliday,

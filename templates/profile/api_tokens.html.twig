@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'api_token.title'|trans }}{% endblock %}
+
+{% block head_extra %}
+    {% if plainToken %}
+        {# Turbo must not keep a snapshot with the plain token for back/forward navigation or previews #}
+        <meta name="turbo-cache-control" content="no-cache">
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="tt-page">
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3 mb-3">
+            <div>
+                <h1 class="h3 mb-1">{{ 'api_token.title'|trans }}</h1>
+                <p class="text-muted mb-0">{{ 'api_token.subtitle'|trans }}</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('_api_guide') }}">
+                    <i class="fa-solid fa-book me-1"></i>{{ 'api_guide.nav'|trans }}
+                </a>
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('app.swagger_ui') }}" data-turbo="false">
+                    <i class="fa-solid fa-code me-1"></i>{{ 'api_guide.swagger'|trans }}
+                </a>
+            </div>
+        </div>
+
+        {% if plainToken %}
+            <div class="alert alert-success" role="alert" data-testid="new-api-token">
+                <div class="fw-semibold mb-1">{{ 'api_token.created'|trans }}</div>
+                <div class="small mb-2">{{ 'api_token.copy_now'|trans }}</div>
+                <code class="d-block p-2 bg-white border rounded user-select-all text-break">{{ plainToken }}</code>
+            </div>
+        {% endif %}
+
+        <div class="row g-3">
+            <div class="col-12 col-xxl-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="fw-semibold">{{ 'api_token.create'|trans }}</div>
+                        <div class="text-muted small">{{ 'api_token.create_subtitle'|trans }}</div>
+                    </div>
+                    <div class="card-body">
+                        {% if impersonating %}
+                            <div class="alert alert-warning mb-0">{{ 'api_token.impersonation_forbidden'|trans }}</div>
+                        {% else %}
+                            {{ form_start(form, { attr: { 'data-turbo': 'false' } }) }}
+                            {{ form_row(form.name) }}
+                            {{ form_row(form.scope) }}
+                            {{ form_row(form.validity) }}
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fa-solid fa-key me-1"></i>{{ 'api_token.create'|trans }}
+                            </button>
+                            {{ form_end(form) }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xxl-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <div class="fw-semibold">{{ 'api_token.list'|trans }}</div>
+                    </div>
+                    {% include 'profile/_api_token_table.html.twig' with { tokens: tokens, revokeRoute: '_api_tokens_revoke', routeParams: {} } %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

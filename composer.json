@@ -21,9 +21,11 @@
         "doctrine/doctrine-bundle": "^3.3.4",
         "doctrine/doctrine-migrations-bundle": "^4.0.1",
         "doctrine/orm": "^3.7.6",
+        "nelmio/api-doc-bundle": "^5.13",
         "phpdocumentor/reflection-docblock": "^6.0.3",
         "symfony/asset": "*",
         "symfony/asset-mapper": "*",
+        "symfony/clock": "*",
         "symfony/console": "*",
         "symfony/doctrine-messenger": "*",
         "symfony/dotenv": "*",
@@ -111,6 +113,7 @@
         }
     },
     "require-dev": {
+        "dama/doctrine-test-bundle": "^8.7",
         "phpunit/phpunit": "^13.4.6",
         "symfony/browser-kit": "*",
         "symfony/css-selector": "*",

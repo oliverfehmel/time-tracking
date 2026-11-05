@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **REST API (`/api/v1`)**: Users, time entries, the timer, the year report, work locations, absence types, absence requests (incl. approval), quotas and holidays are available as a JSON API. Every user can create personal API tokens under Profile → API tokens (read-only or read/write, valid for 30/90/365 days or unlimited, shown only once, revocable at any time). A token has exactly the rights of its owner: regular users only reach their own data and keep the same edit locks as in the app; admins reach all data and can manage users, holidays, absence types and quotas and decide absence requests. All business rules of the app apply, including half days. Admins can see and revoke every user's tokens on the user edit page; tokens cannot be created while impersonating another user.
+- **API documentation**: A new "API" page in the sidebar explains tokens, permissions, formats, errors and half-day rules with curl examples, and links to Swagger UI (`/api/docs`) and the OpenAPI document (`/api/docs.json`). Both are only available after login.
+
+### Changed
+- **Absence and time-entry rules moved into services** that the app and the API share; the behaviour of the app is unchanged.
+- **Tests now need a database**: functional tests run against the test database from `DATABASE_URL` (CI creates it and runs the migrations). See the README for the local setup.
+
+### Fixed
+- **Only one running timer**: Adding an entry without an end time on the day page while the timer was running created a second running entry that kept counting. This is now rejected with "A timer is already running".
+- **Absence request form errors**: Rule violations (e.g. "end before start", overlapping requests) were shown as raw translation keys; they are now translated. The "quota not sufficient" message was always German and is now translated as well.
+
+### Deployment notes
+- Run the migrations: a new table `api_token` is created (deleting a user deletes their tokens).
+
 ## [1.2.0] - 2026-11-05
 
 ### Added

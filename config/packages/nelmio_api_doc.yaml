@@ -1,0 +1,60 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Time Tracking API
+            description: |
+                REST API for users, time entries, absences and holidays.
+
+                Authenticate with a personal API token (Profile → API tokens): `Authorization: Bearer tt_…`.
+                Regular users only see their own data, admins see all data. Read-only tokens may only send GET requests.
+
+                Every response body is an envelope: `{"data": …}`, lists add `"meta": {"page", "perPage", "total"}`.
+                Errors are `application/problem+json` with a machine-readable `code`. Dates are `YYYY-MM-DD`,
+                points in time RFC 3339 with offset, durations seconds, day counts decimal numbers (0.5 = half day).
+            version: 1.0.0
+        components:
+            securitySchemes:
+                bearerAuth:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: 'tt_<64 hex characters>'
+            schemas:
+                PaginationMeta:
+                    type: object
+                    required: [page, perPage, total]
+                    properties:
+                        page: { type: integer, minimum: 1 }
+                        perPage: { type: integer, minimum: 1, maximum: 200 }
+                        total: { type: integer, minimum: 0, description: 'Number of items on all pages' }
+                Violation:
+                    type: object
+                    required: [propertyPath, message, code]
+                    properties:
+                        propertyPath: { type: string, example: endDate }
+                        message: { type: string }
+                        code: { type: string, description: 'Rule code, e.g. end_before_start, or a validator constraint code' }
+                Problem:
+                    type: object
+                    description: RFC 9457 problem details
+                    required: [type, title, status, code, detail]
+                    properties:
+                        type: { type: string, example: 'about:blank' }
+                        title: { type: string, example: 'Unprocessable Content' }
+                        status: { type: integer, example: 422 }
+                        code: { type: string, example: overlaps_existing, description: 'Machine-readable error code' }
+                        detail: { type: string, description: 'Human-readable message in the language of Accept-Language (de/en)' }
+                        violations:
+                            type: array
+                            items: { $ref: '#/components/schemas/Violation' }
+        security:
+            - bearerAuth: []
+    areas:
+        default:
+            path_patterns:
+                - ^/api/v1(/|$)
+    html_config:
+        # Swagger UI assets come from the bundle via AssetMapper (asset-map:compile on deploy), no CDN
+        assets_mode: bundle
+        swagger_ui_config:
+            persistAuthorization: false
+            displayRequestDuration: true

@@ -86,7 +86,11 @@ final class AbsenceQuotaService
         return $result;
     }
 
-    public function validateRequestWithinQuota(
+    /**
+     * Checks whether a new request still fits into the user's quota for the type and year.
+     * Returns the shortfall if the request is blocked, null if it fits (or the type has no blocking quota).
+     */
+    public function checkRequestWithinQuota(
         User $user,
         AbsenceType $type,
         int $year,
@@ -94,7 +98,7 @@ final class AbsenceQuotaService
         DateTimeImmutable $end,
         ?string $holidayRegion = null,
         bool $halfDay = false,
-    ): ?string {
+    ): ?QuotaShortfall {
         if (!$type->requiresQuota()) {
             return null;
         }
@@ -139,12 +143,7 @@ final class AbsenceQuotaService
             return null;
         }
 
-        return sprintf(
-            'Das Kontingent reicht nicht aus: %s von %s Tagen sind bereits genehmigt oder offen, der neue Antrag umfasst %s Tage.',
-            DayFormatter::format($alreadyRequested, 'de'),
-            DayFormatter::format($quotaDays, 'de'),
-            DayFormatter::format($requestedDays, 'de'),
-        );
+        return new QuotaShortfall($alreadyRequested, $quotaDays, $requestedDays);
     }
 
     private function resolveAllowOverLimit(AbsenceType $type, ?AbsenceQuota $quota): bool

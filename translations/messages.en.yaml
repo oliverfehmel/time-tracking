@@ -96,6 +96,7 @@ navbar:
   time_tracking: Time Tracking
   absences: Absences
   absence_overview: Absence overview
+  api: API
   users: Users
   holidays: Holidays
   approvals: Approvals
@@ -198,6 +199,9 @@ absence:
     half_day: Half day
     half_day_help: Only for single-day requests – start and end date must be the same.
     half_day_single_day: A half day is only possible when start and end date are the same.
+    quota_exceeded: 'The quota is not sufficient: %already% of %quota% days are already approved or pending, the new request covers %requested% days.'
+    half_days_disabled: Half days are disabled.
+    type_inactive: This absence type is not active.
   quota:
     user: User
     type: Type
@@ -456,3 +460,160 @@ email:
     reason: Reason
   employee: Employee
   period: Period
+
+api:
+  problem:
+    unauthorized: A valid API token is required.
+    forbidden: You are not allowed to do this.
+    read_only_token: This API token is read-only.
+    foreign_user: Only admins may access other users' data.
+    not_found: The resource does not exist.
+    bad_request: The request is malformed.
+    method_not_allowed: This HTTP method is not supported here.
+    unsupported_media_type: Please send JSON (Content-Type application/json).
+    validation_failed: The request contains invalid data.
+    conflict: The request conflicts with the current state.
+    duplicate: An entry with these values already exists.
+    still_referenced: The entry is still in use and cannot be deleted.
+    cannot_delete_self: You cannot delete your own account.
+    cannot_demote_self: You cannot remove your own admin rights.
+    unknown_type: This absence type does not exist.
+    unknown_user: At least one of the users does not exist.
+    running_entry: Running entries can only be changed through the timer.
+    internal_error: An unexpected error occurred.
+    http_error: The request could not be processed.
+
+api_token:
+  title: API tokens
+  subtitle: Personal tokens for the REST API. A token has the same rights as you.
+  create: Create token
+  create_subtitle: The token is shown only once – copy it right away.
+  name: Name
+  name_help: What the token is for, e.g. "time tracking script".
+  scope: Permission
+  scope_read: Read only
+  scope_read_write: Read and write
+  validity: Validity
+  validity_30: 30 days
+  validity_90: 90 days
+  validity_365: 1 year
+  validity_never: Unlimited
+  created: Token created.
+  copy_now: Copy the token now. It is not stored and cannot be shown again later.
+  list: Existing tokens
+  none: No tokens yet.
+  created_at: Created
+  last_used_at: Last used
+  expires_at: Expires
+  never_used: never
+  never_expires: never
+  expired: expired
+  revoke: Revoke
+  confirm_revoke: Really revoke this token? Programs using it lose access immediately.
+  revoked: Token revoked.
+  impersonation_forbidden: You cannot create API tokens while signed in as another user.
+  admin_hint: Admins can revoke other users' tokens, but cannot create tokens for them.
+
+api_guide:
+  nav: API guide
+  title: REST API
+  subtitle: Read and change users, times, absences and holidays over HTTP – with the rights of your account.
+  swagger: Swagger UI
+  openapi_json: OpenAPI (JSON)
+  back_to_app: Back to time tracking
+  token:
+    title: Create an API token
+    text: Create a personal token under Profile → API tokens. It is shown exactly once; only a hash is stored.
+    scopes: '"Read only" allows GET requests only, "Read and write" everything you may also do in the app.'
+    expiry: Tokens expire after 30 days, 90 days, one year or never, and can be revoked at any time.
+    secret: Treat a token like a password. Changing your password does not revoke tokens – revoke them yourself if in doubt. You cannot create tokens while signed in as another user.
+  auth:
+    title: Authentication
+    text: 'Send the token with every request in the header "Authorization: Bearer …". The API has no session – the app''s login cookie does not apply there.'
+    base_url: 'Base URL: %url%'
+  permissions:
+    title: Permissions
+    user: Regular users see and change only their own data (times, timer, work locations, absences, quotas, assigned holidays).
+    admin: Admins see all data, manage users, holidays, absence types and quotas, and approve or reject requests (not their own).
+    locks: 'Regular users have the same locks as in the app: times and work locations only in the current and the previous month, and only while editing is allowed.'
+    not_found: Other users' data is answered with 404, admin functions with 403.
+  format:
+    title: Formats
+    envelope: 'Every response is wrapped in "data"; lists add "meta" with page, perPage and total.'
+    dates: Dates as YYYY-MM-DD, points in time as RFC 3339 with time zone offset.
+    numbers: Durations in seconds, days as decimal numbers (0.5 = half day).
+    pagination: Lists with ?page=1&perPage=50 (at most 200).
+    patch: PATCH only changes the fields you send.
+    language: Error messages use the language from Accept-Language (de or en).
+  endpoints:
+    title: Endpoints
+    area: Area
+    paths: Paths (below /api/v1)
+    who: Who
+    details: All parameters, fields and responses are documented in Swagger UI.
+    me:
+      name: Me
+      paths: GET /me
+      who: everyone – own account, token and feature flags
+    users:
+      name: Users
+      paths: GET /users, GET|PATCH|DELETE /users/{id}, POST /users
+      who: read own account; manage admins only
+    time_entries:
+      name: Time entries
+      paths: GET|POST /time-entries, GET|PATCH|DELETE /time-entries/{id}
+      who: own; admins all
+    timer:
+      name: Timer
+      paths: GET /timer, POST /timer/start, POST /timer/stop
+      who: own timer
+    report:
+      name: Time report
+      paths: GET /users/{id}/time-report/{year}
+      who: own; admins all
+    work_locations:
+      name: Work locations
+      paths: GET /work-location-types, GET /users/{id}/work-locations, PUT|DELETE /users/{id}/work-locations/{date}
+      who: own; admins all
+    absence_types:
+      name: Absence types
+      paths: GET /absence-types, GET|PATCH /absence-types/{id}, POST /absence-types
+      who: read everyone; manage admins only
+    absence_requests:
+      name: Absences
+      paths: GET|POST /absence-requests, GET /absence-requests/{id}, POST …/{id}/cancel, …/approve, …/reject
+      who: own; admins all and approval
+    quotas:
+      name: Quotas
+      paths: GET /users/{id}/absence-quotas, PUT|DELETE /users/{id}/absence-quotas/{year}/{typeId}
+      who: own overview; set admins only
+    holidays:
+      name: Holidays
+      paths: GET|POST /holidays, GET|PATCH|DELETE /holidays/{id}
+      who: read assigned; manage admins only
+  half_days:
+    title: Half days
+    enabled: Half days are enabled
+    disabled: Half days are disabled
+    fraction: 'Requests and holidays have "halfDay" and "dayFraction" (1.0 or 0.5); "days" counts the chargeable days, e.g. 0.5.'
+    requests: A half day is only possible for single-day requests. Two half days may share a day, except on a half-day holiday.
+    holidays: New half days (requests, holidays, 0.5 quotas) are only accepted while the feature is enabled – otherwise the API answers 422 "half_days_disabled".
+    existing: Existing half days are always reported and calculated as half days, even when the feature is off.
+  errors:
+    title: Errors
+    text: 'Errors are "application/problem+json" with a machine-readable "code" and – for invalid input – the affected fields.'
+    status_400: Invalid JSON or malformed request
+    status_401: Token missing, unknown or expired
+    status_403: Not allowed, read-only token or edit lock
+    status_404: Unknown or another user's data
+    status_409: Conflict, e.g. timer already running or request no longer pending
+    status_415: Body is not JSON
+    status_422: Invalid input or a violated business rule (e.g. quota, overlap)
+  examples:
+    title: Examples
+    token_hint: 'Set your token first: export TOKEN=tt_…'
+    timer: Start and stop the timer
+    entry: Add a time entry
+    absence: Request a half day of vacation
+    absence_full: Request vacation
+    report: Fetch the year report

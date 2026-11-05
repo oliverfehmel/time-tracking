@@ -6,8 +6,8 @@ use App\Entity\AbsenceRequest;
 use App\Entity\User;
 use App\Repository\AbsenceRequestRepository;
 use App\Service\AbsenceDayCalculator;
-use App\Service\AbsenceNotifier;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Service\AbsenceRequestService;
+use App\Service\DomainRuleViolation;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,8 +20,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 final class AbsenceAdminController extends AbstractController
 {
     public function __construct(
-        private readonly AbsenceNotifier $notifier,
-        private readonly EntityManagerInterface $em,
+        private readonly AbsenceRequestService $absenceService,
     ) {}
 
     #[Route('/approvals', name: '_admin_absence_approvals', methods: ['GET'])]
@@ -53,10 +52,7 @@ final class AbsenceAdminController extends AbstractController
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
-        $absence->approve($admin);
-        $this->em->flush();
-
-        if (!$this->notifier->sendDecision($absence, approved: true)) {
+        if (!$this->absenceService->approve($absence, $admin)) {
             $this->addFlash('warning', 'admin_absence.approved_warning');
         } else {
             $this->addFlash('success', 'admin_absence.approved_success');
@@ -77,16 +73,14 @@ final class AbsenceAdminController extends AbstractController
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
-        $reason = trim((string) $request->request->get('reason', ''));
-        if ($reason === '') {
-            $this->addFlash('error', 'admin_absence.reason_required');
+        try {
+            $mailSent = $this->absenceService->reject($absence, $admin, (string) $request->request->get('reason', ''));
+        } catch (DomainRuleViolation $violation) {
+            $this->addFlash('error', $violation->messageKey);
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 
-        $absence->reject($admin, $reason);
-        $this->em->flush();
-
-        if (!$this->notifier->sendDecision($absence, approved: false)) {
+        if (!$mailSent) {
             $this->addFlash('warning', 'admin_absence.rejected_warning');
         } else {
             $this->addFlash('success', 'admin_absence.rejected_success');
@@ -97,13 +91,10 @@ final class AbsenceAdminController extends AbstractController
 
     private function guardAbsenceAction(AbsenceRequest $absence, User $admin): ?Response
     {
-        if ($absence->getStatus() !== AbsenceRequest::STATUS_PENDING) {
-            $this->addFlash('error', 'admin_absence.only_pending');
-            return $this->redirectToRoute('_admin_absence_approvals');
-        }
-
-        if ($absence->getRequestedBy()->getId() === $admin->getId()) {
-            $this->addFlash('error', 'admin_absence.own_request_error');
+        try {
+            $this->absenceService->assertDecidable($absence, $admin);
+        } catch (DomainRuleViolation $violation) {
+            $this->addFlash('error', $violation->messageKey);
             return $this->redirectToRoute('_admin_absence_approvals');
         }
 

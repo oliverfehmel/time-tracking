@@ -5,14 +5,13 @@ namespace App\Controller;
 use App\Entity\TimeEntry;
 use App\Entity\User;
 use App\Form\TimeEntryType;
-use App\Repository\SettingsRepository;
 use App\Repository\TimeEntryRepository;
 use App\Repository\WorkLocationRepository;
 use App\Repository\WorkLocationTypeRepository;
-use App\Service\TimeTrackingCalculator;
-use App\Service\TimeEntryOverlapResolver;
+use App\Service\DomainRuleViolation;
+use App\Service\TimeEditPolicy;
+use App\Service\TimeEntryService;
 use DateTimeImmutable;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,8 +25,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 final class TimeTrackingDayController extends AbstractController
 {
     public function __construct(
-        private readonly SettingsRepository $settingsRepo,
-        private readonly TimeTrackingCalculator $calc,
+        private readonly TimeEditPolicy $editPolicy,
+        private readonly TimeEntryService $timeEntryService,
+        private readonly TranslatorInterface $translator,
     ) {}
 
     #[Route('/day/{date}', name: 'day', requirements: ['date' => '\d{4}-\d{2}-\d{2}'], methods: ['GET'])]
@@ -37,20 +37,18 @@ final class TimeTrackingDayController extends AbstractController
         TimeEntryRepository $repo,
         WorkLocationRepository $locationRepo,
         WorkLocationTypeRepository $locationTypeRepo,
-        TranslatorInterface $translator,
     ): Response {
-        if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
+        if ($redirect = $this->denyIfEntryEditingDisabled()) {
             return $redirect;
         }
 
-        $now      = new DateTimeImmutable();
         $dayStart = new DateTimeImmutable($date . ' 00:00:00');
         $dayEnd   = $dayStart->modify('+1 day');
 
         return $this->render('time_tracking/day.html.twig', [
             'day'             => $dayStart,
             'entries'         => $repo->findForUserBetween($user, $dayStart, $dayEnd),
-            'editable'        => $this->calc->isEditableMonth($dayStart, $now),
+            'editable'        => $this->editPolicy->isMonthEditable($dayStart),
             'workLocation'    => $locationRepo->findForUserOnDate($user, $dayStart),
             'locationTypes'   => $locationTypeRepo->findActive(),
             'defaultLocation' => $locationTypeRepo->findDefault(),
@@ -58,23 +56,15 @@ final class TimeTrackingDayController extends AbstractController
     }
 
     #[Route('/entry/new/{date}', name: 'entry_new', requirements: ['date' => '\d{4}-\d{2}-\d{2}'], methods: ['GET', 'POST'])]
-    public function entryNew(
-        string $date,
-        #[CurrentUser] User $user,
-        Request $request,
-        EntityManagerInterface $em,
-        TranslatorInterface $translator,
-        TimeEntryRepository $entryRepo,
-        TimeEntryOverlapResolver $overlapResolver,
-    ): Response {
-        if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
+    public function entryNew(string $date, #[CurrentUser] User $user, Request $request): Response
+    {
+        if ($redirect = $this->denyIfEntryEditingDisabled()) {
             return $redirect;
         }
 
-        $now      = new DateTimeImmutable();
         $dayStart = new DateTimeImmutable($date . ' 00:00:00');
 
-        if (!$this->calc->isEditableMonth($dayStart, $now)) {
+        if (!$this->editPolicy->isMonthEditable($dayStart)) {
             $this->addFlash('error', 'flash.month_not_editable');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
@@ -88,13 +78,16 @@ final class TimeTrackingDayController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->resolveOverlaps($entry, $entryRepo, $overlapResolver, null)) {
-                $this->addFlash('error', 'flash.time_range_fully_overlaps');
+            try {
+                $adjusted = $this->timeEntryService->create($entry);
+            } catch (DomainRuleViolation $violation) {
+                $this->addFlash('error', $violation->messageKey);
                 return $this->redirectToRoute('_time_day', ['date' => $date]);
             }
 
-            $em->persist($entry);
-            $em->flush();
+            if ($adjusted) {
+                $this->addFlash('warning', 'flash.time_range_adjusted');
+            }
 
             $this->addFlash('success', 'flash.time_entry_created');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
@@ -108,16 +101,9 @@ final class TimeTrackingDayController extends AbstractController
     }
 
     #[Route('/entry/{id<\d+>}/edit', name: 'entry_edit', methods: ['GET', 'POST'])]
-    public function entryEdit(
-        TimeEntry $entry,
-        #[CurrentUser] User $user,
-        Request $request,
-        EntityManagerInterface $em,
-        TranslatorInterface $translator,
-        TimeEntryRepository $entryRepo,
-        TimeEntryOverlapResolver $overlapResolver,
-    ): Response {
-        if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
+    public function entryEdit(TimeEntry $entry, #[CurrentUser] User $user, Request $request): Response
+    {
+        if ($redirect = $this->denyIfEntryEditingDisabled()) {
             return $redirect;
         }
 
@@ -125,11 +111,11 @@ final class TimeTrackingDayController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $now      = new DateTimeImmutable();
-        $dayStart = $entry->getStartedAt()->setTime(0, 0);
-        $date     = $dayStart->format('Y-m-d');
+        $originalStart = $entry->getStartedAt();
+        $dayStart      = $originalStart->setTime(0, 0);
+        $date          = $dayStart->format('Y-m-d');
 
-        if (!$this->calc->isEditableMonth($dayStart, $now)) {
+        if (!$this->editPolicy->isMonthEditable($dayStart)) {
             $this->addFlash('error', 'flash.month_not_editable');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
@@ -138,12 +124,16 @@ final class TimeTrackingDayController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$this->resolveOverlaps($entry, $entryRepo, $overlapResolver, $entry)) {
-                $this->addFlash('error', 'flash.time_range_fully_overlaps');
+            try {
+                $adjusted = $this->timeEntryService->update($entry, $originalStart);
+            } catch (DomainRuleViolation $violation) {
+                $this->addFlash('error', $violation->messageKey);
                 return $this->redirectToRoute('_time_day', ['date' => $date]);
             }
 
-            $em->flush();
+            if ($adjusted) {
+                $this->addFlash('warning', 'flash.time_range_adjusted');
+            }
 
             $this->addFlash('success', 'flash.time_entry_saved');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
@@ -157,14 +147,9 @@ final class TimeTrackingDayController extends AbstractController
     }
 
     #[Route('/entry/{id<\d+>}/delete', name: 'entry_delete', methods: ['POST'])]
-    public function entryDelete(
-        TimeEntry $entry,
-        #[CurrentUser] User $user,
-        Request $request,
-        EntityManagerInterface $em,
-        TranslatorInterface $translator,
-    ): Response {
-        if ($redirect = $this->denyIfEntryEditingDisabled($translator)) {
+    public function entryDelete(TimeEntry $entry, #[CurrentUser] User $user, Request $request): Response
+    {
+        if ($redirect = $this->denyIfEntryEditingDisabled()) {
             return $redirect;
         }
 
@@ -172,65 +157,31 @@ final class TimeTrackingDayController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        $now      = new DateTimeImmutable();
-        $dayStart = $entry->getStartedAt()->setTime(0, 0);
-        $date     = $dayStart->format('Y-m-d');
-
-        if (!$this->calc->isEditableMonth($dayStart, $now)) {
-            $this->addFlash('error', 'flash.month_not_editable');
-            return $this->redirectToRoute('_time_day', ['date' => $date]);
-        }
+        $date = $entry->getStartedAt()->format('Y-m-d');
 
         if (!$this->isCsrfTokenValid('delete_time_entry_' . $entry->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'flash.invalid_csrf');
             return $this->redirectToRoute('_time_day', ['date' => $date]);
         }
 
-        $em->remove($entry);
-        $em->flush();
+        try {
+            $this->timeEntryService->delete($entry);
+        } catch (DomainRuleViolation $violation) {
+            $this->addFlash('error', $violation->messageKey);
+            return $this->redirectToRoute('_time_day', ['date' => $date]);
+        }
 
         $this->addFlash('success', 'flash.time_entry_deleted');
         return $this->redirectToRoute('_time_day', ['date' => $date]);
     }
 
-    private function denyIfEntryEditingDisabled(TranslatorInterface $translator): ?Response
+    private function denyIfEntryEditingDisabled(): ?Response
     {
-        if (!$this->settingsRepo->getOrCreate()->isUsersAreAllowedToChangeTimeEntries()) {
-            $this->addFlash('error', $translator->trans('settings.users_not_allowed_to_change_time_entries'));
+        if (!$this->editPolicy->isEditingAllowed()) {
+            $this->addFlash('error', $this->translator->trans('settings.users_not_allowed_to_change_time_entries'));
             return $this->redirectToRoute('_home');
         }
 
         return null;
-    }
-
-    private function resolveOverlaps(
-        TimeEntry $entry,
-        TimeEntryRepository $entryRepo,
-        TimeEntryOverlapResolver $overlapResolver,
-        ?TimeEntry $exclude,
-    ): bool {
-        $start = $entry->getStartedAt();
-        $end = $entry->getStoppedAt();
-
-        if (!$start instanceof DateTimeImmutable || !$end instanceof DateTimeImmutable) {
-            return true;
-        }
-
-        $existingEntries = $entryRepo->findOverlappingForUser($entry->getUser(), $start, $end, $exclude);
-        if ($existingEntries === []) {
-            return true;
-        }
-
-        $originalStart = $start;
-        $originalEnd = $end;
-        if (!$overlapResolver->resolve($entry, $existingEntries, new DateTimeImmutable())) {
-            return false;
-        }
-
-        if ($entry->getStartedAt() != $originalStart || $entry->getStoppedAt() != $originalEnd) {
-            $this->addFlash('warning', 'flash.time_range_adjusted');
-        }
-
-        return true;
     }
 }
