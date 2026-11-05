@@ -11,7 +11,8 @@
 ###< symfony/framework-bundle ###
 
 .idea/
-.claude/
+.claude/settings.local.json
+.claude/worktrees/
 docker/local/
 public/uploads/
 public/favicon/

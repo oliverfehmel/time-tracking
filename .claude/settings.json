@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(php bin/phpunit:*)",
+      "Bash(php bin/console debug:*)",
+      "Bash(php bin/console lint:*)",
+      "Bash(php bin/console cache:clear:*)",
+      "Bash(php bin/console doctrine:migrations:status:*)",
+      "Bash(php bin/console doctrine:migrations:diff:*)",
+      "Bash(php bin/console doctrine:migrations:list:*)",
+      "Bash(php bin/console doctrine:schema:validate:*)",
+      "Bash(php bin/console importmap:outdated:*)",
+      "Bash(php bin/console importmap:audit:*)",
+      "Bash(php -l:*)",
+      "Bash(composer validate:*)",
+      "Bash(composer outdated:*)",
+      "Bash(composer audit:*)",
+      "Bash(composer show:*)",
+      "Bash(composer why:*)",
+      "Bash(composer why-not:*)",
+      "Bash(composer install:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git tag:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh release view:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)"
+    ],
+    "deny": [
+      "Read(./.env.local)",
+      "Read(./.env.*.local)",
+      "Read(./config/secrets/prod/**)",
+      "Bash(php bin/console doctrine:schema:drop:*)",
+      "Bash(php bin/console doctrine:database:drop:*)",
+      "Bash(./deploy.sh:*)",
+      "Bash(bash deploy.sh:*)"
+    ]
+  }
+}

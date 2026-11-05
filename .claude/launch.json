@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "symfony",
+      "runtimeExecutable": "symfony",
+      "runtimeArgs": ["serve", "--no-tls", "--port=8000"],
+      "port": 8000
+    }
+  ]
+}

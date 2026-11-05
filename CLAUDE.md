@@ -72,3 +72,26 @@ Copy `.env.example` to `.env.local` for local development. Required variables:
 - `DEV_MAIL_RECIPIENT` — overrides all recipients in `dev` environment
 
 Tests use `.env.test` and require a real database (not mocked). The CI workflow spins up a MariaDB 11.8 service container.
+
+PHP versions: CI runs PHP **8.4**, local development and production (`deploy.sh`) run 8.5. Code and `composer.lock` must stay compatible with 8.4.
+
+## Conventions
+
+- **Language**: code, comments, commits, PRs and `CHANGELOG.md` are in English. All user-facing text is a translation key present in both `translations/messages.de.yaml` and `messages.en.yaml` (validators in `validators.*.yaml`) — no hard-coded strings in templates, controllers, flash messages or mails.
+- **Thin controllers**: business logic goes into `src/Service`; controllers carry `#[IsGranted(...)]` at class level (only the public `SecurityController` and `ResetPasswordController` do not). State-changing actions are POST with a CSRF token (`csrf_token('<action>_' ~ id)` / `isCsrfTokenValid`).
+- **Day maths** always via `DayPortion`; day counts are `float` and rendered with `|days`.
+- **Doctrine**: `orderBy()`/`addOrderBy()` take the `SortDirection` enum; every migration declares `isTransactional(): false` and a working `down()`.
+- **Symfony versions** are pinned centrally via `extra.symfony.require`; individual `symfony/*` constraints stay `*`. `bump-after-update` is off on purpose.
+- **Frontend**: Stimulus controllers only (no inline scripts); JS packages via `importmap.php`. Links that log out, switch user or download need `data-turbo-prefetch="false"`.
+- **Tests** for every new service/entity logic in `tests/`, mirroring `src/`.
+- **Docs**: user-visible changes get an entry under `## [Unreleased]` in `CHANGELOG.md` (Added / Changed / Removed / Fixed); changes to the domain model or services are reflected in this file.
+
+## Claude Code setup (`.claude/`)
+
+- `skills/feature` — end-to-end workflow for features and non-trivial fixes.
+- `skills/github` — branch, commit, PR, CI and merge conventions.
+- `skills/pr-review` + `agents/reviewer.md` — review with a fresh-context subagent against the project checklist.
+- `skills/migration` — creating and checking Doctrine migrations.
+- `skills/dependency-update` (`/dependency-update`, manual only) — Composer, Symfony and importmap updates.
+- `skills/release` (`/release`, manual only) — changelog, tag and GitHub release.
+- `settings.json` — shared permissions; personal overrides go into the git-ignored `settings.local.json`.
