@@ -34,5 +34,10 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
+      - name: Prepare Test Database
+        run: |
+          php bin/console doctrine:database:create --if-not-exists --env=test
+          php bin/console doctrine:migrations:migrate --no-interaction --env=test
+
       - name: Run Tests
         run: php bin/phpunit
