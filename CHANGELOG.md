@@ -3,9 +3,11 @@
 ## [Unreleased]
 
 ### Added
+- **Half days (switchable in the settings)**: A new "Allow half days" setting enables half days throughout the app. Holidays can be marked as half-day holidays (e.g. Christmas Eve, New Year's Eve), which halves the target working time for that day. Absence requests can be filed for half a day (single-day requests only; which half does not matter), and two half-day absences may share the same day. Absences on half-day holidays are charged automatically with half a day. Quotas and default quotas accept half days (e.g. 27.5). Year views, the absence overview, the dashboard, the approval list and notification mails show half days ("½ day", "2,5"). When the setting is switched off again, the input fields disappear, but existing half days keep counting as half days so past balances do not change.
 - **Work location on dashboard**: The work location for today can now be set directly from the dashboard. The top card shows the current location type (with icon) and a dropdown to change it — no need to navigate to the day view.
 
 ### Changed
+- **Absence day counts in approvals and notification mails** now take the requester's personal holidays into account, consistent with the requester's own absence list.
 - **Dependencies updated to Symfony 8.1**: Symfony packages are now pinned centrally via `extra.symfony.require` (`8.1.*`) and use `*` as their own constraint; `bump-after-update` is disabled so Composer no longer rewrites them to open `>=` ranges. All other packages were raised to their latest stable releases, including major updates of PHPUnit (13), Symfony UX Turbo / StimulusBundle (3) and phpdocumentor/reflection-docblock (6).
 - **Turbo 8**: `@hotwired/turbo` was updated from 7.3.0 to 8.0.23 (fixes GHSA-qppm-g56g-fpvp). Logout and user-switch links opt out of Turbo 8's hover prefetching so that hovering them can no longer log the user out or switch the user; the work location CSV link is marked as a download.
 

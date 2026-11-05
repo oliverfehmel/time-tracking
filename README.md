@@ -6,6 +6,7 @@ A modern, self-hosted time tracking application built with Symfony 8.
 
 - Time tracking for users
 - Absence management (vacation, sick leave, etc.)
+- Optional half days: half-day holidays (e.g. Christmas Eve), half-day absence requests and quotas in half days
 - Approval workflows for requests
 - Role-based access control (admin, user)
 - Clean and simple UI
