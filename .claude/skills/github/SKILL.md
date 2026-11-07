@@ -56,7 +56,7 @@ Before opening the PR, make sure:
 
 ## CI
 
-- The only workflow is `.github/workflows/tests.yml`: PHP **8.4**, MariaDB 11.8, `composer install`, `php bin/phpunit`. Local PHP is 8.5 and production runs 8.5 — code and `composer.lock` must still work on 8.4.
+- The only workflow is `.github/workflows/tests.yml` with two jobs: `tests` (PHP **8.4**, MariaDB 11.8, `composer install`, `php bin/phpunit`) and `docker` (`docker compose up --build --wait`, then a request to `/login`). Local PHP is 8.5 and production runs 8.5 — code and `composer.lock` must still work on 8.4.
 - Check status with `gh pr checks <n>`; read failures with `gh run view <run-id> --log-failed`.
 
 ## Merging

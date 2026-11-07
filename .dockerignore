@@ -1,0 +1,22 @@
+# Keep local state, secrets and build output out of the Docker build context
+.git
+.github
+.idea
+.claude
+.phpunit.cache
+.env.local
+.env.local.php
+.env.*.local
+.env.dev
+docker/local
+docs
+tests
+var
+vendor
+public/assets
+public/bundles
+public/uploads
+public/favicon
+assets/vendor
+compose.yaml
+Dockerfile

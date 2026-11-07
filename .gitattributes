@@ -1,0 +1,4 @@
+# Files used inside the Linux Docker image must keep LF line endings, also on Windows checkouts
+*.sh text eol=lf
+Dockerfile text eol=lf
+docker/app/* text eol=lf

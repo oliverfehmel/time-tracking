@@ -1,17 +1,24 @@
 # Time Tracking App
 
-A modern, self-hosted time tracking application built with Symfony 8.
+A modern, self-hosted time tracking and absence management application built with Symfony 8.
+
+![Dashboard with running timer, weekly and monthly totals and the absence balance](docs/images/dashboard.png)
 
 ## Features
 
-- Time tracking for users
-- Absence management (vacation, sick leave, etc.)
+- Time tracking with a start/stop timer, daily and monthly target vs. actual times and automatic break deductions
+- Absence management (vacation, sick leave, etc.) with quotas and an approval workflow
 - Optional half days: half-day holidays (e.g. Christmas Eve), half-day absence requests and quotas in half days
-- Approval workflows for requests
-- Role-based access control (admin, user)
-- Clean and simple UI
-- Email notifications for approvals/rejections
+- Work locations per day (office, home office, business trip, …) with a yearly CSV export
+- Role-based access control (admin, user); admins can view every employee's times and impersonate users
+- Email notifications for new requests, approvals and rejections
+- English and German user interface
 - REST API with personal API tokens, Swagger UI and an in-app guide (see below)
+- Runs anywhere with Docker Compose (see below)
+
+| Monthly time sheet | Absence approvals |
+|---|---|
+| ![Monthly time sheet with start, end, actual and target time per day](docs/images/time-tracking-month.png) | ![Approval list with pending and processed absence requests](docs/images/approvals.png) |
 
 ## Tech Stack
 
@@ -22,7 +29,54 @@ A modern, self-hosted time tracking application built with Symfony 8.
 - Bootstrap 5
 - MySQL / MariaDB / PostgreSQL
 
-## Getting Started
+## Quick start with Docker
+
+Requirements: Docker with Docker Compose.
+
+```bash
+git clone https://github.com/oliverfehmel/time-tracking.git
+cd time-tracking
+docker compose up -d
+```
+
+The first start builds the image and creates the database; then open <http://localhost:8080> and create the first
+admin account:
+
+```bash
+docker compose exec -u www-data app php bin/console app:create-user admin@example.com 'a-secure-password' ROLE_ADMIN
+```
+
+The stack consists of the app (Apache + PHP 8.4, runs the database migrations on every start), a worker that sends the
+notification mails and MariaDB 11.8. Data lives in Docker volumes (`database`, `uploads`, `favicon`, `app_data`), so
+updating is just:
+
+```bash
+git pull
+docker compose up -d --build
+```
+
+### Settings
+
+Settings are environment variables with the prefix `TT_`. Export them in your shell, put them into a separate file and
+start with `docker compose --env-file <file> up -d`, or add a `compose.override.yaml`.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `TT_PORT` | `8080` | Port on the host |
+| `TT_DEFAULT_URI` | `http://localhost:8080` | Public base URL, used for links in emails |
+| `TT_MAILER_DSN` | `null://null` (mails are discarded) | SMTP connection, e.g. `smtp://user:pass@smtp.example.com:587` |
+| `TT_MAIL_FROM` | `time-tracking@example.com` | Sender address of notification mails |
+| `TT_LOCALE` | `de` | Default language (`de` or `en`) |
+| `TT_TIMEZONE` | `Europe/Berlin` | Time zone of the app and the database |
+| `TT_DB_PASSWORD` | `time_tracking` | Password of the database user (set it before the first start; the database is not exposed to the host) |
+| `TT_APP_SECRET` | generated on first start | Symfony `APP_SECRET`; if empty, a random secret is created once and kept in the `app_data` volume |
+| `TT_TRUSTED_PROXIES` | empty | IPs/CIDRs of a reverse proxy that terminates HTTPS, e.g. `172.16.0.0/12` |
+
+For production, put a reverse proxy with HTTPS (e.g. Caddy, Traefik or nginx) in front of the app and set
+`TT_DEFAULT_URI` and `TT_TRUSTED_PROXIES`. Back up the database with
+`docker compose exec db sh -c 'mariadb-dump -utime_tracking -p"$MARIADB_PASSWORD" time_tracking' > backup.sql`.
+
+## Manual installation
 
 ### Requirements
 
@@ -35,12 +89,12 @@ A modern, self-hosted time tracking application built with Symfony 8.
 
 ```bash
 git clone https://github.com/oliverfehmel/time-tracking.git
-cd time-tracking-app
+cd time-tracking
 
 composer install
 ```
 
-#### Configure your database in .env:
+#### Configure your database in .env.local:
 ```env
 DATABASE_URL="mysql://user:password@127.0.0.1:3306/time_tracking"
 ```
@@ -48,6 +102,11 @@ DATABASE_URL="mysql://user:password@127.0.0.1:3306/time_tracking"
 #### Run migrations:
 ```bash
 php bin/console doctrine:migrations:migrate
+```
+
+#### Create the first admin account:
+```bash
+php bin/console app:create-user admin@example.com 'a-secure-password' ROLE_ADMIN
 ```
 
 #### Start server:

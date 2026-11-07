@@ -1,5 +1,16 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+- **Docker Compose setup**: `docker compose up -d` builds and starts the app (Apache + PHP 8.4), a worker that sends the notification mails and MariaDB 11.8. Database migrations run on every start, an `APP_SECRET` is generated on the first start if none is set, and the database, uploaded logo and favicon are kept in volumes. All settings are `TT_*` environment variables (port, public URL, SMTP, sender address, language, time zone, database password, trusted proxies); see "Quick start with Docker" in the README. CI now builds the stack and checks that the login page answers.
+- **Trusted reverse proxies**: The new `TRUSTED_PROXIES` environment variable lists proxies whose `X-Forwarded-*` headers are trusted, so links and redirects use HTTPS behind a TLS-terminating proxy. Empty by default (no change for existing installations).
+- **Screenshots in the README** and a social preview image (`docs/images/`).
+
+### Fixed
+- **License detection**: The MIT license text was missing the phrase "to whom the Software is furnished", so GitHub showed the license as "Other". The wording is now the standard MIT text; the terms are unchanged.
+- **README installation**: The clone instructions changed into a non-existent `time-tracking-app` directory, and the step to create the first admin account was missing.
+
 ## [1.3.0] - 2026-11-05
 
 ### Added
