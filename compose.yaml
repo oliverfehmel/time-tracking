@@ -1,0 +1,75 @@
+# Self-hosting with Docker: `docker compose up -d`, then open http://localhost:8080.
+# Settings are environment variables with the prefix TT_ (README.md → "Quick start with Docker").
+# The prefix keeps them apart from the variables of the application's own .env file,
+# which Docker Compose also reads.
+
+x-app: &app
+    build: .
+    image: time-tracking:local
+    restart: unless-stopped
+    environment: &app-env
+        TZ: ${TT_TIMEZONE:-Europe/Berlin}
+        APP_SECRET: ${TT_APP_SECRET:-}
+        APP_DEFAULT_LOCALE: ${TT_LOCALE:-de}
+        DEFAULT_URI: ${TT_DEFAULT_URI:-http://localhost:8080}
+        DATABASE_URL: mysql://time_tracking:${TT_DB_PASSWORD:-time_tracking}@db:3306/time_tracking?serverVersion=11.8.2-MariaDB&charset=utf8mb4
+        MAILER_DSN: ${TT_MAILER_DSN:-null://null}
+        MAIL_FROM: ${TT_MAIL_FROM:-time-tracking@example.com}
+        TRUSTED_PROXIES: ${TT_TRUSTED_PROXIES:-}
+    volumes:
+        - app_data:/var/www/html/var/data
+        - uploads:/var/www/html/public/uploads
+        - favicon:/var/www/html/public/favicon
+    depends_on:
+        db:
+            condition: service_healthy
+
+services:
+    app:
+        <<: *app
+        environment:
+            <<: *app-env
+            RUN_MIGRATIONS: "1"
+        ports:
+            - "${TT_PORT:-8080}:80"
+        healthcheck:
+            test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost/login"]
+            interval: 10s
+            timeout: 5s
+            start_period: 60s
+            retries: 5
+
+    # Sends the queued notification mails (Symfony Messenger).
+    worker:
+        <<: *app
+        command: ["php", "bin/console", "messenger:consume", "async", "--time-limit=3600", "--memory-limit=128M"]
+        depends_on:
+            app:
+                condition: service_healthy
+
+    db:
+        image: mariadb:11.8
+        restart: unless-stopped
+        environment:
+            TZ: ${TT_TIMEZONE:-Europe/Berlin}
+            MARIADB_DATABASE: time_tracking
+            MARIADB_USER: time_tracking
+            MARIADB_PASSWORD: ${TT_DB_PASSWORD:-time_tracking}
+            MARIADB_RANDOM_ROOT_PASSWORD: "1"
+        command:
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+        volumes:
+            - database:/var/lib/mysql
+        healthcheck:
+            test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+            interval: 10s
+            timeout: 5s
+            start_period: 30s
+            retries: 5
+
+volumes:
+    app_data:
+    uploads:
+    favicon:
+    database:

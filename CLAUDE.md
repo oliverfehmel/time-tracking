@@ -91,6 +91,8 @@ Copy `.env.example` to `.env.local` for local development. Required variables:
 
 Tests use `.env.test` (+ git-ignored `.env.test.local` for `DATABASE_URL`) and require a real database (not mocked). The CI workflow spins up a MariaDB 11.8 service container, creates the test database and runs the migrations. `dama/doctrine-test-bundle` rolls every test back. Base classes in `tests/Support`: `FunctionalTestCase` (browser + `TestDataFactory`, same-origin header for stateless CSRF), `DatabaseTestCase` (services against the DB), `ApiTestCase` (`actAs()`, `api()`, `assertProblem()`, OpenAPI contract check). Notes: the kernel reboots between requests, so create fixtures before the first request of a test; `Request::create()` sends `Accept-Language: en` by default; queued mails are asserted with `assertQueuedEmailCount()`.
 
+Docker: `Dockerfile` (Apache + PHP 8.4, `docker/app/` holds `php.ini`, the vhost and the entrypoint) and `compose.yaml` (services `app`, `worker` for Messenger mails, `db` MariaDB 11.8). The entrypoint runs every console command as `www-data`, generates `APP_SECRET` into the `app_data` volume if it is unset, waits for the database and runs the migrations only in `app` (`RUN_MIGRATIONS=1`). Compose settings use the prefix `TT_` because Compose also reads the app's `.env`. `variables_order = "EGPCS"` is required so Symfony sees the container environment under mod_php. The `docker` CI job runs `docker compose up --wait` and requests `/login`. `docker/public` and `docker/local` are only database containers for local development.
+
 PHP versions: CI runs PHP **8.4**, local development and production (`deploy.sh`) run 8.5. Code and `composer.lock` must stay compatible with 8.4.
 
 ## Conventions

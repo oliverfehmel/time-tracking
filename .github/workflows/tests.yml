@@ -43,3 +43,19 @@ jobs:
 
       - name: Run Tests
         run: php bin/phpunit
+
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build and start the Docker Compose stack
+        run: docker compose up -d --build --wait --wait-timeout 300
+
+      - name: Smoke test
+        run: curl -fsS -o /dev/null http://localhost:8080/login
+
+      - name: Show logs
+        if: failure()
+        run: docker compose logs
