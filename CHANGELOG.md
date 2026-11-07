@@ -10,6 +10,7 @@
 ### Fixed
 - **License detection**: The MIT license text was missing the phrase "to whom the Software is furnished", so GitHub showed the license as "Other". The wording is now the standard MIT text; the terms are unchanged.
 - **README installation**: The clone instructions changed into a non-existent `time-tracking-app` directory, and the step to create the first admin account was missing.
+- **Weekday names follow the language**: The absence overview always showed German weekday abbreviations (Mo, Di, …) and the year views (own and admin) always English ones (Mon, Tue, …). All three now use the selected language.
 
 ## [1.3.0] - 2026-11-05
 
