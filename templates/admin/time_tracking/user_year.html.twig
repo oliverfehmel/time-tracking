@@ -93,7 +93,7 @@
                                                 <td>
                                                     <div class="fw-semibold">{{ d.date|date('d.m.Y') }}</div>
                                                     <div class="text-muted small">
-                                                        {{ d.date|date('D') }}
+                                                        {{ ('weekday.' ~ d.date|date('N'))|trans }}
 
                                                         {% if d.holiday %}
                                                             <span class="badge text-bg-info ms-2">{{ 'time_tracking.holiday'|trans }}{% if d.holidayHalf %} ({{ 'general.half_day_short'|trans }}){% endif %}</span>

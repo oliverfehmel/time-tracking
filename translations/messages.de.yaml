@@ -35,6 +35,16 @@ month:
   Nov: Nov
   Dec: Dez
 
+# Short weekday names, keyed by ISO-8601 day number (date format "N": 1 = Monday … 7 = Sunday)
+weekday:
+  "1": Mo
+  "2": Di
+  "3": Mi
+  "4": Do
+  "5": Fr
+  "6": Sa
+  "7": So
+
 app:
   title: Time Tracker
   brand: TimeTracker

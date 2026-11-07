@@ -59,7 +59,7 @@
                                 {% set isToday = (todayDayInView is not null and d.day == todayDayInView) %}
                                 <div class="day-cell {{ isWeekend ? 'day-cell--weekend' : '' }} {{ isToday ? 'day-cell--today' : '' }}">
                                     <div class="day-num">{{ d.day }}</div>
-                                    <div class="day-dow">{{ ['Mo','Di','Mi','Do','Fr','Sa','So'][d.dow-1] }}</div>
+                                    <div class="day-dow">{{ ('weekday.' ~ d.dow)|trans }}</div>
                                 </div>
                             {% endfor %}
                         </div>
